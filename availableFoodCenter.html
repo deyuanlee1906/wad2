@@ -8,8 +8,62 @@
 
 </head>
 <body>
-    
+    <div class="container-fluid my-4">
+        <h3 class="mb-4">Available Food Centers</h3>
+        <div id="info"></div>
 
+        <div class="row" id="centers">
+            <!-- food centers will display here -->
+        </div>
+    </div>
+
+    <script>
+        // get the params from home.html 
+        const params = new URLSearchParams(window.location.search); // get the key value pair
+        const time = params.get("time");
+        const duration = params.get("duration");
+
+        // initial data, if no LocalStorage then create defaults
+        // localStorage: will store the data and update the num seats even with refresh
+        let centers = JSON.parse(localStorage.getItem("centers")) || [
+            {
+                id: 1,
+                name: "Maxwell Food Centre",
+                img:"",
+                seats: 20,
+                booked: 8,
+                link: "maxwell.html"
+            },
+            {
+                id: 2,
+                name: "Newton Food Centre",
+                img:"",
+                seats: 20,
+                booked: 4,
+                link: "newton.html"
+            },
+            {
+                id: 2,
+                name: "Changi Village Food Centre",
+                img:"",
+                seats: 30,
+                booked: 10,
+                link: "changiVillage.html"
+            }
+        ];
+
+        function printCenters(){
+            // set this container to the div "centers"
+            const container = document.getElementById("centers");
+
+            
+
+        }
+
+
+
+
+    </script>
 
 
 
