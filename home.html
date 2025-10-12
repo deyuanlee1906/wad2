@@ -8,7 +8,7 @@
 
     <style>
         #map{
-            height: 400px;
+            height: 300px;
             width: 100%;
             border-radius: 10px;
         }
@@ -22,49 +22,46 @@
 
         <div id="map" class="mb-3"></div>
 
-        <div class="row">
+        <div class="row justify-content-center">
             <!-- timeslot dropdown -->
-            <div class="col-4"></div>
-            <div class="col-4">
+            <div class="col-10 col-md-5 mb3">
                 <label class="form-label">Select Timeslot</label>
                 <select id="timeslot" class="form-select">
-                    <option value="11:00AM">11:00AM</option>
-                    <option value="11:30AM">11:30AM</option>
-                    <option value="12:00AM">12:00AM</option>
-                    <option value="12:30AM">12:30AM</option>
-                    <option value="1:00PM">1:00PM</option>
-                    <option value="1:30PM">1:30PM</option>
-                    <option value="2:00PM">2:00PM</option>
+                    <option>11:00AM</option>
+                    <option>11:30AM</option>
+                    <option>12:00AM</option>
+                    <option>12:30AM</option>
+                    <option>1:00PM</option>
+                    <option>1:30PM</option>
+                    <option>2:00PM</option>
                 </select>
             </div>
-            <div class="col-4"></div>
 
-            <div class="col-4"></div>
+
             <!-- Duration dropdown -->
-            <div class="col-4 align-self-center">
+            <div class="col-10 col-md-5 mb-3">
                 <label class="form-label">Duration</label>
                 <select id="duration" class="form-select">
                     <option value="30 mins">30 mins</option>
                     <option value="1 hour">1 hr</option>
                 </select>
             </div>
-            <div class="col-4"></div>
+
 
             <!-- Buttons -->
-            <div class="row justify-content-center">
-                <div class="col-lg-2 col-4 d-flex my-3 align-items-center justify-content-center">
-                    <button id="checkBtn" class="btn btn-primary">Check Availability</button>               
-                </div>
+            <div class="col-10 col-md-3 mb-2">
+                <button id="checkBtn" class="btn btn-primary w-100">Check Availability</button>               
             </div>
-            <div class="row justify-content-center">
-                <div class="col-lg-2 col-4 d-flex align-items-center justify-content-center">
-                    <button id="resetBtn" class="btn btn-secondary">Reset</button>
-                </div>
+            <div class="col-10 col-md-3 mb-2">
+                <button id="resetBtn" class="btn btn-secondary w-100">Reset</button>
             </div>
 
         </div>
     </div>
 
+    <!-- FireBase Config -->
+
+    <!--  -->
 
     <script>
         var map;
