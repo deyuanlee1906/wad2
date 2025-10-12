@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seat Choping System</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    #map {
+      width: 100%;
+      height: 500px;
+      position: relative;
+    }
+    #floorplan {
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none; /* allow map clicks underneath, but we’ll override for clickable items */
+    }
+    .table-icon {
+      fill: #4CAF50;
+      stroke: #2E7D32;
+      stroke-width: 2;
+      cursor: pointer;
+      pointer-events: all; /* make them clickable */
+    }
+    .table-icon.reserved {
+      fill: #f44336;
+      stroke: #b71c1c;
+    }
+  </style>
+</head>
+<body>
+  <div class="container my-4">
+    <h2 class="text-center mb-4">Seat Choping System</h2>
+    <div id="map"></div>
+  </div>
+
+  <!-- Google Maps API -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAzUZ1FSozvqFSbmTHUSGldlkEpuKupKZs"></script>
+  <script>
+    function initMap() {
+      const center = { lat: 1.2966, lng: 103.7764 }; // Example: SMU area
+      const map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 18,
+        center,
+        mapTypeId: 'satellite',
+      });
+
+      // Create SVG overlay
+      const overlay = new google.maps.OverlayView();
+      overlay.onAdd = function () {
+        const layer = document.createElement('div');
+        layer.style.position = 'absolute';
+
+        const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        svg.setAttribute('id', 'floorplan');
+        svg.setAttribute('width', '100%');
+        svg.setAttribute('height', '100%');
+
+        // Example: Add 3 tables with chairs
+        const tables = [
+          { id: 't1', cx: 150, cy: 150 },
+          { id: 't2', cx: 300, cy: 200 },
+          { id: 't3', cx: 450, cy: 250 },
+        ];
+
+        tables.forEach(t => {
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('id', t.id);
+          circle.setAttribute('class', 'table-icon');
+          circle.setAttribute('cx', t.cx);
+          circle.setAttribute('cy', t.cy);
+          circle.setAttribute('r', 25);
+          circle.addEventListener('click', function () {
+            circle.classList.toggle('reserved');
+            alert(`You ${circle.classList.contains('reserved') ? 'choped' : 'unchoped'} ${t.id}`);
+          });
+          svg.appendChild(circle);
+        });
+
+        layer.appendChild(svg);
+        const panes = this.getPanes();
+        panes.overlayLayer.appendChild(layer);
+
+        overlay.draw = function () {
+          const projection = this.getProjection();
+          const sw = projection.fromLatLngToDivPixel(
+            new google.maps.LatLng(center.lat - 0.0005, center.lng - 0.0005)
+          );
+          const ne = projection.fromLatLngToDivPixel(
+            new google.maps.LatLng(center.lat + 0.0005, center.lng + 0.0005)
+          );
+          if (sw && ne) {
+            layer.style.left = sw.x + 'px';
+            layer.style.top = ne.y + 'px';
+            layer.style.width = (ne.x - sw.x) + 'px';
+            layer.style.height = (sw.y - ne.y) + 'px';
+          }
+        };
+      };
+
+      overlay.setMap(map);
+    }
+
+    window.onload = initMap;
+  </script>
+</body>
+</html>
