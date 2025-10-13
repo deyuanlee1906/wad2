@@ -25,7 +25,6 @@
     </div>
 
 
-
     <script>
         // get the params from home.html 
         const params = new URLSearchParams(window.location.search); // get the key value pair
@@ -38,7 +37,7 @@
             {
                 id: 1,
                 name: "Maxwell Food Centre",
-                img: "",
+                img: "img/maxwell.jpg",
                 seats: 20,
                 booked: 8,
                 link: "maxwell.html"
@@ -46,15 +45,15 @@
             {
                 id: 2,
                 name: "Newton Food Centre",
-                img: "",
+                img: "img/newton.jpg",
                 seats: 20,
                 booked: 4,
                 link: "newton.html"
             },
             {
-                id: 2,
+                id: 3,
                 name: "Changi Village Food Centre",
-                img: "",
+                img: "img/changi_village.jpg",
                 seats: 30,
                 booked: 10,
                 link: "changiVillage.html"
@@ -64,40 +63,91 @@
         function printCenters() {
             // set this container to the div "centers"
             const container = document.getElementById("centers");
-
             container.innerHTML = "";
 
+            // Structure
+            // <div class="">
+            //     <div class="card">
+            //         <img>
+            //         <div class="card-body">
+            //             <h5 class="card-title"></h5>
+            //             <p >
+            //                 <strong >Available Seat:</strong>
+            //             </p>
+            //             <p >Selected Time:</p>
+            //             <button>
+            //             </button>
+            //         </div>
+            //     </div>
+            // </div>
+
             for (const center of centers) {
-                const available = center.total - center.booked;
+                const available = center.seats - center.booked;
 
-                const disabledAttribute = available <= 0 ? 'disabled="disabled"' : '' ; 
-                const btnText = available > 0 ? "Boon Now" : "Full"; // btn text will show eight these two
-                const color = available > 0 ? "green" : "red";  // btn color will be either green/red
+                // make the column
+                const col = document.createElement("div");
+                col.className = "col-12 col-md-4 mb-3";
 
-                // uses the card element in bootstrap
-                const cardHtml =
-                    <div class="col-12 col-md-4 mb-3">
-                        <div class="card h-100">
-                            <img src="${center.img}" class="card-img-top" alt="${center.name}"/>
-                                <div class="card-body d-flex flex-column">
-                                    <h5 class="card-title">${center.name}</h5>
-                                    <p class="mb-2">Available seats:
-                                        <strong style="color:${color}">${available}</strong>
-                                    </p>
-                                    <p class="text-muted small mb-3">Selected Time: ${time}</p>
-                                    <button class="btn btn-primary mt-auto" onclick="bookSeat(${center.id})" ${disabledAttribute} >
-                                        ${btnText}
-                                    </button>
-                                </div>
-                        </div>
-                    </div>
-                    ;
+                // card
+                const card = document.createElement("div");
+                card.className = "card h-100";
 
-                container.innerHTML += cardHtml;
+                // image
+                const img = document.createElement("img");
+                img.src = center.img;
+                img.alt = center.name;
+                img.className = "card-img-top"; //set the img to the top of the card
+                img.style.objectFit = "cover";
+                img.style.height = "180px";
+
+                // card body
+                const body = document.createElement("div");
+                body.className = "card-body d-flex flex-column";
+
+                // title
+                const title = document.createElement("h5");
+                title.className = "card-title";
+                title.textContent = center.name;
+
+                // available seats
+                const seatsAvail = document.createElement("p");
+                seatsAvail.className = "mv-2";
+                const color = available > 0 ? "green" : "red"; // if avail--> green, if not --> red
+                seatsAvail.innerHTML = `Available seats: <strong style="color:${color}">${available}</strong>`;
+
+                // selected time
+                const selTime = document.createElement("p");
+                selTime.className = "text-muted small mb-3";
+                selTime.textContent = `Selected Time: ${time}`;
+
+                //button
+                const btn = document.createElement("button");
+                btn.className = "btn btn-primary mt-auto";
+                btn.type = "button";
+                btn.textContent = available > 0 ? "Book Now" : "Full";
+                if (available <= 0) {
+                    btn.disabled = true;
+                }
+
+                // add eventlistener
+                btn.addEventListener("click", () => {
+                    bookSeat(center.id);
+                });
+
+                // add child
+                body.appendChild(title);
+                body.appendChild(seatsAvail);
+                body.appendChild(selTime);
+                body.appendChild(btn);
+
+                card.appendChild(img);
+                card.appendChild(body);
+                col.appendChild(card);
+                container.appendChild(col);
             }
         }
 
-        // Handle the seat booking
+        // Handle the seat booking, find the center and update
         function bookSeat(id) {
             for (const center of centers) {
                 if (center.id === id) {

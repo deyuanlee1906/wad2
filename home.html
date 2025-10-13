@@ -111,7 +111,7 @@
             const time = document.getElementById("timeslot").value;
             const duration = document.getElementById("duration").value;
             // pass them to the next page when click on checkBtn
-            window.location.href = "availableFoodCenter.html?time=${encodeURIComponent(time)}&duration=${encodeURIComponent(duration)}";
+            window.location.href = `availableFoodCenter.html?time=${encodeURIComponent(time)}&duration=${encodeURIComponent(duration)}`;
         });
 
         // load the map
