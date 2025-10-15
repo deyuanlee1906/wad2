@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Community</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<div class="container my-3" style="max-width: 720px;">
+  <div class="text-center mb-3">
+    <h1>Community</h1>
+  </div>
+
+  <div class="input-group mb-4">
+    <span class="input-group-text">&#128100;</span>
+    <input type="search" class="form-control" placeholder="Search for post" aria-label="Search for post" id="searchInput" />
+  </div>
+
+  <div id="threadFeed" class="row gy-4"></div>
+</div>
+
+<div class="nav-bar">
+  <button onclick="location.href='online-order.html'">Online Order</button>
+  <button class="active">Community</button>
+  <button onclick="location.href='chope.html'">Chope</button>
+  <button onclick="location.href='crowd-view.html'">Crowd View</button>
+  <button onclick="location.href='profile.html'">Profile</button>
+</div>
+
+<script src="data1.js"></script>
+<script>
+const feed = document.getElementById('threadFeed');
+threads.forEach((thread, threadIndex) => {
+  const col = document.createElement('div');
+  col.className = 'col-12';
+
+  // Render existing comments
+  let commentsHtml = thread.comments.map((c, commentIndex) => {
+    let deleteBtn = (c.author === "You") ? `<button class="delete-comment" title="Delete comment">X</button>` : '';
+    return `
+    <div class="comment" data-comment-index="${commentIndex}">
+      <div>
+        <span>&#128100;</span> <strong class="ms-1">${c.author}</strong>: ${c.content}
+      </div>
+      <div>
+        <span class="heart" style="cursor:pointer;">&#10084;</span>
+        ${deleteBtn}
+      </div>
+    </div>`;
+  }).join('');
+
+  // Post card HTML with interactive heart and bookmark
+  col.innerHTML = `
+    <div class="card shadow-sm rounded">
+      <div class="card-body">
+        <div class="d-flex align-items-center mb-2">
+          <span class="me-2">&#128100;</span>
+          <h5 class="mb-0">${thread.author}</h5>
+        </div>
+
+        <div class="image-placeholder"></div>
+        <p>${thread.content || 'Captions'}</p>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="heart" style="font-size: 24px; cursor:pointer;">&#10084;</span>
+          <button class="btn btn-outline-secondary btn-sm bookmark-btn">Bookmark</button>
+        </div>
+
+        <div id="comments-container" class="mb-3">
+          ${commentsHtml}
+        </div>
+
+        <form class="d-flex" novalidate>
+          <input class="form-control form-control-sm me-2" placeholder="Your comments..." aria-label="Your comments" required />
+          <button class="btn btn-primary btn-sm" type="submit">Send</button>
+        </form>
+      </div>
+    </div>
+  `;
+
+  feed.appendChild(col);
+  const commentsDiv = col.querySelector('#comments-container');
+
+  // Interactive heart for the post
+  const postHeart = col.querySelector('.d-flex.justify-content-between .heart');
+  if (postHeart) {
+    postHeart.classList.remove('liked');
+    postHeart.style.color = '#999';
+    postHeart.addEventListener('click', function() {
+      this.classList.toggle('liked');
+      this.style.color = this.classList.contains('liked') ? '#e13d3d' : '#999';
+    });
+  }
+
+  // Interactive bookmark button for the post
+  const bookmarkBtn = col.querySelector('.bookmark-btn');
+  if (bookmarkBtn) {
+    bookmarkBtn.classList.remove('bookmarked');
+    bookmarkBtn.textContent = 'Bookmark';
+    bookmarkBtn.style.color = '';
+    bookmarkBtn.addEventListener('click', function() {
+      this.classList.toggle('bookmarked');
+      if (this.classList.contains('bookmarked')) {
+        this.textContent = 'Bookmarked';
+        this.classList.remove('btn-outline-secondary');
+        this.classList.add('btn-warning');
+        this.style.color = '#d18f00';
+      } else {
+        this.textContent = 'Bookmark';
+        this.classList.remove('btn-warning');
+        this.classList.add('btn-outline-secondary');
+        this.style.color = '';
+      }
+    });
+  }
+
+  // Interactive hearts for each comment
+  col.querySelectorAll('.comment .heart').forEach(heart => {
+    heart.classList.remove('liked');
+    heart.style.color = '#999';
+    heart.addEventListener('click', function() {
+      this.classList.toggle('liked');
+      this.style.color = this.classList.contains('liked') ? '#e13d3d' : '#999';
+    });
+  });
+
+  // Delete comment button functionality
+  col.querySelectorAll('.delete-comment').forEach(button => {
+    button.addEventListener('click', function() {
+      const commentDiv = this.closest('.comment');
+      const idx = parseInt(commentDiv.getAttribute('data-comment-index'));
+      thread.comments.splice(idx, 1);
+      localStorage.setItem('threads', JSON.stringify(threads));
+      commentDiv.remove();
+    });
+  });
+
+  // Adding a new comment dynamically
+  const form = col.querySelector('form');
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const input = form.querySelector('input');
+    const commentText = input.value.trim();
+    if (!commentText) return;
+
+    thread.comments.push({author: 'You', date: Date.now(), content: commentText});
+    localStorage.setItem('threads', JSON.stringify(threads));
+
+    commentsDiv.insertAdjacentHTML('beforeend', `
+      <div class="comment" data-comment-index="${thread.comments.length - 1}">
+        <div>
+          <span>&#128100;</span> <strong class="ms-1">You</strong>: ${commentText}
+        </div>
+        <div>
+          <span class="heart" style="cursor:pointer;">&#10084;</span>
+          <button class="delete-comment" title="Delete comment">X</button>
+        </div>
+      </div>
+    `);
+
+    input.value = '';
+
+    const newComment = commentsDiv.lastElementChild;
+    const newHeart = newComment.querySelector('.heart');
+    newHeart.addEventListener('click', function() {
+      this.classList.toggle('liked');
+      this.style.color = this.classList.contains('liked') ? '#e13d3d' : '#999';
+    });
+
+    const delBtn = newComment.querySelector('.delete-comment');
+    delBtn.addEventListener('click', function() {
+      const commentDiv = this.closest('.comment');
+      thread.comments.splice(parseInt(commentDiv.dataset.commentIndex), 1);
+      localStorage.setItem('threads', JSON.stringify(threads));
+      commentDiv.remove();
+    });
+  });
+});
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
