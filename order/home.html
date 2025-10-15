@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Online Order - Select Stall</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body { background: #f7f7f7; }
+    .location-header {
+      font-size: 1.17em; font-weight: bold;
+      display: flex; align-items: center; gap: 7px;
+      margin: 22px 0 10px 0;
+    }
+    .search-bar { margin-bottom: 18px; }
+    .stall-list-title { margin-bottom: 10px; font-size: 1.3em; }
+    .stall-card {
+      background: #fff;
+      border: 1.5px solid #d7d7d7;
+      border-radius: 9px;
+      display: flex;
+      flex-direction: row;
+      gap: 15px;
+      align-items: stretch;
+      padding: 13px 10px;
+      margin-bottom: 18px;
+      cursor: pointer;
+      transition: box-shadow .15s, border-color .15s;
+    }
+    .stall-card:hover { box-shadow: 0 0 7px #17a2b880; border-color: #b6e0ff; }
+    .stall-img-wrap { flex: 0 0 95px; display: flex; align-items: center; }
+    .stall-img {
+      width: 95px; height: 95px; min-width:95px;
+      background: #ececec;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1.2px solid #b8b8b8;
+    }
+    .stall-info { flex: 1 1 0; padding-left: 3px; display: flex; flex-direction: column; justify-content: center; }
+    .stall-info b {
+      font-size: 1.08em;
+      margin-bottom: 2px;
+      display: block;
+      color: #222;
+    }
+    .stall-info small {
+      display: block;
+      font-size: 0.98em;
+      color: #444;
+      margin-bottom: 2px;
+    }
+    .stall-meta {
+      margin: 0; 
+      font-size: 0.96em;
+      color: #666;
+    }
+    @media (max-width: 575px) {
+      .container { max-width: 99vw !important; }
+      .stall-card { flex-direction: row; align-items: flex-start; gap:12px; padding: 9px 4px;}
+      .stall-img, .stall-img-wrap { width: 64px; height: 64px; min-width:64px; }
+    }
+    @media (max-width: 400px) {
+      .location-header { font-size: 1em; }
+      .stall-list-title { font-size: 1.1em;}
+      .stall-img, .stall-img-wrap { width: 52px; height: 52px; min-width:52px; }
+      .stall-card { padding: 6px 1vw; gap:8px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="container" style="max-width:440px;">
+    <div class="location-header mb-1 mt-2">
+      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="gray" class="me-1" viewBox="0 0 16 16">
+        <path d="M8 16s6-5.686 6-10A6 6 0 1 0 2 6c0 4.314 6 10 6 10Zm0-8a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"/>
+      </svg>
+      <span id="foodCentreLocation">Hawker A</span>
+      <a title="Change" href="#" style="font-size:0.98em; margin-left:6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="gray" viewBox="0 0 16 16"><path d="M15.854 1.646a.5.5 0 0 1 0 .708l-14.5 14.5a.5.5 0 0 1-.708-.708l14.5-14.5a.5.5 0 0 1 .708 0z"/></svg></a>
+    </div>
+    <input type="text" id="stallSearch" class="form-control search-bar" placeholder="Search for a stall/food">
+
+    <div class="stall-list-title fw-bold">Available Stalls</div>
+    <div id="stallList"></div>
+  </div>
+
+  <script>
+    let userAtFoodCentre = true;
+    const foodCentreName = userAtFoodCentre ? "Hawker A" : "";
+
+    const stalls = [
+      { name: "Stall 1", cuisine: "Chinese", status: "Open", priceRange: "$$", rating: 4.3, waitTime: "10 min", img: "img/stall1.jpg" },
+      { name: "Stall 2", cuisine: "Malay", status: "Closed", priceRange: "$", rating: 4.8, waitTime: "N/A", img: "img/stall2.jpg" },
+      { name: "Stall 3", cuisine: "Indian", status: "Open", priceRange: "$$$", rating: 4.1, waitTime: "15 min", img: "img/stall3.jpg" }
+    ];
+
+    document.getElementById('foodCentreLocation').textContent = foodCentreName;
+
+    function showStalls(filter = "") {
+      filter = filter.toLowerCase();
+      let filteredStalls = stalls.filter(stall => 
+        stall.name.toLowerCase().includes(filter) || stall.cuisine.toLowerCase().includes(filter)
+      );
+      if (!filter) filteredStalls = stalls;
+      let html = filteredStalls.length ? filteredStalls.map((stall, idx) => `
+        <div class="stall-card" data-stall-index="${idx}">
+          <div class="stall-img-wrap flex-shrink-0">
+            <img src="${stall.img}" class="stall-img" alt="Stall image">
+          </div>
+          <div class="stall-info ps-1 flex-grow-1">
+            <b>${stall.name}</b>
+            <small>${stall.cuisine}, ${stall.status}</small>
+            <small>Price: ${stall.priceRange}, Rating: ${stall.rating}</small>
+            <div class="stall-meta">Estimated wait time: <span>${stall.waitTime}</span></div>
+          </div>
+        </div>
+      `).join('') : '<div class="text-muted">No stalls found.</div>';
+      document.getElementById('stallList').innerHTML = html;
+
+      document.querySelectorAll('.stall-card').forEach(card => {
+        card.addEventListener('click', function() {
+          const index = this.getAttribute('data-stall-index');
+          window.location.href = `stall.html?index=${index}`;
+        });
+      });
+    }
+    showStalls();
+
+    document.getElementById('stallSearch').addEventListener('input', function() {
+      showStalls(this.value.trim().toLowerCase());
+    });
+
+    if (!userAtFoodCentre) {
+      document.querySelector(".bi-geo-alt").style.display = 'none';
+      document.getElementById('foodCentreLocation').textContent = "";
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
