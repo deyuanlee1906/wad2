@@ -13,7 +13,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyApmvl3E-sbQMZfadYGfa4P0EJ6N7IEZmo",
   authDomain: "wad2-login-5799b.firebaseapp.com",
   projectId: "wad2-login-5799b",
-  storageBucket: "wad2-login-5799b.firebasestorage.app",
+  storageBucket: "wad2-login-5799b.appspot.com",
   messagingSenderId: "148986270821",
   appId: "1:148986270821:web:fc17df5adf49b464a1628c"
 };
