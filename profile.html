@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <link rel="stylesheet" href="theme.css">
+  <style>
+    .profile-header { background-color: var(--color-sand); border-bottom: 2px solid var(--color-coral); }
+    .profile-avatar { width: 96px; height: 96px; border-radius: 50%; border: 3px solid var(--color-coral); background: linear-gradient(135deg, var(--color-coral), var(--color-blush)); color: var(--color-ivory); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 32px; }
+    .profile-username { font-size: 1.25rem; font-weight: 700; color: var(--color-ink); }
+    .profile-actions .btn { border-radius: 20px; }
+    .tabs { display: flex; gap: 12px; justify-content: center; border-bottom: 2px solid var(--color-blush); background: var(--color-ivory); position: sticky; top: 0; z-index: 10; }
+    .tab-btn { background: none; border: none; padding: 12px 16px; font-weight: 600; color: var(--color-ink); border-bottom: 3px solid transparent; }
+    .tab-btn.active { color: var(--color-coral); border-color: var(--color-coral); background-color: var(--color-blush); }
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 12px; }
+    .grid-item { width: 100%; aspect-ratio: 1 / 1; background: var(--color-blush); border: 2px solid var(--color-coral); border-radius: 10px; overflow: hidden; }
+    .grid-item img { width: 100%; height: 100%; object-fit: cover; }
+    .grid-item.add-tile { display: flex; align-items: center; justify-content: center; background: #e9ecef; color: #6c757d; font-size: 42px; border-style: dashed; cursor: pointer; }
+  </style>
+  <script type="module" src="firebaseauth.js"></script>
+</head>
+<body>
+  <div class="container py-3">
+    <div class="profile-header rounded-4 p-3 mb-3">
+      <div class="d-flex align-items-center gap-3">
+        <div id="profileAvatar" class="profile-avatar">U</div>
+        <div class="flex-grow-1">
+          <div id="profileUsername" class="profile-username">@username</div>
+          <div class="text-secondary" id="profileName"></div>
+        </div>
+        <div class="profile-actions d-flex gap-2">
+          <button id="editProfileBtn" class="btn btn-outline-secondary">Edit Profile</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabs mb-2">
+      <button class="tab-btn active" data-tab="posts"><i class="bi bi-grid-3x3-gap"></i> Posts</button>
+      <button class="tab-btn" data-tab="liked"><i class="bi bi-heart"></i> Liked</button>
+      <button class="tab-btn" data-tab="shared"><i class="bi bi-share"></i> Shared</button>
+    </div>
+
+    <div id="tabContent">
+      <div class="tab-panel" data-tab="posts">
+        <div class="grid" id="postsGrid"></div>
+      </div>
+      <div class="tab-panel d-none" data-tab="liked">
+        <div class="grid" id="likedGrid"></div>
+      </div>
+      <div class="tab-panel d-none" data-tab="shared">
+        <div class="grid" id="sharedGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-bar">
+    <button onclick="location.href='online-order-home.html'">
+      <i class="bi bi-cart3"></i>
+      <span>Order</span>
+    </button>
+    <button onclick="location.href='community.html'">
+      <i class="bi bi-people"></i>
+      <span>Community</span>
+    </button>
+    <button onclick="location.href='chope-home.html'">
+      <i class="bi bi-bookmark"></i>
+      <span>Chope</span>
+    </button>
+    <button onclick="location.href='crowd-view.html'">
+      <i class="bi bi-eye"></i>
+      <span>Crowd View</span>
+    </button>
+    <button class="active" onclick="location.href='profile.html'">
+      <i class="bi bi-person"></i>
+      <span>Profile</span>
+    </button>
+  </div>
+
+  <script type="module">
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, collection, query, where, orderBy, limit, getDocs, documentId, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-storage.js";
+
+    const auth = getAuth();
+    const db = getFirestore();
+
+    const profileUsernameEl = document.getElementById('profileUsername');
+    const profileNameEl = document.getElementById('profileName');
+    const profileAvatarEl = document.getElementById('profileAvatar');
+    const editBtn = document.getElementById('editProfileBtn');
+    const storage = getStorage();
+    let currentUserProfile = { username: '', displayName: '', photoURL: '' };
+    if (editBtn) {
+      editBtn.addEventListener('click', () => { window.location.href = 'edit-profile.html'; });
+    }
+
+    function setAvatarFromNameOrPhoto(name, photoURL) {
+      // Always show default grey avatar with initial (no external photos)
+      const initial = (name || 'U').trim().charAt(0).toUpperCase() || 'U';
+      profileAvatarEl.textContent = initial;
+      profileAvatarEl.style.background = 'linear-gradient(135deg, #6c757d, #adb5bd)';
+      profileAvatarEl.style.color = '#ffffff';
+    }
+
+    async function loadUserProfile(uid) {
+      try {
+        const snap = await getDoc(doc(db, 'users', uid));
+        const data = snap.exists() ? snap.data() : {};
+        const username = data.username || (data.email ? data.email.split('@')[0] : 'user');
+        const displayName = data.name || [data.firstName, data.lastName].filter(Boolean).join(' ') || '';
+        profileUsernameEl.textContent = `@${username}`;
+        profileNameEl.textContent = displayName;
+        // Always use default grey avatar (no external photos)
+        setAvatarFromNameOrPhoto(displayName || username, '');
+        currentUserProfile = { username, displayName, photoURL: '' };
+      } catch (e) {
+        console.error('Failed to load user profile', e);
+      }
+    }
+
+    onAuthStateChanged(auth, (user) => {
+      if (user && user.uid) {
+        loadUserProfile(user.uid);
+        loadAllGrids(user.uid);
+      } else {
+        const uid = localStorage.getItem('loggedInUserId');
+        if (uid) { loadUserProfile(uid); loadAllGrids(uid); }
+      }
+    });
+
+    const tabs = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.tab-panel');
+    tabs.forEach(btn => btn.addEventListener('click', () => {
+      tabs.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const tab = btn.getAttribute('data-tab');
+      panels.forEach(p => p.classList.toggle('d-none', p.getAttribute('data-tab') !== tab));
+    }));
+
+    function addPlaceholders(targetId, count = 9) {
+      const grid = document.getElementById(targetId);
+      if (!grid) return;
+      grid.innerHTML = '';
+      for (let i = 0; i < count; i++) {
+        const item = document.createElement('div');
+        item.className = 'grid-item image-placeholder';
+        grid.appendChild(item);
+      }
+    }
+
+    addPlaceholders('postsGrid');
+    addPlaceholders('likedGrid');
+    addPlaceholders('sharedGrid');
+
+    async function loadAllGrids(uid) {
+      await Promise.all([
+        loadUserPosts(uid),
+        loadUserLiked(uid),
+        loadUserShared(uid)
+      ]);
+    }
+
+    function renderGridItems(targetId, items) {
+      const grid = document.getElementById(targetId);
+      if (!grid) return;
+      grid.innerHTML = '';
+      if (!items || items.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'w-100 text-center text-secondary p-3';
+        empty.textContent = 'No items yet.';
+        grid.parentElement.appendChild(empty);
+        return;
+      }
+      items.forEach(item => {
+        const cell = document.createElement('div');
+        cell.className = 'grid-item';
+        if (item.id) { cell.dataset.postId = item.id; }
+        if (item.mediaUrl) {
+          const img = document.createElement('img');
+          img.src = item.mediaUrl;
+          img.alt = 'post';
+          cell.appendChild(img);
+        } else {
+          cell.classList.add('image-placeholder');
+        }
+        // Deep-link to community post view and open comments
+        cell.addEventListener('click', () => {
+          const pid = item.id || '';
+          if (!pid) return;
+          window.location.href = `community.html?postId=${encodeURIComponent(pid)}&open=comments`;
+        });
+        grid.appendChild(cell);
+      });
+    }
+
+    async function loadUserPosts(uid) {
+      try {
+        const postsRef = collection(db, 'posts');
+        const qy = query(postsRef, where('authorId', '==', uid), orderBy('createdAt', 'desc'), limit(21));
+        const snap = await getDocs(qy);
+        const items = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderPostsWithAddTile(items);
+      } catch (e) {
+        console.error('loadUserPosts error', e);
+      }
+    }
+
+    // Plus-tile uploader for Posts grid
+    function renderPostsWithAddTile(items) {
+      const grid = document.getElementById('postsGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      const addTile = document.createElement('div');
+      addTile.className = 'grid-item add-tile';
+      addTile.innerHTML = '+';
+      addTile.title = 'Create new post';
+      addTile.addEventListener('click', async () => {
+        try {
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = 'image/*';
+          input.click();
+          input.onchange = async (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            const caption = window.prompt('Write a caption for your post:') || '';
+            const user = getAuth().currentUser;
+            if (!user) { alert('Please sign in to post.'); return; }
+            const storagePath = `user_uploads/${user.uid}/posts/post_${Date.now()}`;
+            const storageRef = ref(storage, storagePath);
+            await uploadBytes(storageRef, file);
+            const mediaUrl = await getDownloadURL(storageRef);
+            const authorName = currentUserProfile.displayName || currentUserProfile.username || 'User';
+            await addDoc(collection(db, 'posts'), {
+              authorId: user.uid,
+              authorName,
+              caption,
+              mediaUrl,
+              createdAt: serverTimestamp()
+            });
+            await loadUserPosts(user.uid);
+            alert('Post published!');
+          };
+        } catch (err) {
+          console.error('Create post failed', err);
+          alert('Could not create post. Try again.');
+        }
+      });
+      grid.appendChild(addTile);
+      if (items && items.length) {
+        items.forEach(item => {
+          const cell = document.createElement('div');
+          cell.className = 'grid-item';
+          if (item.mediaUrl) {
+            const img = document.createElement('img');
+            img.src = item.mediaUrl;
+            img.alt = 'post';
+            cell.appendChild(img);
+          } else {
+            cell.classList.add('image-placeholder');
+          }
+          cell.addEventListener('click', () => {
+            const pid = item.id || '';
+            if (!pid) return;
+            window.location.href = `community.html?postId=${encodeURIComponent(pid)}&open=comments`;
+          });
+          grid.appendChild(cell);
+        });
+      }
+    }
+
+    async function batchGetPostsByIds(ids) {
+      const chunks = [];
+      for (let i = 0; i < ids.length; i += 10) chunks.push(ids.slice(i, i + 10));
+      const results = [];
+      for (const ch of chunks) {
+        const postsRef = collection(db, 'posts');
+        const qy = query(postsRef, where(documentId(), 'in', ch));
+        const snap = await getDocs(qy);
+        results.push(...snap.docs.map(d => ({ id: d.id, ...d.data() })));
+      }
+      return results;
+    }
+
+    async function loadUserLiked(uid) {
+      try {
+        const likesRef = collection(db, 'users', uid, 'likes');
+        const snap = await getDocs(likesRef);
+        const postIds = snap.docs.map(d => d.id);
+        if (postIds.length === 0) { renderGridItems('likedGrid', []); return; }
+        const posts = await batchGetPostsByIds(postIds);
+        if (posts.length === 0) {
+          // Fallback: show placeholders for the number of likes if posts not yet available
+          const grid = document.getElementById('likedGrid');
+          if (grid) { grid.innerHTML=''; postIds.forEach(()=>{ const d=document.createElement('div'); d.className='grid-item image-placeholder'; grid.appendChild(d); }); }
+        } else {
+          renderGridItems('likedGrid', posts);
+        }
+      } catch (e) {
+        console.error('loadUserLiked error', e);
+      }
+    }
+
+    async function loadUserShared(uid) {
+      try {
+        const sharesRef = collection(db, 'users', uid, 'shares');
+        const snap = await getDocs(sharesRef);
+        const postIds = snap.docs.map(d => d.id);
+        if (postIds.length === 0) { renderGridItems('sharedGrid', []); return; }
+        const posts = await batchGetPostsByIds(postIds);
+        renderGridItems('sharedGrid', posts);
+      } catch (e) {
+        console.error('loadUserShared error', e);
+      }
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
