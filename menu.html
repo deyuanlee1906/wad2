@@ -5,8 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Menu Selection</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="theme.css" />
   <style>
-    body { background: #fafafa; }
+    body { }
     .order-header-bar {
       display: flex;
       gap: 10px;
@@ -113,7 +115,7 @@
     }
   </style>
 </head>
-<body>
+<body class="theme-gradient">
   <div class="container pb-5" style="max-width: 500px;">
     <!-- Order summary bar -->
     <div class="order-header-bar mt-2 mb-0">
@@ -305,5 +307,28 @@
     updateCartBar();
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+  <div class="nav-bar">
+    <button class="active" onclick="location.href='online-order-home.html'">
+      <i class="bi bi-cart3"></i>
+      <span>Order</span>
+    </button>
+    <button onclick="location.href='community.html'">
+      <i class="bi bi-people"></i>
+      <span>Community</span>
+    </button>
+    <button onclick="location.href='chope-home.html'">
+      <i class="bi bi-bookmark"></i>
+      <span>Chope</span>
+    </button>
+    <button onclick="location.href='crowd-view.html'">
+      <i class="bi bi-eye"></i>
+      <span>Crowd View</span>
+    </button>
+    <button onclick="location.href='profile.html'">
+      <i class="bi bi-person"></i>
+      <span>Profile</span>
+    </button>
+  </div>
 </body>
 </html>
