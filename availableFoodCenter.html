@@ -7,20 +7,27 @@
     <title>Seats Availability</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="style-1.css">
 
 </head>
 
 <body>
-    <div class="container-fluid my-4">
-        <h2 class="mb-3 text-center">Available Food Centers</h2>
-        <p class="text-center" id="info"></p>
-
-        <div class="row" id="centers">
-            <!-- food centers will display here -->
+    <div class="container my-4">
+        <div class="top-bar text-center">
+            <h1 class="mb-0">Available Food Centres</h1>
+            <p class="mt-2 mb-0" style="color:#262626; opacity:0.8">Based on your selected time</p>
         </div>
 
-        <div class="text-center mt-4">
-            <a href="home.html" class="btn btn-outline-secondary">Back to Home</a>
+        <div class="card p-4 mt-4">
+            <p class="text-center mb-4" id="info"></p>
+
+            <div class="row" id="centers">
+                <!-- food centers will display here -->
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="chope-home.html" class="btn btn-outline-secondary">Back to Home</a>
+            </div>
         </div>
     </div>
 
@@ -111,14 +118,14 @@
 
                 // available seats
                 const seatsAvail = document.createElement("p");
-                seatsAvail.className = "mv-2";
-                const color = available > 0 ? "green" : "red"; // if avail--> green, if not --> red
+                seatsAvail.className = "mb-2";
+                const color = available > 0 ? "#D98566" : "#262626";
                 seatsAvail.innerHTML = `Available seats: <strong style="color:${color}">${available}</strong>`;
 
                 // selected time
                 const selTime = document.createElement("p");
                 selTime.className = "text-muted small mb-3";
-                selTime.textContent = `Selected Time: ${time}`;
+                selTime.textContent = `Selected Time: ${time} • Duration: ${duration}`;
 
                 //button
                 const btn = document.createElement("button");
