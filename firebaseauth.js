@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Persist session context and redirect to app home
         localStorage.setItem('loggedInUserId', user.uid);
         showMessage("Google login successful!", "signInMessage");
-        window.location.href = 'homepage.html';
+        window.location.href = 'community.html';
       } catch (error) {
         console.error("Google login failed:", error);
       }
@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Persist session context and redirect to app home
         localStorage.setItem('loggedInUserId', user.uid);
         showMessage("Facebook login successful!", "signInMessage");
-        window.location.href = 'homepage.html';
+        window.location.href = 'community.html';
       } catch (error) {
         console.error("Facebook login failed:", error);
       }
@@ -138,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMessage('login is successful', 'signInMessage');
                 const user = userCredential.user;
                 localStorage.setItem('loggedInUserId', user.uid);
-                window.location.href='homepage.html';
+                window.location.href='community.html';
             })
             .catch((error)=>{
                 const errorCode = error.code;
