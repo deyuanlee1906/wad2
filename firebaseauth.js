@@ -38,25 +38,48 @@ document.addEventListener('DOMContentLoaded', () => {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
 
-        // Derive a username from the email prefix and ensure uniqueness
-        let baseUsername = (user.email || '').split('@')[0] || `user_${user.uid.substring(0,6)}`;
-        baseUsername = baseUsername.toLowerCase();
-        let finalUsername = baseUsername;
-        let attempt = 0;
-        // If username taken, append a short suffix until unique
-        while (true) {
-          const usernameDocRef = doc(db, 'usernames', finalUsername);
-          const usernameDoc = await getDoc(usernameDocRef);
-          if (!usernameDoc.exists()) {
-            // Reserve username mapping
-            await setDoc(usernameDocRef, { uid: user.uid, email: user.email });
-            break;
+        // 1) Reuse existing username if it already exists for this uid
+        let finalUsername;
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists() && userDocSnap.data().username) {
+          finalUsername = (userDocSnap.data().username || '').toLowerCase();
+        } else {
+          // 2) Try to find an existing mapping in usernames collection for this uid
+          const usernamesCol = collection(db, 'usernames');
+          const q = query(usernamesCol, where('uid', '==', user.uid));
+          const existing = await getDocs(q);
+          if (!existing.empty) {
+            // Use the first matching document id as the username
+            finalUsername = existing.docs[0].id.toLowerCase();
+          } else {
+            // 3) Derive a username from the email prefix and ensure uniqueness
+            let baseUsername = (user.email || '').split('@')[0] || `user_${user.uid.substring(0,6)}`;
+            baseUsername = baseUsername.toLowerCase();
+            finalUsername = baseUsername;
+            let attempt = 0;
+            // If username taken by somebody else, append a short suffix until unique
+            while (true) {
+              const usernameDocRef = doc(db, 'usernames', finalUsername);
+              const usernameDoc = await getDoc(usernameDocRef);
+              if (!usernameDoc.exists()) {
+                // Reserve username mapping
+                await setDoc(usernameDocRef, { uid: user.uid, email: user.email });
+                break;
+              } else {
+                // If the mapping already belongs to this uid, reuse and stop
+                const data = usernameDoc.data();
+                if (data && data.uid === user.uid) {
+                  break;
+                }
+              }
+              attempt += 1;
+              finalUsername = `${baseUsername}${attempt}`;
+            }
           }
-          attempt += 1;
-          finalUsername = `${baseUsername}${attempt}`;
         }
 
-        await setDoc(doc(db, "users", user.uid), {
+        await setDoc(doc(db, 'users', user.uid), {
           email: user.email,
           name: user.displayName,
           photoURL: user.photoURL,
@@ -66,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Persist session context and redirect to app home
         localStorage.setItem('loggedInUserId', user.uid);
         showMessage("Google login successful!", "signInMessage");
-        window.location.href = 'community.html';
+        window.location.href = 'homepage.html';
       } catch (error) {
         console.error("Google login failed:", error);
       }
@@ -89,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Persist session context and redirect to app home
         localStorage.setItem('loggedInUserId', user.uid);
         showMessage("Facebook login successful!", "signInMessage");
-        window.location.href = 'community.html';
+        window.location.href = 'homepage.html';
       } catch (error) {
         console.error("Facebook login failed:", error);
       }
@@ -245,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMessage('login is successful', 'signInMessage');
                 const user = userCredential.user;
                 localStorage.setItem('loggedInUserId', user.uid);
-                window.location.href='community.html';
+                window.location.href='homepage.html';
             })
             .catch((error)=>{
                 const errorCode = error.code;
