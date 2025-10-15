@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stall Details</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    .stall-card {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+      padding: 2.5rem 1.5rem 1.7rem 1.5rem;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    #stallImg {
+      border: 1.5px solid #eee;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .btn.active {
+      background-color: #0d6efd !important;
+      color: #fff !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="container my-4">
+    <div class="stall-card">
+      <h4 class="text-center mb-1">Online Order</h4>
+      <h5 class="text-center mb-2" id="stallName">Stall</h5>
+      <div class="text-center mb-2">
+        <img id="stallImg" src="" width="120" height="120" style="object-fit: cover; border-radius: 12px;" alt="Stall image" />
+      </div>
+
+      <div class="d-flex w-100 mb-3">
+        <button class="btn btn-outline-primary flex-fill me-1" id="dineBtn">Dine In</button>
+        <button class="btn btn-outline-primary flex-fill ms-1" id="pickupBtn">Pick Up</button>
+      </div>
+
+      <div class="mb-2 d-flex justify-content-between align-items-center">
+        <span>Date selected:</span>
+        <b id="dateToday"></b>
+      </div>
+
+      <div class="mb-3">
+        <label class="form-label">Select a desired time:</label>
+        <select id="time" class="form-select"></select>
+      </div>
+
+      <button id="continueBtn" class="btn btn-success w-100" disabled>Continue</button>
+    </div>
+  </div>
+
+  <script>
+    const stalls = [
+      { name: "Stall 1", cuisine: "Chinese", status: "Open", priceRange: "$$", rating: 4.3, waitTime: "10 min", img: "img/stall1.jpg" },
+      { name: "Stall 2", cuisine: "Malay", status: "Closed", priceRange: "$", rating: 4.8, waitTime: "N/A", img: "img/stall2.jpg" },
+      { name: "Stall 3", cuisine: "Indian", status: "Open", priceRange: "$$$", rating: 4.1, waitTime: "15 min", img: "img/stall3.jpg" }
+    ];
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const stallIdx = urlParams.get("index") || 0;
+    const stall = stalls[stallIdx];
+
+    document.getElementById("stallName").textContent = stall.name;
+    document.getElementById("stallImg").src = stall.img;
+
+    function formatToday() {
+      const d = new Date();
+      const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+      return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()} (Today)`;
+    }
+    document.getElementById("dateToday").textContent = formatToday();
+
+    let option = "Dine In";
+    document.getElementById("dineBtn").classList.add("active");
+    document.getElementById("continueBtn").disabled = true;
+
+    function updateContinueButtonState() {
+      const time = document.getElementById("time").value;
+      document.getElementById("continueBtn").disabled = !(option && time);
+    }
+
+    document.getElementById("dineBtn").onclick = function () {
+      option = "Dine In";
+      this.classList.add("active");
+      document.getElementById("pickupBtn").classList.remove("active");
+      updateContinueButtonState();
+    };
+    document.getElementById("pickupBtn").onclick = function () {
+      option = "Pick Up";
+      this.classList.add("active");
+      document.getElementById("dineBtn").classList.remove("active");
+      updateContinueButtonState();
+    };
+
+    document.getElementById("time").addEventListener("change", updateContinueButtonState);
+
+    function generateFutureTimeSlots(intervalMins = 15, count = 8) {
+      const now = new Date();
+      let minutes = now.getMinutes();
+      let nextMinutes = (Math.floor(minutes / intervalMins) + 1) * intervalMins;
+      if (nextMinutes >= 60) {
+        now.setHours(now.getHours() + 1);
+        nextMinutes = 0;
+      }
+      now.setMinutes(nextMinutes, 0, 0);
+
+      const slots = ["ASAP"];
+      for (let i = 0; i < count; i++) {
+        let h = now.getHours();
+        let m = now.getMinutes();
+        let ampm = h >= 12 ? "PM" : "AM";
+        let displayH = h % 12 || 12;
+        slots.push(`${displayH}:${String(m).padStart(2, "0")}${ampm}`);
+        now.setMinutes(now.getMinutes() + intervalMins);
+      }
+      return slots;
+    }
+
+    function fillTimeDropdown() {
+      const slotOptions = generateFutureTimeSlots();
+      const sel = document.getElementById("time");
+      sel.innerHTML = "";
+      slotOptions.forEach(val => {
+        const opt = document.createElement("option");
+        opt.value = val;
+        opt.textContent = val;
+        sel.appendChild(opt);
+      });
+      updateContinueButtonState();
+    }
+
+    fillTimeDropdown();
+
+    function selectOption(option, time) {
+      // Persist user's choice and redirect back to the menu page.
+      localStorage.setItem('selectedOption', option); // e.g. 'ASAP' or 'Dine In'
+      localStorage.setItem('selectedTime', time || '');
+      // Use stall.name and a sensible default for food centre
+      localStorage.setItem('selectedFoodCentre', localStorage.getItem('selectedFoodCentre') || 'Hawker A');
+      localStorage.setItem('selectedStall', stall.name || 'Stall A');
+      // Redirect back to the menu so the user can continue ordering
+      window.location.href = "menu.html?stall=" + encodeURIComponent(stall.name || '');
+    }
+    
+    document.getElementById("continueBtn").onclick = function () {
+      const time = document.getElementById("time").value;
+      selectOption(option, time);
+    };
+    
+    // NOTE: cart helpers (add/remove/update) belong in menu pages where
+    // foodsPerCategory and cart state are defined. Removed duplicate helpers
+    // from this file to avoid ReferenceError at runtime.
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
