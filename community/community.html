@@ -9,176 +9,306 @@
 <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div class="container my-3" style="max-width: 720px;">
-  <div class="text-center mb-3">
-    <h1>Community</h1>
+<div class="instagram-container">
+  <div class="instagram-header">
+    <h1><i class="bi bi-people-fill"></i> Community</h1>
+    <div class="search-container">
+      <i class="bi bi-search"></i>
+      <input type="search" placeholder="Search posts..." id="searchInput" />
+    </div>
   </div>
 
-  <div class="input-group mb-4">
-    <span class="input-group-text">&#128100;</span>
-    <input type="search" class="form-control" placeholder="Search for post" aria-label="Search for post" id="searchInput" />
-  </div>
-
-  <div id="threadFeed" class="row gy-4"></div>
+  <div id="instagramFeed" class="instagram-feed"></div>
 </div>
 
 <div class="nav-bar">
-  <button onclick="location.href='online-order.html'">Online Order</button>
-  <button class="active">Community</button>
-  <button onclick="location.href='chope.html'">Chope</button>
-  <button onclick="location.href='crowd-view.html'">Crowd View</button>
-  <button onclick="location.href='profile.html'">Profile</button>
+  <button onclick="location.href='online-order.html'">
+    <i class="bi bi-cart3"></i>
+    <span>Order</span>
+  </button>
+  <button class="active">
+    <i class="bi bi-people"></i>
+    <span>Community</span>
+  </button>
+  <button onclick="location.href='chope.html'">
+    <i class="bi bi-bookmark"></i>
+    <span>Chope</span>
+  </button>
+  <button onclick="location.href='crowd-view.html'">
+    <i class="bi bi-eye"></i>
+    <span>Crowd View</span>
+  </button>
+  <button onclick="location.href='profile.html'">
+    <i class="bi bi-person"></i>
+    <span>Profile</span>
+  </button>
 </div>
 
 <script src="data1.js"></script>
 <script>
-const feed = document.getElementById('threadFeed');
-threads.forEach((thread, threadIndex) => {
-  const col = document.createElement('div');
-  col.className = 'col-12';
+// Instagram-style feed functionality
+const feed = document.getElementById('instagramFeed');
+let likeCounts = JSON.parse(localStorage.getItem('likeCounts')) || {};
+let followStatus = JSON.parse(localStorage.getItem('followStatus')) || {};
+let bookmarkStatus = JSON.parse(localStorage.getItem('bookmarkStatus')) || {};
 
-  // Render existing comments
-  let commentsHtml = thread.comments.map((c, commentIndex) => {
-    let deleteBtn = (c.author === "You") ? `<button class="delete-comment" title="Delete comment">X</button>` : '';
-    return `
-    <div class="comment" data-comment-index="${commentIndex}">
-      <div>
-        <span>&#128100;</span> <strong class="ms-1">${c.author}</strong>: ${c.content}
-      </div>
-      <div>
-        <span class="heart" style="cursor:pointer;">&#10084;</span>
-        ${deleteBtn}
-      </div>
-    </div>`;
-  }).join('');
-
-  // Post card HTML with interactive heart and bookmark
-  col.innerHTML = `
-    <div class="card shadow-sm rounded">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-2">
-          <span class="me-2">&#128100;</span>
-          <h5 class="mb-0">${thread.author}</h5>
+function renderInstagramFeed() {
+  feed.innerHTML = '';
+  
+  threads.forEach((thread, threadIndex) => {
+    const postElement = document.createElement('div');
+    postElement.className = 'instagram-post fade-in';
+    
+    const likeCount = likeCounts[thread.id] || 0;
+    const isFollowing = followStatus[thread.author] || false;
+    const isBookmarked = bookmarkStatus[thread.id] || false;
+    
+    postElement.innerHTML = `
+      <div class="post-header">
+        <div class="user-info">
+          <div class="avatar">${thread.author.charAt(0).toUpperCase()}</div>
+          <div class="user-details">
+            <span class="username">${thread.author}</span>
+            <span class="location">Community</span>
+          </div>
         </div>
-
+        <div class="post-actions">
+          <button class="follow-btn ${isFollowing ? 'following' : ''}" data-user="${thread.author}">
+            <i class="bi bi-${isFollowing ? 'person-check-fill' : 'person-plus'}"></i>
+            ${isFollowing ? 'Following' : 'Follow'}
+          </button>
+          <button class="more-btn">
+            <i class="bi bi-three-dots"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="post-image">
         <div class="image-placeholder"></div>
-        <p>${thread.content || 'Captions'}</p>
-
-        <div class="d-flex justify-content-between align-items-center mb-3">
-          <span class="heart" style="font-size: 24px; cursor:pointer;">&#10084;</span>
-          <button class="btn btn-outline-secondary btn-sm bookmark-btn">Bookmark</button>
-        </div>
-
-        <div id="comments-container" class="mb-3">
-          ${commentsHtml}
-        </div>
-
-        <form class="d-flex" novalidate>
-          <input class="form-control form-control-sm me-2" placeholder="Your comments..." aria-label="Your comments" required />
-          <button class="btn btn-primary btn-sm" type="submit">Send</button>
-        </form>
       </div>
-    </div>
-  `;
-
-  feed.appendChild(col);
-  const commentsDiv = col.querySelector('#comments-container');
-
-  // Interactive heart for the post
-  const postHeart = col.querySelector('.d-flex.justify-content-between .heart');
-  if (postHeart) {
-    postHeart.classList.remove('liked');
-    postHeart.style.color = '#999';
-    postHeart.addEventListener('click', function() {
-      this.classList.toggle('liked');
-      this.style.color = this.classList.contains('liked') ? '#e13d3d' : '#999';
-    });
-  }
-
-  // Interactive bookmark button for the post
-  const bookmarkBtn = col.querySelector('.bookmark-btn');
-  if (bookmarkBtn) {
-    bookmarkBtn.classList.remove('bookmarked');
-    bookmarkBtn.textContent = 'Bookmark';
-    bookmarkBtn.style.color = '';
-    bookmarkBtn.addEventListener('click', function() {
-      this.classList.toggle('bookmarked');
-      if (this.classList.contains('bookmarked')) {
-        this.textContent = 'Bookmarked';
-        this.classList.remove('btn-outline-secondary');
-        this.classList.add('btn-warning');
-        this.style.color = '#d18f00';
-      } else {
-        this.textContent = 'Bookmark';
-        this.classList.remove('btn-warning');
-        this.classList.add('btn-outline-secondary');
-        this.style.color = '';
-      }
-    });
-  }
-
-  // Interactive hearts for each comment
-  col.querySelectorAll('.comment .heart').forEach(heart => {
-    heart.classList.remove('liked');
-    heart.style.color = '#999';
-    heart.addEventListener('click', function() {
-      this.classList.toggle('liked');
-      this.style.color = this.classList.contains('liked') ? '#e13d3d' : '#999';
-    });
+      
+      <div class="post-actions-bar">
+        <div class="action-buttons">
+          <button class="action-btn like-btn ${likeCount > 0 ? 'liked' : ''}" data-post-id="${thread.id}">
+            <i class="bi bi-heart${likeCount > 0 ? '-fill' : ''}"></i>
+          </button>
+          <button class="action-btn comment-btn" data-post-id="${thread.id}">
+            <i class="bi bi-chat"></i>
+          </button>
+          <button class="action-btn share-btn">
+            <i class="bi bi-send"></i>
+          </button>
+        </div>
+        <button class="action-btn bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" data-post-id="${thread.id}">
+          <i class="bi bi-bookmark${isBookmarked ? '-fill' : ''}"></i>
+        </button>
+      </div>
+      
+      <div class="post-stats">
+        <div class="like-count">${likeCount} ${likeCount === 1 ? 'like' : 'likes'}</div>
+        <div class="comment-count">${thread.comments.length} ${thread.comments.length === 1 ? 'comment' : 'comments'}</div>
+      </div>
+      
+      <div class="post-caption">
+        <span class="username">${thread.author}</span>
+        <span class="caption">${thread.content || 'Beautiful moment captured! ✨'}</span>
+      </div>
+      
+      <div class="comments-section" id="comments-${thread.id}" style="display: none;">
+        <div class="comments-list">
+          ${thread.comments.map((comment, commentIndex) => `
+            <div class="comment-item" data-comment-index="${commentIndex}">
+              <div class="comment-content">
+                <span class="comment-author">${comment.author}</span>
+                <span class="comment-text">${comment.content}</span>
+              </div>
+              <div class="comment-actions">
+                <button class="comment-like-btn">
+                  <i class="bi bi-heart"></i>
+                </button>
+                ${comment.author === "You" ? `<button class="delete-comment-btn"><i class="bi bi-trash"></i></button>` : ''}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        
+        <div class="add-comment">
+          <input type="text" placeholder="Add a comment..." class="comment-input" data-post-id="${thread.id}" />
+          <button class="post-comment-btn" data-post-id="${thread.id}">
+            <i class="bi bi-send"></i>
+          </button>
+        </div>
+      </div>
+    `;
+    
+    feed.appendChild(postElement);
+    setupPostInteractions(postElement, thread);
   });
+}
 
-  // Delete comment button functionality
-  col.querySelectorAll('.delete-comment').forEach(button => {
-    button.addEventListener('click', function() {
-      const commentDiv = this.closest('.comment');
-      const idx = parseInt(commentDiv.getAttribute('data-comment-index'));
-      thread.comments.splice(idx, 1);
-      localStorage.setItem('threads', JSON.stringify(threads));
-      commentDiv.remove();
-    });
+function setupPostInteractions(postElement, thread) {
+  // Like functionality
+  const likeBtn = postElement.querySelector('.like-btn');
+  const likeCount = postElement.querySelector('.like-count');
+  
+  likeBtn.addEventListener('click', function() {
+    const postId = thread.id;
+    const isLiked = this.classList.contains('liked');
+    
+    if (isLiked) {
+      likeCounts[postId] = Math.max(0, (likeCounts[postId] || 0) - 1);
+      this.classList.remove('liked');
+      this.querySelector('i').className = 'bi bi-heart';
+    } else {
+      likeCounts[postId] = (likeCounts[postId] || 0) + 1;
+      this.classList.add('liked');
+      this.querySelector('i').className = 'bi bi-heart-fill';
+      this.style.animation = 'heartPulse 0.6s ease-in-out';
+      setTimeout(() => this.style.animation = '', 600);
+    }
+    
+    localStorage.setItem('likeCounts', JSON.stringify(likeCounts));
+    likeCount.textContent = `${likeCounts[postId]} ${likeCounts[postId] === 1 ? 'like' : 'likes'}`;
   });
-
-  // Adding a new comment dynamically
-  const form = col.querySelector('form');
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    const input = form.querySelector('input');
-    const commentText = input.value.trim();
+  
+  // Follow functionality
+  const followBtn = postElement.querySelector('.follow-btn');
+  followBtn.addEventListener('click', function() {
+    const user = this.dataset.user;
+    const isFollowing = this.classList.contains('following');
+    
+    if (isFollowing) {
+      followStatus[user] = false;
+      this.classList.remove('following');
+      this.innerHTML = '<i class="bi bi-person-plus"></i> Follow';
+    } else {
+      followStatus[user] = true;
+      this.classList.add('following');
+      this.innerHTML = '<i class="bi bi-person-check-fill"></i> Following';
+    }
+    
+    localStorage.setItem('followStatus', JSON.stringify(followStatus));
+  });
+  
+  // Bookmark functionality
+  const bookmarkBtn = postElement.querySelector('.bookmark-btn');
+  bookmarkBtn.addEventListener('click', function() {
+    const postId = thread.id;
+    const isBookmarked = this.classList.contains('bookmarked');
+    
+    if (isBookmarked) {
+      bookmarkStatus[postId] = false;
+      this.classList.remove('bookmarked');
+      this.querySelector('i').className = 'bi bi-bookmark';
+    } else {
+      bookmarkStatus[postId] = true;
+      this.classList.add('bookmarked');
+      this.querySelector('i').className = 'bi bi-bookmark-fill';
+    }
+    
+    localStorage.setItem('bookmarkStatus', JSON.stringify(bookmarkStatus));
+  });
+  
+  // Comment toggle
+  const commentBtn = postElement.querySelector('.comment-btn');
+  const commentsSection = postElement.querySelector('.comments-section');
+  const commentCount = postElement.querySelector('.comment-count');
+  
+  commentBtn.addEventListener('click', function() {
+    const isVisible = commentsSection.style.display !== 'none';
+    commentsSection.style.display = isVisible ? 'none' : 'block';
+    this.classList.toggle('active');
+  });
+  
+  // Add comment functionality
+  const commentInput = postElement.querySelector('.comment-input');
+  const postCommentBtn = postElement.querySelector('.post-comment-btn');
+  
+  function addComment() {
+    const commentText = commentInput.value.trim();
     if (!commentText) return;
-
+    
     thread.comments.push({author: 'You', date: Date.now(), content: commentText});
     localStorage.setItem('threads', JSON.stringify(threads));
-
-    commentsDiv.insertAdjacentHTML('beforeend', `
-      <div class="comment" data-comment-index="${thread.comments.length - 1}">
-        <div>
-          <span>&#128100;</span> <strong class="ms-1">You</strong>: ${commentText}
-        </div>
-        <div>
-          <span class="heart" style="cursor:pointer;">&#10084;</span>
-          <button class="delete-comment" title="Delete comment">X</button>
-        </div>
+    
+    const commentsList = postElement.querySelector('.comments-list');
+    const newComment = document.createElement('div');
+    newComment.className = 'comment-item';
+    newComment.innerHTML = `
+      <div class="comment-content">
+        <span class="comment-author">You</span>
+        <span class="comment-text">${commentText}</span>
       </div>
-    `);
+      <div class="comment-actions">
+        <button class="comment-like-btn">
+          <i class="bi bi-heart"></i>
+        </button>
+        <button class="delete-comment-btn">
+          <i class="bi bi-trash"></i>
+        </button>
+      </div>
+    `;
+    
+    commentsList.appendChild(newComment);
+    commentInput.value = '';
+    commentCount.textContent = `${thread.comments.length} ${thread.comments.length === 1 ? 'comment' : 'comments'}`;
+    
+    // Setup new comment interactions
+    setupCommentInteractions(newComment, thread);
+  }
+  
+  postCommentBtn.addEventListener('click', addComment);
+  commentInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') addComment();
+  });
+  
+  // Setup existing comment interactions
+  postElement.querySelectorAll('.comment-item').forEach(commentItem => {
+    setupCommentInteractions(commentItem, thread);
+  });
+}
 
-    input.value = '';
-
-    const newComment = commentsDiv.lastElementChild;
-    const newHeart = newComment.querySelector('.heart');
-    newHeart.addEventListener('click', function() {
-      this.classList.toggle('liked');
-      this.style.color = this.classList.contains('liked') ? '#e13d3d' : '#999';
-    });
-
-    const delBtn = newComment.querySelector('.delete-comment');
-    delBtn.addEventListener('click', function() {
-      const commentDiv = this.closest('.comment');
-      thread.comments.splice(parseInt(commentDiv.dataset.commentIndex), 1);
+function setupCommentInteractions(commentItem, thread) {
+  // Comment like functionality
+  const commentLikeBtn = commentItem.querySelector('.comment-like-btn');
+  commentLikeBtn.addEventListener('click', function() {
+    this.classList.toggle('liked');
+    const icon = this.querySelector('i');
+    icon.className = this.classList.contains('liked') ? 'bi bi-heart-fill' : 'bi bi-heart';
+  });
+  
+  // Delete comment functionality
+  const deleteBtn = commentItem.querySelector('.delete-comment-btn');
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', function() {
+      const commentIndex = parseInt(commentItem.dataset.commentIndex);
+      thread.comments.splice(commentIndex, 1);
       localStorage.setItem('threads', JSON.stringify(threads));
-      commentDiv.remove();
+      commentItem.remove();
+      
+      // Update comment count
+      const postElement = commentItem.closest('.instagram-post');
+      const commentCount = postElement.querySelector('.comment-count');
+      commentCount.textContent = `${thread.comments.length} ${thread.comments.length === 1 ? 'comment' : 'comments'}`;
     });
+  }
+}
+
+// Search functionality
+document.getElementById('searchInput').addEventListener('input', function() {
+  const searchTerm = this.value.toLowerCase();
+  const posts = document.querySelectorAll('.instagram-post');
+  
+  posts.forEach(post => {
+    const username = post.querySelector('.username').textContent.toLowerCase();
+    const caption = post.querySelector('.caption').textContent.toLowerCase();
+    const isVisible = username.includes(searchTerm) || caption.includes(searchTerm);
+    post.style.display = isVisible ? 'block' : 'none';
   });
 });
+
+// Initialize the feed
+renderInstagramFeed();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
