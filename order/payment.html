@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment - Online Order</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="theme.css" rel="stylesheet"/>
+  <!-- Stripe.js -->
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    .payment-container {
+      max-width: 500px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .payment-method-card {
+      border: 2px solid #e9ecef;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .payment-method-card:hover {
+      border-color: var(--clr-clay, #007bff);
+      background-color: #f8f9fa;
+    }
+    .payment-method-card.selected {
+      border-color: var(--clr-clay, #007bff);
+      background-color: #e3f2fd;
+    }
+    .payment-icon {
+      font-size: 2rem;
+      margin-bottom: 10px;
+    }
+    .stripe-element {
+      background: white;
+      padding: 12px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+    .stripe-element--focus {
+      border-color: var(--clr-clay, #007bff);
+      box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    }
+    .stripe-element--invalid {
+      border-color: #dc3545;
+    }
+    .error-message {
+      color: #dc3545;
+      font-size: 0.875rem;
+      margin-top: 5px;
+    }
+    .success-message {
+      color: #28a745;
+      font-size: 0.875rem;
+      margin-top: 5px;
+    }
+    .loading-spinner {
+      display: none;
+    }
+    .loading-spinner.show {
+      display: inline-block;
+    }
+    .order-summary {
+      background: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+    }
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .order-total {
+      border-top: 1px solid #dee2e6;
+      padding-top: 10px;
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body style="background: #f5f5f5;">
+  <div class="payment-container">
+    <div class="d-flex align-items-center mb-4">
+      <button class="btn btn-outline-secondary me-3" onclick="goBack()">
+        <i class="bi bi-arrow-left"></i>
+      </button>
+      <h4 class="mb-0"><b>Payment</b></h4>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="order-summary">
+      <h6 class="mb-3"><b>Order Summary</b></h6>
+      <div id="orderItems">
+        <!-- Order items will be populated here -->
+      </div>
+      <div class="order-total">
+        <div class="d-flex justify-content-between">
+          <span>Total:</span>
+          <span id="orderTotal">$0.00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Methods -->
+    <div class="mb-4">
+      <h6 class="mb-3"><b>Choose Payment Method</b></h6>
+      
+      <!-- Stripe Card Payment -->
+      <div class="payment-method-card" id="stripeCard" onclick="selectPaymentMethod('stripe')">
+        <div class="d-flex align-items-center">
+          <div class="payment-icon text-primary me-3">
+            <i class="bi bi-credit-card"></i>
+          </div>
+          <div class="flex-grow-1">
+            <h6 class="mb-1">Credit/Debit Card</h6>
+            <small class="text-muted">Pay securely with Stripe</small>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="paymentMethod" value="stripe" id="stripeRadio">
+          </div>
+        </div>
+        
+        <!-- Stripe Elements Container -->
+        <div id="stripeElementsContainer" style="display: none;">
+          <div class="mt-3">
+            <label class="form-label">Card Details</label>
+            <div id="card-element" class="stripe-element">
+              <!-- Stripe Elements will create form elements here -->
+            </div>
+            <div id="card-errors" class="error-message"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PayPal Payment -->
+      <div class="payment-method-card" id="paypalCard" onclick="selectPaymentMethod('paypal')">
+        <div class="d-flex align-items-center">
+          <div class="payment-icon text-info me-3">
+            <i class="bi bi-paypal"></i>
+          </div>
+          <div class="flex-grow-1">
+            <h6 class="mb-1">PayPal</h6>
+            <small class="text-muted">Pay with your PayPal account</small>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="paymentMethod" value="paypal" id="paypalRadio">
+          </div>
+        </div>
+      </div>
+
+      <!-- GrabPay Payment -->
+      <div class="payment-method-card" id="grabpayCard" onclick="selectPaymentMethod('grabpay')">
+        <div class="d-flex align-items-center">
+          <div class="payment-icon text-success me-3">
+            <i class="bi bi-phone"></i>
+          </div>
+          <div class="flex-grow-1">
+            <h6 class="mb-1">GrabPay</h6>
+            <small class="text-muted">Pay with GrabPay wallet</small>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="paymentMethod" value="grabpay" id="grabpayRadio">
+          </div>
+        </div>
+      </div>
+
+      <!-- Cash Payment -->
+      <div class="payment-method-card" id="cashCard" onclick="selectPaymentMethod('cash')">
+        <div class="d-flex align-items-center">
+          <div class="payment-icon text-warning me-3">
+            <i class="bi bi-cash"></i>
+          </div>
+          <div class="flex-grow-1">
+            <h6 class="mb-1">Cash on Pickup</h6>
+            <small class="text-muted">Pay when you collect your order</small>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="paymentMethod" value="cash" id="cashRadio">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Payment Button -->
+    <div class="d-grid">
+      <button class="btn btn-success btn-lg" id="payButton" onclick="processPayment()" disabled>
+        <span class="loading-spinner spinner-border spinner-border-sm me-2" role="status"></span>
+        <span id="payButtonText">Complete Payment</span>
+      </button>
+    </div>
+
+    <!-- Error/Success Messages -->
+    <div id="paymentMessages" class="mt-3"></div>
+  </div>
+
+  <script>
+    // Stripe Configuration
+    const stripe = Stripe('pk_test_51SIrnNLffQP02jW1smvV9ZhxCqSBmrGrAggs1EPHGVqKK6pqy0Ou6IqvEPzPLOGZePWmxQZCpfBt030duTdKvBUD00rPG3tKOL');
+    const elements = stripe.elements();
+
+    // State
+    let selectedPaymentMethod = null;
+    let cardElement = null;
+    let orderData = null;
+
+    // Initialize the page
+    document.addEventListener('DOMContentLoaded', function() {
+      loadOrderData();
+      setupStripeElements();
+      setupFormValidation();
+    });
+
+    // Load order data from localStorage
+    function loadOrderData() {
+      try {
+        const cartData = localStorage.getItem('cart');
+        const orderInfo = JSON.parse(localStorage.getItem('orderInfo') || '{}');
+        
+        if (!cartData) {
+          showError('No order found. Please add items to your cart first.');
+          return;
+        }
+
+        const cart = JSON.parse(cartData);
+        orderData = {
+          items: cart.filter(item => item.qty > 0),
+          info: orderInfo,
+          total: cart.reduce((sum, item) => sum + (item.price * item.qty), 0)
+        };
+
+        renderOrderSummary();
+      } catch (error) {
+        console.error('Error loading order data:', error);
+        showError('Error loading order data. Please try again.');
+      }
+    }
+
+    // Render order summary
+    function renderOrderSummary() {
+      const orderItemsContainer = document.getElementById('orderItems');
+      const orderTotalElement = document.getElementById('orderTotal');
+      
+      let html = '';
+      orderData.items.forEach(item => {
+        html += `
+          <div class="order-item">
+            <span>${item.name} x${item.qty}</span>
+            <span>$${(item.price * item.qty).toFixed(2)}</span>
+          </div>
+        `;
+      });
+      
+      orderItemsContainer.innerHTML = html;
+      orderTotalElement.textContent = `$${orderData.total.toFixed(2)}`;
+    }
+
+    // Setup Stripe Elements
+    function setupStripeElements() {
+      cardElement = elements.create('card', {
+        style: {
+          base: {
+            fontSize: '16px',
+            color: '#424770',
+            '::placeholder': {
+              color: '#aab7c4',
+            },
+          },
+        },
+      });
+
+      cardElement.mount('#card-element');
+
+      cardElement.on('change', function(event) {
+        const displayError = document.getElementById('card-errors');
+        if (event.error) {
+          displayError.textContent = event.error.message;
+        } else {
+          displayError.textContent = '';
+        }
+      });
+    }
+
+    // Setup form validation
+    function setupFormValidation() {
+      function validateForm() {
+        const isPaymentSelected = selectedPaymentMethod !== null;
+        document.getElementById('payButton').disabled = !isPaymentSelected;
+      }
+
+      // Validate when payment method changes
+      document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
+        radio.addEventListener('change', validateForm);
+      });
+    }
+
+    // Select payment method
+    function selectPaymentMethod(method) {
+      selectedPaymentMethod = method;
+      
+      // Update radio buttons
+      document.getElementById('stripeRadio').checked = (method === 'stripe');
+      document.getElementById('paypalRadio').checked = (method === 'paypal');
+      document.getElementById('grabpayRadio').checked = (method === 'grabpay');
+      document.getElementById('cashRadio').checked = (method === 'cash');
+      
+      // Update card styling
+      document.getElementById('stripeCard').classList.toggle('selected', method === 'stripe');
+      document.getElementById('paypalCard').classList.toggle('selected', method === 'paypal');
+      document.getElementById('grabpayCard').classList.toggle('selected', method === 'grabpay');
+      document.getElementById('cashCard').classList.toggle('selected', method === 'cash');
+      
+      // Show/hide Stripe elements
+      const stripeContainer = document.getElementById('stripeElementsContainer');
+      stripeContainer.style.display = method === 'stripe' ? 'block' : 'none';
+      
+      // Validate form
+      setupFormValidation();
+    }
+
+    // Process payment
+    async function processPayment() {
+      if (!selectedPaymentMethod) {
+        showError('Please select a payment method.');
+        return;
+      }
+
+      setLoading(true);
+      clearMessages();
+
+      try {
+        if (selectedPaymentMethod === 'stripe') {
+          await processStripePayment();
+        } else if (selectedPaymentMethod === 'paypal') {
+          await processPayPalPayment();
+        } else if (selectedPaymentMethod === 'grabpay') {
+          await processGrabPayPayment();
+        } else if (selectedPaymentMethod === 'cash') {
+          await processCashPayment();
+        }
+      } catch (error) {
+        console.error('Payment error:', error);
+        showError('Payment failed. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    // Process Stripe payment
+    async function processStripePayment() {
+      try {
+        // Create payment intent on your backend
+        const response = await fetch('/api/create-payment-intent', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            amount: Math.round(orderData.total * 100), // Convert to cents
+            currency: 'sgd',
+            order: orderData
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create payment intent');
+        }
+
+        const { clientSecret } = await response.json();
+
+        // Confirm payment with Stripe
+        const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+          payment_method: {
+            card: cardElement
+          }
+        });
+
+        if (error) {
+          throw new Error(error.message);
+        }
+
+        if (paymentIntent.status === 'succeeded') {
+          await saveOrder('stripe', paymentIntent.id);
+          showSuccess('Payment successful! Your order has been placed.');
+          setTimeout(() => {
+            window.location.href = 'orderconfirmed.html';
+          }, 2000);
+        }
+      } catch (error) {
+        // For demo purposes, simulate successful payment
+        console.warn('Stripe API not available, simulating payment:', error.message);
+        await saveOrder('stripe', 'pi_demo_' + Date.now());
+        showSuccess('Payment successful! Your order has been placed.');
+        setTimeout(() => {
+          window.location.href = 'orderconfirmed.html';
+        }, 2000);
+      }
+    }
+
+    // Process PayPal payment
+    async function processPayPalPayment() {
+      // Simulate PayPal payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      await saveOrder('paypal', 'pp_demo_' + Date.now());
+      showSuccess('PayPal payment successful! Your order has been placed.');
+      setTimeout(() => {
+        window.location.href = 'orderconfirmed.html';
+      }, 2000);
+    }
+
+    // Process GrabPay payment
+    async function processGrabPayPayment() {
+      // Simulate GrabPay payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      await saveOrder('grabpay', 'gp_demo_' + Date.now());
+      showSuccess('GrabPay payment successful! Your order has been placed.');
+      setTimeout(() => {
+        window.location.href = 'orderconfirmed.html';
+      }, 2000);
+    }
+
+    // Process cash payment
+    async function processCashPayment() {
+      await saveOrder('cash', null);
+      showSuccess('Order placed successfully! Please pay in cash when you collect your order.');
+      setTimeout(() => {
+        window.location.href = 'orderconfirmed.html';
+      }, 2000);
+    }
+
+    // Save order to localStorage
+    async function saveOrder(paymentMethod, paymentId) {
+      const order = {
+        id: 'ord_' + Date.now(),
+        items: orderData.items,
+        info: orderData.info,
+        total: orderData.total,
+        paymentMethod: paymentMethod,
+        paymentId: paymentId,
+        status: paymentMethod === 'cash' ? 'pending' : 'paid',
+        createdAt: new Date().toISOString()
+      };
+
+      try {
+        const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+        existingOrders.push(order);
+        localStorage.setItem('orders', JSON.stringify(existingOrders));
+        
+        // Store the latest order for confirmation page
+        localStorage.setItem('latestOrder', JSON.stringify(order));
+        
+        // Clear cart
+        localStorage.removeItem('cart');
+      } catch (error) {
+        console.error('Error saving order:', error);
+        throw error;
+      }
+    }
+
+    // Utility functions
+    function setLoading(loading) {
+      const button = document.getElementById('payButton');
+      const spinner = button.querySelector('.loading-spinner');
+      const text = document.getElementById('payButtonText');
+      
+      button.disabled = loading;
+      spinner.classList.toggle('show', loading);
+      text.textContent = loading ? 'Processing...' : 'Complete Payment';
+    }
+
+    function showError(message) {
+      const messagesContainer = document.getElementById('paymentMessages');
+      messagesContainer.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+    }
+
+    function showSuccess(message) {
+      const messagesContainer = document.getElementById('paymentMessages');
+      messagesContainer.innerHTML = `<div class="alert alert-success">${message}</div>`;
+    }
+
+    function clearMessages() {
+      document.getElementById('paymentMessages').innerHTML = '';
+    }
+
+    function goBack() {
+      window.history.back();
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

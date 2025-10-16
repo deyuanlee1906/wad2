@@ -1,0 +1,90 @@
+:root {
+  --clr-sand: #F2D9BB;
+  --clr-clay: #D98566;
+  --clr-blush: #F2C6B6;
+  --clr-cloud: #F2F2F2;
+  --clr-ink: #262626;
+}
+
+/* Base */
+html, body {
+  color: var(--clr-ink);
+  background: var(--clr-cloud);
+}
+
+a { color: var(--clr-clay); }
+a:hover { color: #bf6f54; }
+
+/* Cards and surfaces */
+.card, .stall-card, .food-card, .checkout-card, .order-header-box, .cart-food-card {
+  background: #fff;
+  border-color: rgba(38,38,38,0.12) !important;
+}
+
+.stall-card:hover, .food-card:hover {
+  box-shadow: 0 4px 16px rgba(38,38,38,0.06);
+  border-color: var(--clr-sand) !important;
+}
+
+/* Buttons - theme overrides */
+.btn-primary,
+.btn-success {
+  background-color: var(--clr-clay) !important;
+  border-color: var(--clr-clay) !important;
+}
+.btn-primary:hover,
+.btn-success:hover {
+  background-color: #bf6f54 !important;
+  border-color: #bf6f54 !important;
+}
+
+.btn-outline-primary {
+  color: var(--clr-clay) !important;
+  border-color: var(--clr-clay) !important;
+}
+.btn-outline-primary:hover {
+  color: #fff !important;
+  background-color: var(--clr-clay) !important;
+  border-color: var(--clr-clay) !important;
+}
+
+.btn-outline-danger { border-color: #b24a4a !important; color: #b24a4a !important; }
+.btn-outline-danger:hover { background:#b24a4a !important; color:#fff !important; }
+
+/* Pills and chips */
+.rounded-pill { background: var(--clr-sand); color: var(--clr-ink); }
+
+/* Nav and bars */
+.cat-side-nav { background: #fff; }
+.cart-bar, .fixed-bottom-bar { background: #fff; border-top: 2px solid var(--clr-cloud); }
+
+/* Inputs */
+.form-control, .form-select {
+  border-color: rgba(38,38,38,0.18);
+}
+.form-control:focus, .form-select:focus {
+  border-color: var(--clr-clay);
+  box-shadow: 0 0 0 .2rem rgba(217,133,102,.25);
+}
+
+/* Section headers */
+.category-header, .stall-list-title {
+  font-weight: 700;
+  color: var(--clr-ink);
+}
+
+/* Imagery */
+.food-img, .stall-img { border-color: var(--clr-cloud); }
+
+/* Subtle backgrounds */
+.bg-sand { background: var(--clr-sand) !important; }
+.bg-blush { background: var(--clr-blush) !important; }
+.bg-cloud { background: var(--clr-cloud) !important; }
+.text-ink { color: var(--clr-ink) !important; }
+
+/* Responsive helpers */
+@media (max-width: 575px) {
+  .container.tight { max-width: 100vw !important; padding-left: 10px; padding-right: 10px; }
+}
+
+
