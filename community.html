@@ -7,6 +7,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
 <link rel="stylesheet" href="style-1.css" />
+  <script type="module" src="firebaseauth.js"></script>
 </head>
 <body>
 <div class="instagram-container">
@@ -44,24 +45,172 @@
   </button>
 </div>
 
+<script type="module">
+// Expose like sync helpers globally so existing non-module code can call them
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+const auth = getAuth();
+const db = getFirestore();
+
+async function setUserLike(postId, postSnapshot) {
+  const user = auth.currentUser;
+  const uid = user?.uid;
+  if (!uid) throw new Error('not-authenticated');
+  const pid = String(postId);
+  const suid = String(uid);
+  // Ensure a minimal posts/{postId} exists so Profile can fetch liked posts
+  // We merge, so if it already exists we won't overwrite existing fields
+  const base = {
+    updatedAt: serverTimestamp(),
+  };
+  if (postSnapshot) {
+    base.caption = postSnapshot.caption || '';
+    base.mediaUrl = postSnapshot.mediaUrl || null;
+    base.authorName = postSnapshot.authorName || '';
+  }
+  await Promise.all([
+    setDoc(doc(db, 'posts', pid), base, { merge: true }),
+    setDoc(doc(db, 'users', suid, 'likes', pid), { postId: pid, likedAt: serverTimestamp() }, { merge: true }),
+    setDoc(doc(db, 'posts', pid, 'likes', suid), { uid: suid, likedAt: serverTimestamp() }, { merge: true })
+  ]);
+}
+
+async function unsetUserLike(postId) {
+  const user = auth.currentUser;
+  const uid = user?.uid;
+  if (!uid) throw new Error('not-authenticated');
+  const pid = String(postId);
+  const suid = String(uid);
+  await Promise.all([
+    deleteDoc(doc(db, 'users', suid, 'likes', pid)),
+    deleteDoc(doc(db, 'posts', pid, 'likes', suid))
+  ]);
+}
+
+window.__likeSync = { setUserLike, unsetUserLike };
+</script>
+
 <script src="data1.js"></script>
-<script>
+<script type="module">
+import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+const db = getFirestore();
 // Instagram-style feed functionality
 const feed = document.getElementById('instagramFeed');
-let likeCounts = JSON.parse(localStorage.getItem('likeCounts')) || {};
+let likeCounts = {}; // Will be loaded from Firestore per user
 let followStatus = JSON.parse(localStorage.getItem('followStatus')) || {};
 let bookmarkStatus = JSON.parse(localStorage.getItem('bookmarkStatus')) || {};
 
-function renderInstagramFeed() {
+// Track current user's likes from Firestore
+let userLikes = new Set();
+
+async function renderInstagramFeed() {
   feed.innerHTML = '';
-  
-  threads.forEach((thread, threadIndex) => {
-    const postElement = document.createElement('div');
-    postElement.className = 'instagram-post fade-in';
+
+  // Load current user's likes from Firestore
+  await loadUserLikes();
+
+  // Render Firestore posts first (new, permanent posts)
+  try {
+    const postsRef = collection(db, 'posts');
+    const qy = query(postsRef, orderBy('createdAt', 'desc'), limit(30));
+    const snap = await getDocs(qy);
+    const firePosts = snap.docs.map(d => ({
+      id: d.id,
+      author: (d.data().authorName || 'User'),
+      content: (d.data().caption || ''),
+      mediaUrl: (d.data().mediaUrl || null),
+      comments: []
+    }));
+    firePosts.forEach(renderOne);
+  } catch (e) {
+    console.error('Failed to load Firestore posts', e);
+  }
+
+  // Then render local sample threads
+  threads.forEach(renderOne);
+
+  // Handle deep link: ?postId=...&open=comments
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const pid = params.get('postId');
+    const open = params.get('open');
+    if (pid) {
+      const el = document.getElementById(`post-${pid}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (open === 'comments') {
+          const commentBtn = el.querySelector('.comment-btn');
+          if (commentBtn) commentBtn.click();
+        }
+      }
+    }
+  } catch (_) {}
+}
+
+// Load current user's likes and like counts from Firestore
+async function loadUserLikes() {
+  try {
+    const user = getAuth().currentUser;
+    if (!user) {
+      userLikes.clear();
+      likeCounts = {};
+      return;
+    }
     
-    const likeCount = likeCounts[thread.id] || 0;
-    const isFollowing = followStatus[thread.author] || false;
-    const isBookmarked = bookmarkStatus[thread.id] || false;
+    // Load user's liked posts
+    const likesRef = collection(db, 'users', user.uid, 'likes');
+    const likesSnap = await getDocs(likesRef);
+    userLikes.clear();
+    likeCounts = {};
+    
+    // Count likes for each post by checking posts/{postId}/likes subcollections
+    const postsRef = collection(db, 'posts');
+    const postsSnap = await getDocs(postsRef);
+    
+    for (const postDoc of postsSnap.docs) {
+      const postId = postDoc.id;
+      const likesSubRef = collection(db, 'posts', postId, 'likes');
+      const likesSubSnap = await getDocs(likesSubRef);
+      likeCounts[postId] = likesSubSnap.size;
+      
+      // Check if current user liked this post
+      const userLikeDoc = likesSubSnap.docs.find(doc => doc.id === user.uid);
+      if (userLikeDoc) {
+        userLikes.add(postId);
+      }
+    }
+    
+    // Also check likes for sample threads (local data)
+    for (const thread of threads) {
+      if (!likeCounts[thread.id]) {
+        const likesSubRef = collection(db, 'posts', thread.id, 'likes');
+        const likesSubSnap = await getDocs(likesSubRef);
+        likeCounts[thread.id] = likesSubSnap.size;
+        
+        const userLikeDoc = likesSubSnap.docs.find(doc => doc.id === user.uid);
+        if (userLikeDoc) {
+          userLikes.add(thread.id);
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load user likes', e);
+    userLikes.clear();
+    likeCounts = {};
+  }
+}
+
+function renderOne(thread) {
+  const postElement = document.createElement('div');
+  postElement.className = 'instagram-post fade-in';
+  postElement.id = `post-${thread.id}`;
+  
+  // Use Firestore like status if available, fallback to localStorage
+  const isLikedByUser = userLikes.has(thread.id);
+  const likeCount = likeCounts[thread.id] || 0;
+  const isFollowing = followStatus[thread.author] || false;
+  const isBookmarked = bookmarkStatus[thread.id] || false;
     
     postElement.innerHTML = `
       <div class="post-header">
@@ -84,13 +233,13 @@ function renderInstagramFeed() {
       </div>
       
       <div class="post-image">
-        <div class="image-placeholder"></div>
+        ${thread.mediaUrl ? `<img src="${thread.mediaUrl}" alt="post" class="w-100" style="height:400px;object-fit:cover;">` : '<div class="image-placeholder"></div>'}
       </div>
       
       <div class="post-actions-bar">
         <div class="action-buttons">
-          <button class="action-btn like-btn ${likeCount > 0 ? 'liked' : ''}" data-post-id="${thread.id}">
-            <i class="bi bi-heart${likeCount > 0 ? '-fill' : ''}"></i>
+          <button class="action-btn like-btn ${isLikedByUser ? 'liked' : ''}" data-post-id="${thread.id}">
+            <i class="bi bi-heart${isLikedByUser ? '-fill' : ''}"></i>
           </button>
           <button class="action-btn comment-btn" data-post-id="${thread.id}">
             <i class="bi bi-chat"></i>
@@ -141,9 +290,8 @@ function renderInstagramFeed() {
       </div>
     `;
     
-    feed.appendChild(postElement);
-    setupPostInteractions(postElement, thread);
-  });
+  feed.appendChild(postElement);
+  setupPostInteractions(postElement, thread);
 }
 
 function setupPostInteractions(postElement, thread) {
@@ -151,24 +299,55 @@ function setupPostInteractions(postElement, thread) {
   const likeBtn = postElement.querySelector('.like-btn');
   const likeCount = postElement.querySelector('.like-count');
   
-  likeBtn.addEventListener('click', function() {
+  likeBtn.addEventListener('click', async function() {
     const postId = thread.id;
     const isLiked = this.classList.contains('liked');
     
+    // Update UI immediately
     if (isLiked) {
       likeCounts[postId] = Math.max(0, (likeCounts[postId] || 0) - 1);
       this.classList.remove('liked');
       this.querySelector('i').className = 'bi bi-heart';
+      userLikes.delete(postId);
     } else {
       likeCounts[postId] = (likeCounts[postId] || 0) + 1;
       this.classList.add('liked');
       this.querySelector('i').className = 'bi bi-heart-fill';
       this.style.animation = 'heartPulse 0.6s ease-in-out';
       setTimeout(() => this.style.animation = '', 600);
+      userLikes.add(postId);
     }
     
-    localStorage.setItem('likeCounts', JSON.stringify(likeCounts));
+    // Don't save to localStorage anymore - counts are managed in Firestore
     likeCount.textContent = `${likeCounts[postId]} ${likeCounts[postId] === 1 ? 'like' : 'likes'}`;
+
+    // Sync to Firestore likes so it appears in Profile > Liked
+    if (window.__likeSync) {
+      const op = isLiked ? window.__likeSync.unsetUserLike : window.__likeSync.setUserLike;
+      const snapshot = { authorName: thread.author, caption: thread.content || '', mediaUrl: thread.mediaUrl || null };
+      try {
+        await op(postId, snapshot);
+      } catch (e) {
+        if (e && e.message === 'not-authenticated') {
+          alert('Please sign in to like posts.');
+          // Revert UI changes
+          if (isLiked) {
+            likeCounts[postId] = (likeCounts[postId] || 0) + 1;
+            this.classList.add('liked');
+            this.querySelector('i').className = 'bi bi-heart-fill';
+            userLikes.add(postId);
+          } else {
+            likeCounts[postId] = Math.max(0, (likeCounts[postId] || 0) - 1);
+            this.classList.remove('liked');
+            this.querySelector('i').className = 'bi bi-heart';
+            userLikes.delete(postId);
+          }
+          likeCount.textContent = `${likeCounts[postId]} ${likeCounts[postId] === 1 ? 'like' : 'likes'}`;
+        } else {
+          console.error('Like sync failed', e);
+        }
+      }
+    }
   });
   
   // Follow functionality
