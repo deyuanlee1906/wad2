@@ -22,8 +22,16 @@
             <!-- food centers will display here -->
         </div>
 
-        <div class="text-center mt-4">
-            <a href="chope-home.html" class="btn btn-outline-secondary">Back to Home</a>
+        <div class="card p-4 mt-4">
+            <p class="text-center mb-4" id="info"></p>
+
+            <div class="row" id="centers">
+                <!-- food centers will display here -->
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="chope-home.html" class="btn btn-outline-secondary">Back to Home</a>
+            </div>
         </div>
     </div>
 
@@ -93,7 +101,7 @@
 
                 // card
                 const card = document.createElement("div");
-                card.className = "card h-100";
+                card.className = "card shadow-sm h-100";
 
                 // image
                 const img = document.createElement("img");
@@ -114,14 +122,14 @@
 
                 // available seats
                 const seatsAvail = document.createElement("p");
-                seatsAvail.className = "mv-2";
-                const color = available > 0 ? "green" : "red"; // if avail--> green, if not --> red
+                seatsAvail.className = "mb-2";
+                const color = available > 0 ? "#D98566" : "#262626";
                 seatsAvail.innerHTML = `Available seats: <strong style="color:${color}">${available}</strong>`;
 
                 // selected time
                 const selTime = document.createElement("p");
                 selTime.className = "text-muted small mb-3";
-                selTime.textContent = `Selected Time: ${time}`;
+                selTime.textContent = `Selected Time: ${time} • Duration: ${duration}`;
 
                 //button
                 const btn = document.createElement("button");
