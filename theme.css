@@ -1,128 +1,90 @@
-/* Theme variables */
 :root {
-  --color-sand: #F2D9BB;
-  --color-coral: #D98566;
-  --color-blush: #F2C6B6;
-  --color-ivory: #F2F2F2;
-  --color-ink: #262626;
+  --clr-sand: #F2D9BB;
+  --clr-clay: #D98566;
+  --clr-blush: #F2C6B6;
+  --clr-cloud: #F2F2F2;
+  --clr-ink: #262626;
 }
 
 /* Base */
 html, body {
-  color: var(--color-ink);
+  color: var(--clr-ink);
+  background: var(--clr-cloud);
 }
 
-/* Common containers */
-.container, .container-fluid {
-  /* keep Bootstrap defaults, adjust backgrounds per-page if needed */
+a { color: var(--clr-clay); }
+a:hover { color: #bf6f54; }
+
+/* Cards and surfaces */
+.card, .stall-card, .food-card, .checkout-card, .order-header-box, .cart-food-card {
+  background: #fff;
+  border-color: rgba(38,38,38,0.12) !important;
 }
 
-/* Reusable card styling aligned with theme */
-.card {
-  background-color: var(--color-ivory);
-  border: 2px solid var(--color-blush);
-  border-radius: 15px;
-  box-shadow: 0 4px 8px rgba(217, 133, 102, 0.1);
+.stall-card:hover, .food-card:hover {
+  box-shadow: 0 4px 16px rgba(38,38,38,0.06);
+  border-color: var(--clr-sand) !important;
 }
 
-.card-body {
-  background-color: var(--color-ivory);
+/* Buttons - theme overrides */
+.btn-primary,
+.btn-success {
+  background-color: var(--clr-clay) !important;
+  border-color: var(--clr-clay) !important;
+}
+.btn-primary:hover,
+.btn-success:hover {
+  background-color: #bf6f54 !important;
+  border-color: #bf6f54 !important;
 }
 
-/* Form controls */
+.btn-outline-primary {
+  color: var(--clr-clay) !important;
+  border-color: var(--clr-clay) !important;
+}
+.btn-outline-primary:hover {
+  color: #fff !important;
+  background-color: var(--clr-clay) !important;
+  border-color: var(--clr-clay) !important;
+}
+
+.btn-outline-danger { border-color: #b24a4a !important; color: #b24a4a !important; }
+.btn-outline-danger:hover { background:#b24a4a !important; color:#fff !important; }
+
+/* Pills and chips */
+.rounded-pill { background: var(--clr-sand); color: var(--clr-ink); }
+
+/* Nav and bars */
+.cat-side-nav { background: #fff; }
+.cart-bar, .fixed-bottom-bar { background: #fff; border-top: 2px solid var(--clr-cloud); }
+
+/* Inputs */
 .form-control, .form-select {
-  background-color: var(--color-ivory);
-  border: 2px solid var(--color-blush);
-  border-radius: 8px;
-  color: var(--color-ink);
+  border-color: rgba(38,38,38,0.18);
 }
-
 .form-control:focus, .form-select:focus {
-  background-color: var(--color-ivory);
-  border-color: var(--color-coral);
-  box-shadow: 0 0 0 0.2rem rgba(217, 133, 102, 0.25);
-  color: var(--color-ink);
+  border-color: var(--clr-clay);
+  box-shadow: 0 0 0 .2rem rgba(217,133,102,.25);
 }
 
-/* Buttons */
-.btn-primary, .btn-success, .btn-outline-primary:hover {
-  background-color: var(--color-coral);
-  border-color: var(--color-coral);
-  color: var(--color-ivory);
+/* Section headers */
+.category-header, .stall-list-title {
+  font-weight: 700;
+  color: var(--clr-ink);
 }
 
-.btn-outline-secondary {
-  color: var(--color-coral);
-  border-color: var(--color-coral);
+/* Imagery */
+.food-img, .stall-img { border-color: var(--clr-cloud); }
+
+/* Subtle backgrounds */
+.bg-sand { background: var(--clr-sand) !important; }
+.bg-blush { background: var(--clr-blush) !important; }
+.bg-cloud { background: var(--clr-cloud) !important; }
+.text-ink { color: var(--clr-ink) !important; }
+
+/* Responsive helpers */
+@media (max-width: 575px) {
+  .container.tight { max-width: 100vw !important; padding-left: 10px; padding-right: 10px; }
 }
 
-.btn-outline-secondary:hover {
-  background-color: var(--color-coral);
-  border-color: var(--color-coral);
-  color: var(--color-ivory);
-}
 
-/* Search bar / top bar */
-.top-bar, .search-bar {
-  background-color: var(--color-sand);
-  border: 2px solid var(--color-blush);
-}
-
-/* Nav bar (bottom) shared across pages) */
-.nav-bar {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  background: var(--color-sand);
-  border-top: 2px solid var(--color-coral);
-  display: flex;
-  justify-content: space-around;
-  padding: 12px 0;
-  z-index: 1040;
-  box-shadow: 0 -2px 10px rgba(217, 133, 102, 0.2);
-}
-
-.nav-bar button {
-  border: none;
-  background: none;
-  font-size: 12px;
-  color: var(--color-ink);
-  cursor: pointer;
-  outline: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 8px 4px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  min-width: 60px;
-}
-
-.nav-bar button:hover {
-  background-color: var(--color-blush);
-  transform: translateY(-2px);
-}
-
-.nav-bar .active {
-  color: var(--color-coral);
-  font-weight: 600;
-  background-color: var(--color-blush);
-}
-
-.nav-bar button i { font-size: 20px; margin-bottom: 2px; }
-
-/* Utility: bottom padding so content not hidden under navbar */
-body { padding-bottom: 80px; background-color: var(--color-ivory); }
-
-/* Optional gradient background to mirror login page */
-.theme-gradient {
-  background: linear-gradient(135deg, var(--color-sand) 0%, var(--color-blush) 50%, var(--color-ivory) 100%);
-  min-height: 100vh;
-}
-
-/* Image placeholder example */
-.image-placeholder {
-  background: var(--color-blush);
-  border: 4px solid var(--color-coral);
-  border-radius: 10px;
-}
