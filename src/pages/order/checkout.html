@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Online Order - My Cart</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles/main.css" />
+  <link rel="stylesheet" href="/styles/components.css">
+  <script type="module" src="/scripts/firebaseauth.js"></script>
+  <style>
+    @media (max-width: 400px) {
+      .container { max-width: 100vw; padding: 0; }
+      .rounded-pill { font-size: 14px; }
+    }
+    .cart-food-card { border: 1px solid rgba(38,38,38,0.12); border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; }
+    .cart-icons { font-size: 1.1em; cursor: pointer; margin-right: 7px; }
+    .cart-icons .bi { vertical-align: middle; }
+    .cart-bottom-bar button { border-radius: 18px !important; }
+    .cart-nav-btn { font-size: 13px; }
+    .cart-nav-bar { background: var(--clr-cloud); border-top: 1px solid rgba(38,38,38,0.1); }
+    .fixed-bottom-bar { position: fixed; left:0; right:0; bottom: 0; z-index:10; background: #fff; }
+    .cart-bottom-bar { display: flex; }
+    .cart-bottom-bar button { flex: 1; border: none; }
+    .cart-table th, .cart-table td { font-size: 13px; padding: 4px 7px; }
+    .food-controls {
+      display: flex; align-items: center; gap: 2px;
+      width: 80px;
+      height: 32px;
+      background: var(--clr-cloud);
+      border-radius: 20px;
+      padding: 4px;
+      border: 1px solid rgba(38,38,38,0.1);
+      flex-shrink: 0;
+      justify-content: flex-end;
+      position: relative;
+      margin-left: auto;
+    }
+    .food-controls .btn { 
+      padding: 2px 6px; font-size: 0.75em; border-radius: 12px;
+      min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .food-controls .btn-outline-primary { border: none; background: #fff; color: var(--clr-clay); }
+    .food-controls .btn-outline-primary:hover { background: var(--clr-sand); }
+    .food-controls .btn-outline-secondary { border: none; background: #fff; color: #6c757d; }
+    .food-controls .btn-outline-secondary:hover { background: #e9ecef; }
+    .food-controls .qty-display { 
+      width: 16px; text-align: center; font-weight: 600; color: var(--clr-ink);
+      padding: 0 1px; font-size: 0.75em; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      height: 20px;
+      order: -1;
+    }
+    /* checkout form overlay */
+    .checkout-overlay {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.45);
+      z-index: 1200;
+    }
+    .checkout-card {
+      width: 94%;
+      max-width: 420px;
+      background: #fff;
+      border-radius: 10px;
+      padding: 16px;
+    }
+  </style>
+</head>
+<body style="background: #f5f5f5;">
+  <div class="container my-2 tight" style="max-width:400px;">
+    <h5 class="mb-2 mt-2"><b>My Cart</b></h5>
+    <!-- Cart summary info table -->
+    <table class="cart-table table table-bordered mb-3">
+      <thead class="table-light">
+        <tr>
+          <th>Food Centre</th>
+          <th>Stall</th>
+          <th>Option</th>
+          <th>Date &amp; Time</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td id="cartFoodCentre"></td>
+          <td id="cartStall"></td>
+          <td id="cartOption"></td>
+          <td id="cartDateTime"></td>
+        </tr>
+      </tbody>
+    </table>
+    <!-- Food items in cart -->
+    <div id="cartFoods">
+      <!-- Render food item cards here -->
+    </div>
+    <b class="d-block mt-3 mb-4">Total: <span id="cartTotal">$0.00</span></b>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="fixed-bottom-bar cart-bottom-bar p-2 gap-2" style="max-width:400px; margin: 0 auto;">
+    <button class="btn btn-outline-primary" onclick="orderMore()">Order More</button>
+    <button class="btn btn-success" onclick="showCheckoutForm()">Check Out</button>
+  </div>
+
+  <!-- Checkout overlay (appears when user clicks Check Out) -->
+  <div id="checkoutOverlay" class="checkout-overlay" aria-hidden="true" aria-labelledby="checkoutTitle">
+    <div class="checkout-card shadow-sm">
+      <h6 id="checkoutTitle" class="mb-2">Enter details to complete order</h6>
+      <div class="mb-2">
+        <label for="custName" class="form-label visually-hidden">Full name</label>
+        <input id="custName" class="form-control form-control-sm" placeholder="Full name" aria-required="true" />
+      </div>
+      <div class="mb-2">
+        <label for="custEmail" class="form-label visually-hidden">Email</label>
+        <input id="custEmail" class="form-control form-control-sm" placeholder="Email" type="email" aria-required="true"/>
+      </div>
+      <div class="mb-2">
+        <label for="paymentMethod" class="form-label visually-hidden">Payment method</label>
+        <select id="paymentMethod" class="form-select form-select-sm">
+          <option value="mock_card">Mock Card (test)</option>
+          <option value="cash">Pay on Pickup (cash)</option>
+        </select>
+      </div>
+      <div class="d-flex gap-2">
+        <button class="btn btn-success btn-sm flex-grow-1" onclick="confirmPayment()" type="button">Pay (mock)</button>
+        <button class="btn btn-outline-secondary btn-sm" onclick="hideCheckoutForm()" type="button">Cancel</button>
+      </div>
+      <div id="checkoutMsg" class="mt-2 small text-danger" style="display:none;" role="alert" aria-live="polite"></div>
+    </div>
+  </div>
+
+  <!-- Navigation bar removed to match menu/home/stall pages (no bottom nav on checkout) -->
+
+  <script>
+    // Food catalog to match menu.html data
+    let foodsPerCategory = [
+      [ { name: "ABC Soup", price: 4, img: "/img/food1.jpg", id: "cr", category: "Soup" },
+        { name: "Carrot Soup", price: 5, img: "/img/food2.jpg", id: "rd", category: "Soup" },
+        { name: "Peanut Soup", price: 7, img: "/img/food3.jpg", id: "sf", category: "Soup" } ],
+      [ { name: "Laksa", price: 4.5, img: "/img/food4.jpg", id: "lk", category: "Noodles" },
+        { name: "Char Kway Teow", price: 5.5, img: "/img/food5.jpg", id: "ckt", category: "Noodles" },
+        { name: "Hokkien Mee", price: 6, img: "/img/food6.jpg", id: "hm", category: "Noodles" } ],
+      [ { name: "Egg Fried Rice", price: 4, img: "/img/food7.jpg", id: "nl", category: "Rice" },
+        { name: "Bacon Fried Rice", price: 6.5, img: "/img/food8.jpg", id: "ren", category: "Rice" } ],
+      [ { name: "Nuggets", price: 3.5, img: "/img/food9.jpg", id: "rp", category: "Sides" },
+        { name: "Fried Spring Rolls", price: 7, img: "/img/food10.jpg", id: "bir", category: "Sides" } ]
+    ];
+
+    /*****************************************************************
+     * Utility: load saved cart and order info from localStorage
+     * Robust: accepts multiple cart formats used by menu pages and
+     * normalises to an array of {id,name,price,qty} for the checkout.
+     *****************************************************************/
+    function loadSavedCart() {
+      try {
+        const cartData = localStorage.getItem('cart');
+        if (cartData) {
+          const parsed = JSON.parse(cartData);
+          if (Array.isArray(parsed)) {
+            console.log('Found cart array:', parsed);
+            return parsed.filter(i => i.qty > 0);
+          } else {
+            console.warn('Cart data is not in expected array format:', parsed);
+            return [];
+          }
+        } else {
+          console.log('No cart data found in localStorage');
+          return [];
+        }
+      } catch (e) { 
+        console.warn('loadSavedCart error', e); 
+        return [];
+      }
+    }
+
+    function loadSavedOrderInfo() {
+      // Try multiple keys used across pages; keep robust.
+      const selectedOption = localStorage.getItem('selectedOption') || localStorage.getItem('option') || 'Dine In';
+      // selectedTime may be stored as "HH:MM" or "ASAP" depending on stall page
+      const selectedTime = localStorage.getItem('selectedTime') || localStorage.getItem('selectedDateTime') || '';
+
+      // date should be based on current date (today)
+      function formatToday() {
+        const d = new Date();
+        const day = String(d.getDate()).padStart(2, '0');
+        const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const month = monthNames[d.getMonth()];
+        const year = d.getFullYear();
+        return `${day} ${month} ${year}`;
+      }
+
+      let dateTimeStr = '';
+      if (selectedOption && selectedOption.toLowerCase() === 'asap') {
+        // per requirement: when ASAP selected do not show time (we will hide cell later)
+        dateTimeStr = 'ASAP';
+      } else {
+        // preferred timing: show today's date and the selected time (if present)
+        const timePart = selectedTime && selectedTime.toLowerCase() !== 'asap' ? selectedTime : '';
+        dateTimeStr = timePart ? `${formatToday()} ${timePart}` : `${formatToday()}`;
+      }
+
+      const info = {
+        foodCentre: localStorage.getItem('selectedFoodCentre') || localStorage.getItem('foodCentre') || 'Hawker A',
+        stall: localStorage.getItem('selectedStall') || localStorage.getItem('stall') || 'Stall A',
+        option: selectedOption,
+        dateTime: dateTimeStr
+      };
+      return info;
+    }
+    
+    // state
+    let cartFoods = loadSavedCart();
+    const cartInfo = loadSavedOrderInfo();
+    
+    // render summary row
+    document.getElementById('cartFoodCentre').textContent = cartInfo.foodCentre;
+    document.getElementById('cartStall').textContent = cartInfo.stall;
+    document.getElementById('cartOption').textContent = cartInfo.option;
+    // If user picked "ASAP" hide date/time cell (consistent with order page behaviour)
+    const cartDateEl = document.getElementById('cartDateTime');
+    if (cartInfo.dateTime && String(cartInfo.dateTime).toLowerCase() === 'asap') {
+      cartDateEl.textContent = ''; // keep blank for ASAP per requirement
+    } else {
+      cartDateEl.textContent = cartInfo.dateTime;
+    }
+
+    /*****************************************************************
+     * Cart rendering and manipulation
+     *****************************************************************/
+    function renderCartFoods() {
+      let html = "";
+      if (!cartFoods.length) {
+        html = '<div class="text-center text-muted py-4">Your cart is empty.</div>';
+      } else {
+        cartFoods.forEach((food, i) => {
+          html += `
+            <div class="cart-food-card d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <b>${food.name}</b><br>
+                <div class="small text-muted">Total: <b>$${(food.price*food.qty).toFixed(2)}</b></div>
+              </div>
+              <div class="d-flex flex-column align-items-end">
+                <div class="mb-2">
+                  <span class="fw-bold">$${food.price.toFixed(2)}</span>
+                </div>
+                <div class="food-controls">
+                  ${food.qty === 1
+                    ? `<button type="button" class="btn btn-outline-secondary" onclick="decreaseQty('${food.id}')" aria-label="Remove one">-</button>
+                       <span class="qty-display">${food.qty}</span>
+                       <button type="button" class="btn btn-outline-primary" onclick="increaseQty('${food.id}')" aria-label="Add one more">+</button>`
+                    : `<button type="button" class="btn btn-outline-secondary" onclick="decreaseQty('${food.id}')" aria-label="Remove one">-</button>
+                       <span class="qty-display">${food.qty}</span>
+                       <button type="button" class="btn btn-outline-primary" onclick="increaseQty('${food.id}')" aria-label="Add one more">+</button>`
+                  }
+                </div>
+              </div>
+            </div>
+          `;
+        });
+      }
+      document.getElementById('cartFoods').innerHTML = html;
+      updateTotal();
+      persistCart();
+    }
+
+    function increaseQty(foodId) {
+      const item = cartFoods.find(f => f.id === foodId);
+      if (item) {
+        item.qty += 1;
+        renderCartFoods();
+      }
+    }
+
+    function decreaseQty(foodId) {
+      const item = cartFoods.find(f => f.id === foodId);
+      if (item) {
+        item.qty -= 1;
+        if (item.qty <= 0) {
+          const index = cartFoods.indexOf(item);
+          cartFoods.splice(index, 1);
+        }
+        renderCartFoods();
+      }
+    }
+
+    function updateTotal() {
+      let total = 0;
+      cartFoods.forEach(f => total += (f.price || 0) * (f.qty || 0));
+      document.getElementById('cartTotal').textContent = '$' + total.toFixed(2);
+    }
+
+    function persistCart() {
+      try {
+        localStorage.setItem('cart', JSON.stringify(cartFoods));
+      } catch(e) { console.warn('failed saving cart', e); }
+    }
+
+
+    /*****************************************************************
+     * Navigation helpers
+     *****************************************************************/
+    function orderMore() {
+      // Return to menu page to add more items.
+      // checkout.html lives in the "order" folder; the menu is order/menu.html
+      window.location.href = "menu.html";
+    }
+    
+    /*****************************************************************
+     * Checkout flow (mock payment)
+     *****************************************************************/
+    function showCheckoutForm() {
+      if (!cartFoods.length) {
+        alert('Your cart is empty.');
+        return;
+      }
+      const overlay = document.getElementById('checkoutOverlay');
+      overlay.style.display = 'flex';
+      overlay.removeAttribute('aria-hidden');
+      overlay.setAttribute('aria-modal', 'true');
+      overlay.setAttribute('role', 'dialog');
+      
+      // Focus the first input when overlay opens
+      setTimeout(() => {
+        document.getElementById('custName').focus();
+      }, 100);
+    }
+    function hideCheckoutForm() {
+      const overlay = document.getElementById('checkoutOverlay');
+      overlay.style.display = 'none';
+      overlay.setAttribute('aria-hidden', 'true');
+      overlay.removeAttribute('aria-modal');
+      overlay.removeAttribute('role');
+      document.getElementById('checkoutMsg').style.display = 'none';
+      
+      // Clear any focus from overlay elements
+      const focusedElement = document.activeElement;
+      if (overlay.contains(focusedElement)) {
+        focusedElement.blur();
+      }
+    }
+
+    function confirmPayment() {
+      const name = document.getElementById('custName').value.trim();
+      const email = document.getElementById('custEmail').value.trim();
+      const msgEl = document.getElementById('checkoutMsg');
+      if (!name) { msgEl.textContent = 'Please enter your name.'; msgEl.style.display='block'; return; }
+      if (!email || !email.includes('@')) { msgEl.textContent = 'Please enter a valid email.'; msgEl.style.display='block'; return; }
+      msgEl.style.display='none';
+
+      // simulate payment processing
+      const paymentMethod = document.getElementById('paymentMethod').value;
+      // build order object
+      const order = {
+        id: 'ord_' + Date.now(),
+        customer: { name, email },
+        info: cartInfo,
+        items: cartFoods,
+        total: cartFoods.reduce((s,i) => s + (i.price||0)*(i.qty||0), 0),
+        paymentMethod,
+        paymentStatus: paymentMethod === 'cash' ? 'pending' : 'paid',
+        createdAt: new Date().toISOString()
+      };
+
+      // persist order list in localStorage (demo backend)
+      try {
+        const raw = localStorage.getItem('orders');
+        const list = raw ? JSON.parse(raw) : [];
+        list.push(order);
+        localStorage.setItem('orders', JSON.stringify(list));
+      } catch(e) { console.warn('failed saving order', e); }
+
+      // clear cart
+      cartFoods = [];
+      persistCart();
+      renderCartFoods();
+      hideCheckoutForm();
+
+      // show success and redirect to a simple success view (or display inline)
+      alert('Order placed: ' + order.id + '\nStatus: ' + order.paymentStatus);
+      // redirect to a simple success page if you have one:
+      // window.location.href = "order-success.html?id=" + order.id;
+    }
+
+
+    /*****************************************************************
+     * Initial render
+     *****************************************************************/
+    // initial render + debug
+    console.debug('Loaded cartFoods:', cartFoods);
+    console.debug('Cart info:', cartInfo);
+    renderCartFoods();
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+/* ===========================
+   MAIN.CSS - General Layout & Theme
+   =========================== */
+
+/* === CSS Variables / Theme === */
+:root {
+  --clr-sand: #F2D9BB;
+  --clr-clay: #D98566;
+  --clr-blush: #F2C6B6;
+  --clr-cloud: #F2F2F2;
+  --clr-ink: #262626;
+}
+
+/* === Global Reset === */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+/* === Base Styles === */
+html, body {
+  color: var(--clr-ink);
+  background: var(--clr-cloud);
+  min-height: 100vh;
+}
+
+body {
+  background-color: #F2F2F2;
+  padding-bottom: 70px;
+  font-family: Arial, sans-serif;
+  color: #262626;
+}
+
+a {
+  color: var(--clr-clay);
+  text-decoration: none;
+}
+
+a:hover {
+  color: #bf6f54;
+}
+
+/* === Utility Background Classes === */
+.bg-sand {
+  background: var(--clr-sand) !important;
+}
+
+.bg-blush {
+  background: var(--clr-blush) !important;
+}
+
+.bg-cloud {
+  background: var(--clr-cloud) !important;
+}
+
+.text-ink {
+  color: var(--clr-ink) !important;
+}
+
+/* === Theme Gradient Background (for login/auth pages) === */
+body.theme-gradient {
+  background: linear-gradient(135deg, #F2D9BB 0%, #F2C6B6 50%, #F2F2F2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+/* === Animations === */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes heartPulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* === Responsive Helpers === */
+@media (max-width: 575px) {
+  .container.tight {
+    max-width: 100vw !important;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    padding-bottom: 60px;
+  }
+}
+
