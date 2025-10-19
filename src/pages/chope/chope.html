@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Seat Choping</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="/styles/main.css"/>
+  <link rel="stylesheet" href="/styles/components.css"/>
+
+  <style>
+    #map{
+      height: 300px;
+      width: 100%;
+      border-radius: 12px;
+      border: 2px solid #F2C6B6;
+      box-shadow: 0 4px 12px rgba(217, 133, 102, 0.1);
+    }
+    /* Override for Bootstrap buttons on this page */
+    .btn {
+      width: auto !important;
+      margin: 0 !important;
+      font-size: 1rem !important;
+      font-weight: 400 !important;
+    }
+  </style>
+</head>
+<body class="theme-gradient">
+  <div class="container-fluid my-4">
+    <h2 class="text-center mb-4">Seat Choping System</h2>
+
+    <div class="card p-4 mt-4">
+      <div id="map" class="mb-4"></div>
+
+      <div class="row justify-content-center g-3">
+        <!-- timeslot dropdown -->
+        <div class="col-12 col-md-6">
+          <select id="timeslot" class="form-select">
+            <option>11:00 AM</option>
+            <option>11:30 AM</option>
+            <option>12:00 PM</option>
+            <option>12:30 PM</option>
+            <option>1:00 PM</option>
+            <option>1:30 PM</option>
+            <option>2:00 PM</option>
+          </select>
+        </div>
+
+        <!-- Duration dropdown -->
+        <div class="col-12 col-md-6">
+          <select id="duration" class="form-select">
+            <option value="30 mins">30 mins</option>
+            <option value="1 hour">1 hr</option>
+          </select>
+        </div>
+
+        <!-- Buttons -->
+        <div class="col-12 col-md-4">
+          <button id="checkBtn" type="button" class="btn btn-primary w-100">Check Availability</button>
+        </div>
+        <div class="col-12 col-md-4">
+          <button id="resetBtn" type="button" class="btn btn-outline-secondary w-100">Reset</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main script -->
+  <script>
+    let map;
+    let userMark;
+
+    // Google Maps init (called by script callback)
+    function initMap(){
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: { lat: 1.352, lng: 103.819 },
+        zoom: 15
+      });
+
+      const centres = [
+        { name: "Maxwell Food Centre",         position: { lat: 1.2804, lng: 103.8446 }, link: "maxwell.html" },
+        { name: "Newton Food Centre",          position: { lat: 1.3113, lng: 103.8383 }, link: "newton.html" },
+        { name: "Changi Village Food Centre",  position: { lat: 1.3891, lng: 103.9871 }, link: "changiVillage.html" }
+      ];
+
+      const bounds = new google.maps.LatLngBounds();
+      const infoWindow = new google.maps.InfoWindow();
+      const foodIcon = {
+        url: "https://maps.google.com/mapfiles/kml/shapes/dining.png",
+        scaledSize: new google.maps.Size(32, 32)
+      };
+
+      centres.forEach((c) => {
+        const marker = new google.maps.Marker({
+          position: c.position,
+          map,
+          title: c.name,
+          icon: foodIcon
+        });
+        bounds.extend(c.position);
+
+        marker.addListener('click', () => {
+          infoWindow.setContent(
+            `<div style="min-width:180px"><strong>${c.name}</strong><br><a href="${c.link}">View details</a></div>`
+          );
+          infoWindow.open({ anchor: marker, map });
+        });
+      });
+
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            const userLoc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            userMark = new google.maps.Marker({
+              position: userLoc,
+              map,
+              title: "You are here",
+              icon: { url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png" }
+            });
+            bounds.extend(userLoc);
+            map.fitBounds(bounds);
+          },
+          () => alert("Could not access location.")
+        );
+      } else {
+        alert("Geolocation not supported.");
+      }
+
+      // Ensure centres are visible even if geolocation is blocked/slow
+      setTimeout(() => {
+        if (!bounds.isEmpty()) map.fitBounds(bounds);
+      }, 800);
+    }
+
+    // Attach UI handlers after DOM is ready
+    document.addEventListener("DOMContentLoaded", () => {
+      const resetBtn = document.getElementById("resetBtn");
+      const checkBtn = document.getElementById("checkBtn");
+
+      resetBtn.addEventListener("click", () => {
+        document.getElementById("timeslot").selectedIndex = 0;
+        document.getElementById("duration").selectedIndex = 0;
+      });
+
+    checkBtn.addEventListener("click", () => {
+        const time = document.getElementById("timeslot").value;
+        const duration = document.getElementById("duration").value;
+
+        // BACKUP in sessionStorage
+        sessionStorage.setItem("time", time);
+        sessionStorage.setItem("duration", duration);
+
+        // RELATIVE, safe URL (no leading slash!)
+        const url = new URL("availableFoodCenter.html", window.location.href);
+        url.searchParams.set("time", time);
+        url.searchParams.set("duration", duration);
+
+        console.log("Navigating to:", url.toString());
+        window.location.href = url.toString();
+    });
+    });
+  </script>
+
+  <!-- Google Maps script (calls initMap) -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAzUZ1FSozvqFSbmTHUSGldlkEpuKupKZs&callback=initMap" async defer></script>
+
+  <!-- Bootstrap bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+
+  <div class="nav-bar">
+    <button onclick="location.href='/pages/order/online-order-home.html'">
+      <i class="bi bi-cart3"></i>
+      <span>Order</span>
+    </button>
+    <button onclick="location.href='/pages/community/community.html'">
+      <i class="bi bi-people"></i>
+      <span>Community</span>
+    </button>
+    <button onclick="location.href='/pages/chope/chope.html'">
+      <i class="bi bi-bookmark"></i>
+      <span>Chope</span>
+    </button>
+    <button onclick="location.href='/pages/crowd/crowd-view.html'">
+      <i class="bi bi-eye"></i>
+      <span>Crowd View</span>
+    </button>
+    <button onclick="location.href='/pages/profile/profile.html'">
+      <i class="bi bi-person"></i>
+      <span>Profile</span>
+    </button>
+  </div>
+</body>
+</html>
