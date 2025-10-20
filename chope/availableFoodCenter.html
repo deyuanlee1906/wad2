@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seats Availability</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="stylesheet" href="../theme.css">
+    <link rel="stylesheet" href="../style-1.css">
+    <script src="seatDatabase.js"></script>
+
+</head>
+
+<body class="theme-gradient">
+    <div class="container-fluid my-4">
+        <h2 class="mb-3 text-center">Available Food Centers</h2>
+        <p class="text-center" id="info"></p>
+
+        <div class="row" id="centers">
+            <!-- food centers will display here -->
+        </div>
+
+        <div class="card p-4 mt-4">
+            <p class="text-center mb-4" id="info"></p>
+
+            <div class="row" id="centers">
+                <!-- food centers will display here -->
+            </div>
+
+            <div class="text-center mt-4">
+                <a href="chope-home.html" class="btn btn-outline-secondary">Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    
+    <script>
+        // get the params from home.html 
+        const params = new URLSearchParams(window.location.search); // get the key value pair
+        const time = params.get("time");
+        const duration = params.get("duration");
+
+        // Food center configuration
+        let centers = [
+            {
+                id: 1,
+                name: "Maxwell Food Centre",
+                img: "maxwell.jpg",
+                databaseKey: "maxwell",
+                totalSeats: 72, // 6 tables × 12 seats each
+                link: "maxwell.html"
+            },
+            {
+                id: 2,
+                name: "Newton Food Centre",
+                img: "newton.jpg",
+                databaseKey: "newton",
+                totalSeats: 50, // 5 tables × 10 seats each
+                link: "newton.html"
+            },
+            {
+                id: 3,
+                name: "Changi Village Food Centre",
+                img: "changi_village.jpg",
+                databaseKey: "changiVillage",
+                totalSeats: 60, // 6 tables × 10 seats each
+                link: "changiVillage.html"
+            }
+        ];
+        
+        function printCenters() {
+            // set this container to the div "centers"
+            const container = document.getElementById("centers");
+            container.innerHTML = "";
+
+            // Structure
+            // <div class="">
+            //     <div class="card">
+            //         <img>
+            //         <div class="card-body">
+            //             <h5 class="card-title"></h5>
+            //             <p >
+            //                 <strong >Available Seat:</strong>
+            //             </p>
+            //             <p >Selected Time:</p>
+            //             <button>
+            //             </button>
+            //         </div>
+            //     </div>
+            // </div>
+
+            for (const center of centers) {
+                // Get real-time seat counts from database
+                const seatCounts = window.seatDatabase.getSeatCounts(center.databaseKey);
+                const available = seatCounts.available;
+                const booked = seatCounts.booked;
+
+                // make the column
+                const col = document.createElement("div");
+                col.className = "col-12 col-md-4 mb-3";
+
+                // card
+                const card = document.createElement("div");
+                card.className = "card shadow-sm h-100";
+
+                // image
+                const img = document.createElement("img");
+                img.setAttribute("src", "../img/" + center.img);
+                img.alt = center.name;
+                img.className = "card-img-top"; //set the img to the top of the card
+                img.style.objectFit = "cover";
+                img.style.height = "180px";
+
+                // card body
+                const body = document.createElement("div");
+                body.className = "card-body d-flex flex-column";
+
+                // title
+                const title = document.createElement("h5");
+                title.className = "card-title";
+                title.textContent = center.name;
+
+                // available seats
+                const seatsAvail = document.createElement("p");
+                seatsAvail.className = "mb-2";
+                const color = available > 0 ? "#D98566" : "#262626";
+                seatsAvail.innerHTML = `Available seats: <strong style="color:${color}">${available}</strong> of ${center.totalSeats}`;
+
+                // selected time
+                const selTime = document.createElement("p");
+                selTime.className = "text-muted small mb-3";
+                selTime.textContent = `Selected Time: ${time} • Duration: ${duration}`;
+
+                //button
+                const btn = document.createElement("button");
+                btn.className = "btn btn-primary mt-auto";
+                btn.type = "button";
+                btn.textContent = available > 0 ? "Book Now" : "Full";
+                if (available <= 0) {
+                    btn.disabled = true;
+                }
+
+                // add eventlistener
+                btn.addEventListener("click", () => {
+                    bookSeat(center.id);
+                });
+
+                // add child
+                body.appendChild(title);
+                body.appendChild(seatsAvail);
+                body.appendChild(selTime);
+                body.appendChild(btn);
+
+                card.appendChild(img);
+                card.appendChild(body);
+                col.appendChild(card);
+                container.appendChild(col);
+            }
+        }
+
+        // Handle the seat booking, find the center and redirect
+        function bookSeat(id) {
+            for (const center of centers) {
+                if (center.id === id) {
+                    // Check if seats are available
+                    const seatCounts = window.seatDatabase.getSeatCounts(center.databaseKey);
+                    if (seatCounts.available > 0) {
+                        // direct to that food center's page
+                        window.location.href = center.link;
+                    } else {
+                        alert("No seats left!");
+                    }
+                    return; // exit the function once found
+                }
+            }
+        }
+
+        // load the centers when page starts
+        printCenters();
+        
+        // Refresh seat availability every 30 seconds
+        setInterval(printCenters, 30000);
+    </script>
+
+
+
+    <!-------------------------Bootstrap------------------------- -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+
+    <div class="nav-bar">
+      <button onclick="location.href='../order/online-order-home.html'">
+        <i class="bi bi-cart3"></i>
+        <span>Order</span>
+      </button>
+      <button onclick="location.href='../community/community.html'">
+        <i class="bi bi-people"></i>
+        <span>Community</span>
+      </button>
+      <button class="active" onclick="location.href='../chope-home.html'">
+        <i class="bi bi-bookmark"></i>
+        <span>Chope</span>
+      </button>
+      <button onclick="location.href='../crowd/crowd-view.html'">
+        <i class="bi bi-eye"></i>
+        <span>Crowd View</span>
+      </button>
+      <button onclick="location.href='../profile.html'">
+        <i class="bi bi-person"></i>
+        <span>Profile</span>
+      </button>
+    </div>
+</body>
+
+</html>
