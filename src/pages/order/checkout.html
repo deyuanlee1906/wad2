@@ -10,71 +10,588 @@
   <link rel="stylesheet" href="/styles/components.css">
   <script type="module" src="/scripts/firebaseauth.js"></script>
   <style>
-    @media (max-width: 400px) {
-      .container { max-width: 100vw; padding: 0; }
-      .rounded-pill { font-size: 14px; }
+    :root {
+      /* Custom Color Theme */
+      --primary-color: #D98566;
+      --secondary-color: #F2C6B6;
+      --accent-color: #F2D9BB;
+      --background-color: #F2F2F2;
+      --text-color: #262626;
+      
+      /* Gradients using theme colors */
+      --primary-gradient: linear-gradient(135deg, #D98566 0%, #F2C6B6 100%);
+      --secondary-gradient: linear-gradient(135deg, #F2C6B6 0%, #F2D9BB 100%);
+      --accent-gradient: linear-gradient(135deg, #F2D9BB 0%, #F2F2F2 100%);
+      --success-gradient: linear-gradient(135deg, #D98566 0%, #F2C6B6 100%);
+      --warning-gradient: linear-gradient(135deg, #F2C6B6 0%, #F2D9BB 100%);
+      
+      /* Glass Morphism with theme colors */
+      --glass-bg: rgba(242, 242, 242, 0.8);
+      --glass-border: rgba(217, 133, 102, 0.2);
+      --glass-shadow: 0 8px 32px 0 rgba(38, 38, 38, 0.15);
+      
+      /* Typography */
+      --text-primary: #262626;
+      --text-secondary: #D98566;
+      --text-muted: #8B7355;
+      --text-light: #B8A082;
+      
+      /* Legacy Colors updated to theme */
+      --clr-cloud: #F2F2F2;
+      --clr-ink: #262626;
+      --clr-sand: #F2D9BB;
+      --clr-clay: #D98566;
+      --clr-success: #D98566;
+      --clr-warning: #F2C6B6;
+      --clr-danger: #D98566;
+      
+      /* Shadows with theme colors */
+      --shadow-sm: 0 1px 3px rgba(38, 38, 38, 0.12), 0 1px 2px rgba(38, 38, 38, 0.24);
+      --shadow-md: 0 3px 6px rgba(38, 38, 38, 0.16), 0 3px 6px rgba(38, 38, 38, 0.23);
+      --shadow-lg: 0 10px 20px rgba(38, 38, 38, 0.19), 0 6px 6px rgba(38, 38, 38, 0.23);
+      --shadow-xl: 0 14px 28px rgba(38, 38, 38, 0.25), 0 10px 10px rgba(38, 38, 38, 0.22);
+      
+      /* Border Radius */
+      --border-radius: 12px;
+      --border-radius-lg: 16px;
+      --border-radius-xl: 24px;
+      
+      /* Transitions */
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     }
-    .cart-food-card { border: 1px solid rgba(38,38,38,0.12); border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; }
-    .cart-icons { font-size: 1.1em; cursor: pointer; margin-right: 7px; }
-    .cart-icons .bi { vertical-align: middle; }
-    .cart-bottom-bar button { border-radius: 18px !important; }
-    .cart-nav-btn { font-size: 13px; }
-    .cart-nav-bar { background: var(--clr-cloud); border-top: 1px solid rgba(38,38,38,0.1); }
-    .fixed-bottom-bar { position: fixed; left:0; right:0; bottom: 0; z-index:10; background: #fff; }
-    .cart-bottom-bar { display: flex; }
-    .cart-bottom-bar button { flex: 1; border: none; }
-    .cart-table th, .cart-table td { font-size: 13px; padding: 4px 7px; }
-    .food-controls {
-      display: flex; align-items: center; gap: 2px;
-      width: 80px;
-      height: 32px;
-      background: var(--clr-cloud);
-      border-radius: 20px;
-      padding: 4px;
-      border: 1px solid rgba(38,38,38,0.1);
-      flex-shrink: 0;
-      justify-content: flex-end;
+
+    body {
+      color: var(--text-primary);
+      min-height: 100vh;
+      margin: 0;
+      background: linear-gradient(135deg, #F2D9BB 0%, #F2C6B6 50%, #D98566 100%);
+      background-attachment: fixed;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+      overflow-x: hidden;
       position: relative;
-      margin-left: auto;
+      padding: 0 0 100px 0;
     }
-    .food-controls .btn { 
-      padding: 2px 6px; font-size: 0.75em; border-radius: 12px;
-      min-width: 20px; height: 20px; display: flex; align-items: center; justify-content: center;
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: 
+        radial-gradient(circle at 20% 80%, rgba(217, 133, 102, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(242, 198, 182, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(242, 217, 187, 0.2) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .main-container {
+      max-width: 100%;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .cart-food-card { 
+      background: var(--glass-bg);
+      backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border); 
+      border-radius: var(--border-radius-lg); 
+      padding: 20px; 
+      margin-bottom: 16px; 
+      box-shadow: var(--shadow-md);
+      transition: var(--transition-bounce);
+      position: relative;
+    }
+
+    .cart-food-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+      border-radius: var(--border-radius-lg);
+      pointer-events: none;
+    }
+
+    .cart-food-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--primary-color);
+    }
+    
+    .cart-icons { 
+      font-size: 1.1em; 
+      cursor: pointer; 
+      margin-right: 7px; 
+    }
+    
+    .cart-icons .bi { 
+      vertical-align: middle; 
+    }
+    
+    .fixed-bottom-bar { 
+      position: fixed; 
+      left: 0; 
+      right: 0; 
+      bottom: 0; 
+      z-index: 10; 
+      background: var(--glass-bg);
+      backdrop-filter: blur(20px);
+      border-top: 1px solid var(--glass-border);
+      box-shadow: var(--glass-shadow);
+    }
+    
+    .cart-bottom-bar { 
+      display: flex; 
+      gap: 16px;
+      padding: 20px 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .cart-bottom-bar button { 
+      flex: 1; 
+      border: none; 
+      padding: 16px 24px;
+      font-weight: 600;
+      border-radius: var(--border-radius-lg);
+      font-size: 1rem;
+      transition: var(--transition-bounce);
+      box-shadow: var(--shadow-md);
+    }
+
+    .cart-bottom-bar .btn-outline-primary {
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border: 2px solid var(--glass-border);
+      color: var(--text-primary);
+    }
+
+    .cart-bottom-bar .btn-outline-primary:hover {
+      background: var(--secondary-gradient);
+      border-color: var(--primary-color);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .cart-bottom-bar .btn-success {
+      background: var(--success-gradient);
+      color: white;
+    }
+
+    .cart-bottom-bar .btn-success:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    /* Page Title Styling */
+    .page-title {
+      color: var(--text-primary);
+      font-weight: 700;
+      font-size: 2rem;
+      margin-bottom: 24px;
+      text-align: center;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .total-display {
+      background: var(--glass-bg);
+      backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--border-radius-lg);
+      padding: 20px;
+      margin: 24px 0;
+      text-align: center;
+      box-shadow: var(--shadow-md);
+      position: relative;
+    }
+
+    .total-display::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+      border-radius: var(--border-radius-lg);
+      pointer-events: none;
+    }
+
+    .total-display b {
+      font-size: 1.5rem;
+      color: var(--text-primary);
+      font-weight: 700;
+    }
+    
+    .cart-table {
+      background: var(--glass-bg);
+      backdrop-filter: blur(15px);
+      border-radius: var(--border-radius-lg);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+    }
+
+    .cart-table th, .cart-table td { 
+      font-size: 14px; 
+      padding: 16px 20px; 
+      border-color: var(--glass-border);
+    }
+
+    .cart-table th {
+      background: var(--primary-gradient);
+      color: white;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-size: 12px;
+    }
+
+    .cart-table tbody tr {
+      background: rgba(255, 255, 255, 0.1);
+      transition: var(--transition);
+    }
+
+    .cart-table tbody tr:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .food-controls {
+      display: flex; 
+      align-items: center; 
+      gap: 12px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius-xl);
+      padding: 8px;
+      width: 160px;
+      height: 48px;
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-md);
+      margin: 0 auto;
+      justify-content: center;
       flex-shrink: 0;
     }
-    .food-controls .btn-outline-primary { border: none; background: #fff; color: var(--clr-clay); }
-    .food-controls .btn-outline-primary:hover { background: var(--clr-sand); }
-    .food-controls .btn-outline-secondary { border: none; background: #fff; color: #6c757d; }
-    .food-controls .btn-outline-secondary:hover { background: #e9ecef; }
-    .food-controls .qty-display { 
-      width: 16px; text-align: center; font-weight: 600; color: var(--clr-ink);
-      padding: 0 1px; font-size: 0.75em; flex-shrink: 0;
-      display: flex; align-items: center; justify-content: center;
-      height: 20px;
-      order: -1;
-    }
-    /* checkout form overlay */
-    .checkout-overlay {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
+    
+    .food-controls .btn { 
+      padding: 8px 12px; 
+      font-size: 1rem; 
+      border-radius: var(--border-radius);
+      min-width: 36px; 
+      height: 36px; 
+      display: flex; 
+      align-items: center; 
       justify-content: center;
-      background: rgba(0,0,0,0.45);
-      z-index: 1200;
+      flex-shrink: 0;
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      color: var(--text-primary);
+      transition: var(--transition-bounce);
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--glass-border);
     }
-    .checkout-card {
-      width: 94%;
-      max-width: 420px;
-      background: #fff;
-      border-radius: 10px;
-      padding: 16px;
+
+    .food-controls .btn:hover {
+      background: var(--primary-gradient);
+      color: white;
+      transform: scale(1.05);
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .food-controls .qty-display { 
+      width: 40px; 
+      text-align: center; 
+      font-weight: 600; 
+      color: var(--text-primary);
+      padding: 8px 4px; 
+      font-size: 1rem; 
+      flex-shrink: 0;
+      display: flex; 
+      align-items: center; 
+      justify-content: center;
+      min-height: 32px;
+      background: var(--glass-bg);
+      backdrop-filter: blur(10px);
+      border-radius: var(--border-radius-lg);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow-sm);
+    }
+    
+
+    /* Desktop Layout */
+    @media (min-width: 1200px) {
+      .main-container {
+        padding: 40px;
+      }
+      
+      .page-title {
+        font-size: 2.5rem;
+        margin-bottom: 32px;
+      }
+      
+      .cart-food-card {
+        padding: 24px;
+        margin-bottom: 20px;
+      }
+      
+      .cart-table th, .cart-table td {
+        font-size: 16px;
+        padding: 20px 24px;
+      }
+      
+      .food-controls {
+        width: 180px;
+        height: 56px;
+        gap: 16px;
+      }
+      
+      .food-controls .btn {
+        min-width: 40px;
+        height: 40px;
+        padding: 10px 14px;
+        font-size: 1.1rem;
+      }
+      
+      .food-controls .qty-display {
+        width: 48px;
+        font-size: 1.1rem;
+        min-height: 36px;
+      }
+      
+      .cart-bottom-bar {
+        padding: 24px 40px;
+        gap: 20px;
+      }
+      
+      .cart-bottom-bar button {
+        padding: 18px 28px;
+        font-size: 1.1rem;
+      }
+      
+
+      .total-display {
+        padding: 24px;
+        margin: 32px 0;
+      }
+
+      .total-display b {
+        font-size: 1.75rem;
+      }
+    }
+
+    /* Tablet Layout */
+    @media (min-width: 768px) and (max-width: 1199px) {
+      .main-container {
+        padding: 28px;
+      }
+      
+      .page-title {
+        font-size: 2.25rem;
+        margin-bottom: 28px;
+      }
+      
+      .cart-food-card {
+        padding: 18px;
+        margin-bottom: 16px;
+      }
+      
+      .cart-table th, .cart-table td {
+        font-size: 15px;
+        padding: 16px 20px;
+      }
+      
+      .food-controls {
+        width: 160px;
+        height: 48px;
+        gap: 12px;
+      }
+      
+      .food-controls .btn {
+        min-width: 36px;
+        height: 36px;
+        padding: 8px 12px;
+        font-size: 1rem;
+      }
+      
+      .food-controls .qty-display {
+        width: 40px;
+        font-size: 1rem;
+        min-height: 32px;
+      }
+      
+      .cart-bottom-bar {
+        padding: 20px 28px;
+        gap: 16px;
+      }
+      
+      .cart-bottom-bar button {
+        padding: 16px 24px;
+        font-size: 1rem;
+      }
+
+
+      .total-display {
+        padding: 20px;
+        margin: 28px 0;
+      }
+
+      .total-display b {
+        font-size: 1.5rem;
+      }
+    }
+
+    /* Mobile Layout */
+    @media (max-width: 767px) {
+      .main-container {
+        padding: 16px;
+      }
+      
+      .cart-food-card {
+        padding: 10px 12px;
+        margin-bottom: 10px;
+      }
+      
+      .cart-table th, .cart-table td {
+        font-size: 12px;
+        padding: 6px 8px;
+      }
+      
+      .food-controls {
+        width: 70px;
+        height: 28px;
+      }
+      
+      .food-controls .btn {
+        min-width: 16px;
+        height: 16px;
+        padding: 1px 3px;
+        font-size: 0.65em;
+      }
+      
+      .food-controls .qty-display {
+        font-size: 0.65em;
+        width: 14px;
+        height: 16px;
+      }
+      
+      .cart-bottom-bar {
+        padding: 12px 16px;
+        gap: 10px;
+      }
+      
+      .cart-bottom-bar button {
+        padding: 10px 14px;
+        font-size: 0.9em;
+      }
+      
+    }
+
+    /* iPhone SE Specific (375px width) */
+    @media (max-width: 375px) {
+      .main-container {
+        padding: 12px;
+      }
+      
+      .cart-food-card {
+        padding: 8px 10px;
+        margin-bottom: 8px;
+      }
+      
+      .cart-table th, .cart-table td {
+        font-size: 11px;
+        padding: 4px 6px;
+      }
+      
+      .food-controls {
+        width: 65px;
+        height: 26px;
+      }
+      
+      .food-controls .btn {
+        min-width: 14px;
+        height: 14px;
+        padding: 1px 2px;
+        font-size: 0.6em;
+      }
+      
+      .food-controls .qty-display {
+        font-size: 0.6em;
+        width: 12px;
+        height: 14px;
+      }
+      
+      .cart-bottom-bar {
+        padding: 10px 12px;
+        gap: 8px;
+      }
+      
+      .cart-bottom-bar button {
+        padding: 8px 12px;
+        font-size: 0.85em;
+      }
+      
+    }
+
+    /* Extra Small Screens */
+    @media (max-width: 320px) {
+      .main-container {
+        padding: 8px;
+      }
+      
+      .cart-food-card {
+        padding: 6px 8px;
+        margin-bottom: 6px;
+      }
+      
+      .cart-table th, .cart-table td {
+        font-size: 10px;
+        padding: 3px 4px;
+      }
+      
+      .food-controls {
+        width: 60px;
+        height: 24px;
+      }
+      
+      .food-controls .btn {
+        min-width: 12px;
+        height: 12px;
+        font-size: 0.55em;
+      }
+      
+      .food-controls .qty-display {
+        font-size: 0.55em;
+        width: 10px;
+        height: 12px;
+      }
+      
+      .cart-bottom-bar {
+        padding: 8px 10px;
+        gap: 6px;
+      }
+      
+      .cart-bottom-bar button {
+        padding: 6px 10px;
+        font-size: 0.8em;
+      }
     }
   </style>
 </head>
-<body style="background: #f5f5f5;">
-  <div class="container my-2 tight" style="max-width:400px;">
-    <h5 class="mb-2 mt-2"><b>My Cart</b></h5>
+<body>
+  <div class="main-container">
+    <h5 class="page-title mb-3">My Cart</h5>
     <!-- Cart summary info table -->
     <table class="cart-table table table-bordered mb-3">
       <thead class="table-light">
@@ -98,41 +615,17 @@
     <div id="cartFoods">
       <!-- Render food item cards here -->
     </div>
-    <b class="d-block mt-3 mb-4">Total: <span id="cartTotal">$0.00</span></b>
+    <div class="total-display">
+      <b>Total: <span id="cartTotal">$0.00</span></b>
+    </div>
   </div>
 
   <!-- Bottom bar -->
-  <div class="fixed-bottom-bar cart-bottom-bar p-2 gap-2" style="max-width:400px; margin: 0 auto;">
+  <div class="fixed-bottom-bar cart-bottom-bar">
     <button class="btn btn-outline-primary" onclick="orderMore()">Order More</button>
-    <button class="btn btn-success" onclick="showCheckoutForm()">Check Out</button>
+    <button class="btn btn-success" onclick="goToPayment()">Pay</button>
   </div>
 
-  <!-- Checkout overlay (appears when user clicks Check Out) -->
-  <div id="checkoutOverlay" class="checkout-overlay" aria-hidden="true" aria-labelledby="checkoutTitle">
-    <div class="checkout-card shadow-sm">
-      <h6 id="checkoutTitle" class="mb-2">Enter details to complete order</h6>
-      <div class="mb-2">
-        <label for="custName" class="form-label visually-hidden">Full name</label>
-        <input id="custName" class="form-control form-control-sm" placeholder="Full name" aria-required="true" />
-      </div>
-      <div class="mb-2">
-        <label for="custEmail" class="form-label visually-hidden">Email</label>
-        <input id="custEmail" class="form-control form-control-sm" placeholder="Email" type="email" aria-required="true"/>
-      </div>
-      <div class="mb-2">
-        <label for="paymentMethod" class="form-label visually-hidden">Payment method</label>
-        <select id="paymentMethod" class="form-select form-select-sm">
-          <option value="mock_card">Mock Card (test)</option>
-          <option value="cash">Pay on Pickup (cash)</option>
-        </select>
-      </div>
-      <div class="d-flex gap-2">
-        <button class="btn btn-success btn-sm flex-grow-1" onclick="confirmPayment()" type="button">Pay (mock)</button>
-        <button class="btn btn-outline-secondary btn-sm" onclick="hideCheckoutForm()" type="button">Cancel</button>
-      </div>
-      <div id="checkoutMsg" class="mt-2 small text-danger" style="display:none;" role="alert" aria-live="polite"></div>
-    </div>
-  </div>
 
   <!-- Navigation bar removed to match menu/home/stall pages (no bottom nav on checkout) -->
 
@@ -311,79 +804,15 @@
     }
     
     /*****************************************************************
-     * Checkout flow (mock payment)
+     * Payment flow
      *****************************************************************/
-    function showCheckoutForm() {
+    function goToPayment() {
       if (!cartFoods.length) {
         alert('Your cart is empty.');
         return;
       }
-      const overlay = document.getElementById('checkoutOverlay');
-      overlay.style.display = 'flex';
-      overlay.removeAttribute('aria-hidden');
-      overlay.setAttribute('aria-modal', 'true');
-      overlay.setAttribute('role', 'dialog');
-      
-      // Focus the first input when overlay opens
-      setTimeout(() => {
-        document.getElementById('custName').focus();
-      }, 100);
-    }
-    function hideCheckoutForm() {
-      const overlay = document.getElementById('checkoutOverlay');
-      overlay.style.display = 'none';
-      overlay.setAttribute('aria-hidden', 'true');
-      overlay.removeAttribute('aria-modal');
-      overlay.removeAttribute('role');
-      document.getElementById('checkoutMsg').style.display = 'none';
-      
-      // Clear any focus from overlay elements
-      const focusedElement = document.activeElement;
-      if (overlay.contains(focusedElement)) {
-        focusedElement.blur();
-      }
-    }
-
-    function confirmPayment() {
-      const name = document.getElementById('custName').value.trim();
-      const email = document.getElementById('custEmail').value.trim();
-      const msgEl = document.getElementById('checkoutMsg');
-      if (!name) { msgEl.textContent = 'Please enter your name.'; msgEl.style.display='block'; return; }
-      if (!email || !email.includes('@')) { msgEl.textContent = 'Please enter a valid email.'; msgEl.style.display='block'; return; }
-      msgEl.style.display='none';
-
-      // simulate payment processing
-      const paymentMethod = document.getElementById('paymentMethod').value;
-      // build order object
-      const order = {
-        id: 'ord_' + Date.now(),
-        customer: { name, email },
-        info: cartInfo,
-        items: cartFoods,
-        total: cartFoods.reduce((s,i) => s + (i.price||0)*(i.qty||0), 0),
-        paymentMethod,
-        paymentStatus: paymentMethod === 'cash' ? 'pending' : 'paid',
-        createdAt: new Date().toISOString()
-      };
-
-      // persist order list in localStorage (demo backend)
-      try {
-        const raw = localStorage.getItem('orders');
-        const list = raw ? JSON.parse(raw) : [];
-        list.push(order);
-        localStorage.setItem('orders', JSON.stringify(list));
-      } catch(e) { console.warn('failed saving order', e); }
-
-      // clear cart
-      cartFoods = [];
-      persistCart();
-      renderCartFoods();
-      hideCheckoutForm();
-
-      // show success and redirect to a simple success view (or display inline)
-      alert('Order placed: ' + order.id + '\nStatus: ' + order.paymentStatus);
-      // redirect to a simple success page if you have one:
-      // window.location.href = "order-success.html?id=" + order.id;
+      // Redirect to payment page
+      window.location.href = 'payment.html';
     }
 
 

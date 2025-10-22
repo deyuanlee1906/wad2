@@ -1,44 +1,347 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Crowd View</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet"/>
-    <link rel="stylesheet" href="/styles/main.css">
-    <link rel="stylesheet" href="/styles/components.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Crowd Levels</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles/crowd-view-style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="container my-4">
-        <h2 class="text-center mb-4">Crowd View</h2>
-        <div class="card p-4">
-            <p class="text-center">Real-time crowd monitoring coming soon...</p>
-            <p class="text-center text-muted">This feature will show live crowd levels at various food centres.</p>
-        </div>
-    </div>
+<div class="instagram-container">
+  <div class="instagram-header">
+    <h1><i class="bi bi-eye"></i> Crowd View</h1>
+  </div>
 
-    <div class="nav-bar">
-        <button onclick="location.href='/pages/order/online-order-home.html'">
-            <i class="bi bi-cart3"></i>
-            <span>Order</span>
-        </button>
-        <button onclick="location.href='/pages/community/community.html'">
-            <i class="bi bi-people"></i>
-            <span>Community</span>
-        </button>
-        <button onclick="location.href='/pages/chope/chope.html'">
-            <i class="bi bi-bookmark"></i>
-            <span>Chope</span>
-        </button>
-        <button onclick="location.href='/pages/crowd/crowd-view.html'">
-            <i class="bi bi-eye"></i>
-            <span>Crowd View</span>
-        </button>
-        <button onclick="location.href='/pages/profile/profile.html'">
-            <i class="bi bi-person"></i>
-            <span>Profile</span>
-        </button>
+  <div class="instagram-feed">
+    <div class="instagram-post">
+      <div class="post-header">
+        <div class="user-info">
+          <div class="avatar">H</div>
+          <div class="user-details">
+            <span class="username">Hawker Centre</span>
+            <span class="location">Crowd Levels</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="post-image">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/63/Maxwell_Food_Centre%2C_Singapore_-_panoramio.jpg" 
+             alt="Hawker Centre" style="width: 100%; height: 300px; object-fit: cover;" />
+      </div>
+      
+      <div class="post-caption">
+        <div class="dropdown" style="margin: 15px 0;">
+          <label for="hawker-select" style="display: block; margin-bottom: 8px; font-weight: bold; color: #262626;">Select Hawker Centre:</label>
+          <select id="hawker-select" style="width: 100%; padding: 10px; border: 2px solid #F2C6B6; border-radius: 8px; background-color: #F2F2F2; color: #262626;">
+            <option value="maxwell" selected>Maxwell Food Centre</option>
+            <option value="newton">Newton Food Centre</option>
+            <option value="changi">Changi Village Food Centre</option>
+          </select>
+        </div>
+        
+        <div class="dropdown" style="margin: 15px 0;">
+          <label for="stall-select" style="display: block; margin-bottom: 8px; font-weight: bold; color: #262626;">Select Stall:</label>
+          <select id="stall-select" style="width: 100%; padding: 10px; border: 2px solid #F2C6B6; border-radius: 8px; background-color: #F2F2F2; color: #262626;">
+            <option value="all">All Stalls</option>
+            <option value="tian_tian">Tian Tian Hainanese Chicken Rice</option>
+            <option value="zhen_zhen">Zhen Zhen Porridge</option>
+            <option value="maxwell_fuzhou">Maxwell Fuzhou Oyster Cake</option>
+          </select>
+        </div>
+        
+        <div style="margin: 15px 0; padding: 15px; background-color: #F2D9BB; border-radius: 10px;">
+          <div style="margin-bottom: 8px;">
+            <strong>📍 <span id="hawker-name">Maxwell Food Centre</span></strong>
+          </div>
+          <div style="margin-bottom: 8px; color: #262626;">
+            <span id="hawker-address">1 Kadayanallur St, Singapore 069184</span>
+          </div>
+          <div style="color: #262626;">
+            <span id="hawker-hours">6:00AM - 10:00PM</span>
+          </div>
+        </div>
+        
+        <div style="height: 300px; margin: 15px 0;">
+          <canvas id="crowdChart"></canvas>
+        </div>
+      </div>
     </div>
+  </div>
+</div>
+
+<div class="nav-bar">
+  <button onclick="location.href='/pages/order/online-order-home.html'">
+    <i class="bi bi-cart3"></i>
+    <span>Order</span>
+  </button>
+  <button onclick="location.href='/pages/community/community.html'">
+    <i class="bi bi-people"></i>
+    <span>Community</span>
+  </button>
+  <button onclick="location.href='/pages/chope/chope.html'">
+    <i class="bi bi-bookmark"></i>
+    <span>Chope</span>
+  </button>
+  <button class="active">
+    <i class="bi bi-eye"></i>
+    <span>Crowd View</span>
+  </button>
+  <button onclick="location.href='/pages/profile/profile.html'">
+    <i class="bi bi-person"></i>
+    <span>Profile</span>
+  </button>
+</div>
+
+  <script>
+    const hawkerData = {
+      maxwell: {
+        name: "Maxwell Food Centre",
+        address: "1 Kadayanallur St, Singapore 069184",
+        hours: "6:00AM - 10:00PM",
+        stalls: {
+          tian_tian: [5, 15, 25, 45, 35, 40, 20, 3], // Tian Tian Hainanese Chicken Rice
+          zhen_zhen: [3, 12, 30, 50, 25, 35, 15, 2], // Zhen Zhen Porridge
+          maxwell_fuzhou: [2, 8, 20, 35, 30, 25, 10, 1] // Maxwell Fuzhou Oyster Cake
+        }
+      },
+      newton: {
+        name: "Newton Food Centre",
+        address: "500 Clemenceau Ave N, Singapore 229495",
+        hours: "5:00AM - 11:00PM",
+        stalls: {
+          satay: [8, 20, 35, 60, 45, 55, 30, 5], // Newton Satay
+          stingray: [4, 15, 25, 40, 35, 30, 18, 3], // BBQ Stingray
+          oyster_omelette: [6, 18, 30, 45, 40, 35, 22, 4] // Oyster Omelette
+        }
+      },
+      changi: {
+        name: "Changi Village Food Centre",
+        address: "2 Changi Village Rd, Singapore 500002",
+        hours: "6:30AM - 9:00PM",
+        stalls: {
+          nasi_lemak: [3, 10, 20, 35, 25, 30, 15, 2], // Changi Village Nasi Lemak
+          char_kway_teow: [2, 8, 18, 30, 20, 25, 12, 1], // Changi Village Char Kway Teow
+          laksa: [4, 12, 22, 40, 30, 35, 18, 3] // Changi Village Laksa
+        }
+      }
+    };
+
+    let currentHawker = 'maxwell';
+    let currentStallData = hawkerData[currentHawker].stalls;
+
+    function computeAllStallsSum() {
+      const keys = Object.keys(currentStallData);
+      const length = currentStallData[keys[0]].length;
+      const totals = new Array(length).fill(0);
+      keys.forEach(key => {
+        currentStallData[key].forEach((value, idx) => {
+          totals[idx] += value;
+        });
+      });
+      return totals;
+    }
+
+    function updateHawkerInfo(hawkerKey) {
+      const hawker = hawkerData[hawkerKey];
+      document.getElementById('hawker-name').textContent = hawker.name;
+      document.getElementById('hawker-address').textContent = hawker.address;
+      document.getElementById('hawker-hours').textContent = "Loading hours...";
+      
+      // Fetch real hours from Google Maps via SerpAPI
+      fetchHawkerHours(hawker.name, hawker.address);
+    }
+
+    function fetchHawkerHours(hawkerName, address) {
+      // For now, use realistic static hours since API calls are problematic
+      const staticHours = {
+        maxwell: "6:00AM - 10:00PM (Daily)",
+        newton: "5:00AM - 11:00PM (Daily)", 
+        changi: "6:30AM - 9:00PM (Daily)"
+      };
+      
+      const currentHawker = document.getElementById('hawker-select').value;
+      document.getElementById('hawker-hours').textContent = staticHours[currentHawker] || "Hours not available";
+      
+      // Optional: Try API call in background (commented out due to CORS issues)
+      /*
+      const apiKey = "2e5022fe16c5374fb40750a1bb17db9b7884b94272d88de37b23b488abc363ff";
+      const query = `${hawkerName} ${address}`;
+      const url = `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(query)}&location=Singapore&api_key=${apiKey}`;
+      
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          console.log('API Response:', data);
+          // Process API response here if needed
+        })
+        .catch(error => {
+          console.log('API call failed, using static hours:', error);
+        });
+      */
+    }
+
+    function updateStallOptions(hawkerKey) {
+      const stallSelect = document.getElementById('stall-select');
+      const hawker = hawkerData[hawkerKey];
+      
+      // Clear existing options except "All Stalls"
+      stallSelect.innerHTML = '<option value="all">All Stalls</option>';
+      
+      // Add hawker-specific stalls
+      const stallNames = {
+        maxwell: {
+          tian_tian: "Tian Tian Hainanese Chicken Rice",
+          zhen_zhen: "Zhen Zhen Porridge", 
+          maxwell_fuzhou: "Maxwell Fuzhou Oyster Cake"
+        },
+        newton: {
+          satay: "Newton Satay",
+          stingray: "BBQ Stingray",
+          oyster_omelette: "Oyster Omelette"
+        },
+        changi: {
+          nasi_lemak: "Changi Village Nasi Lemak",
+          char_kway_teow: "Changi Village Char Kway Teow",
+          laksa: "Changi Village Laksa"
+        }
+      };
+      
+      const currentStallNames = stallNames[hawkerKey];
+      Object.keys(currentStallNames).forEach(stallKey => {
+        const option = document.createElement('option');
+        option.value = stallKey;
+        option.textContent = currentStallNames[stallKey];
+        stallSelect.appendChild(option);
+      });
+    }
+
+    function fetchStallHours(hawkerName, stallName) {
+      // Realistic stall hours based on typical hawker stall operating patterns
+      const stallHours = {
+        // Maxwell Food Centre stalls
+        tian_tian: "7:00AM - 2:00PM (Closed Mon)",
+        zhen_zhen: "5:30AM - 2:00PM (Daily)",
+        maxwell_fuzhou: "7:00AM - 3:00PM (Daily)",
+        
+        // Newton Food Centre stalls  
+        satay: "5:00PM - 11:00PM (Daily)",
+        stingray: "5:00PM - 11:00PM (Daily)",
+        oyster_omelette: "5:00PM - 11:00PM (Daily)",
+        
+        // Changi Village Food Centre stalls
+        nasi_lemak: "6:00AM - 2:00PM (Daily)",
+        char_kway_teow: "6:00AM - 2:00PM (Closed Mon)",
+        laksa: "6:00AM - 2:00PM (Daily)"
+      };
+      
+      // Find the stall key based on stall name
+      const stallKey = Object.keys(stallHours).find(key => {
+        const stallNames = {
+          tian_tian: "Tian Tian Hainanese Chicken Rice",
+          zhen_zhen: "Zhen Zhen Porridge",
+          maxwell_fuzhou: "Maxwell Fuzhou Oyster Cake",
+          satay: "Newton Satay",
+          stingray: "BBQ Stingray", 
+          oyster_omelette: "Oyster Omelette",
+          nasi_lemak: "Changi Village Nasi Lemak",
+          char_kway_teow: "Changi Village Char Kway Teow",
+          laksa: "Changi Village Laksa"
+        };
+        return stallNames[key] === stallName;
+      });
+      
+      const hours = stallKey ? stallHours[stallKey] : "Hours not available";
+      document.getElementById('hawker-hours').innerHTML = `<strong>Stall Hours:</strong> ${hours}`;
+    }
+
+    const ctx = document.getElementById("crowdChart");
+    const chart = new Chart(ctx, {
+      type: "bar",
+      data: {
+        labels: ["3a", "6a", "9a", "12p", "3p", "6p", "9p", "12a"],
+        datasets: [
+          {
+            label: "Crowd Level",
+            data: computeAllStallsSum(),
+            backgroundColor: "#D98566",
+            borderRadius: 6,
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          y: {
+            beginAtZero: true,
+            grid: { color: "#F2D9BB" },
+            ticks: { color: "#262626" },
+          },
+          x: {
+            grid: { display: false },
+            ticks: { color: "#262626" },
+          },
+        },
+      },
+    });
+
+    // Update chart when hawker is changed
+    const hawkerSelect = document.getElementById("hawker-select");
+    hawkerSelect.addEventListener("change", (e) => {
+      currentHawker = e.target.value;
+      currentStallData = hawkerData[currentHawker].stalls;
+      updateHawkerInfo(currentHawker);
+      updateStallOptions(currentHawker);
+      
+      // Update chart with new hawker data (default to "All Stalls")
+      chart.data.datasets[0].data = computeAllStallsSum();
+      chart.update();
+    });
+
+    // Update chart when stall is changed
+    const stallSelect = document.getElementById("stall-select");
+    stallSelect.addEventListener("change", (e) => {
+      const value = e.target.value;
+      chart.data.datasets[0].data = value === 'all' ? computeAllStallsSum() : currentStallData[value];
+      chart.update();
+      
+      // Fetch stall-specific hours if not "All Stalls"
+      if (value !== 'all') {
+        const hawker = hawkerData[currentHawker];
+        const stallNames = {
+          maxwell: {
+            tian_tian: "Tian Tian Hainanese Chicken Rice",
+            zhen_zhen: "Zhen Zhen Porridge", 
+            maxwell_fuzhou: "Maxwell Fuzhou Oyster Cake"
+          },
+          newton: {
+            satay: "Newton Satay",
+            stingray: "BBQ Stingray",
+            oyster_omelette: "Oyster Omelette"
+          },
+          changi: {
+            nasi_lemak: "Changi Village Nasi Lemak",
+            char_kway_teow: "Changi Village Char Kway Teow",
+            laksa: "Changi Village Laksa"
+          }
+        };
+        
+        const stallName = stallNames[currentHawker][value];
+        if (stallName) {
+          fetchStallHours(hawker.name, stallName);
+        }
+      } else {
+        // Show hawker centre hours for "All Stalls"
+        fetchHawkerHours(hawkerData[currentHawker].name, hawkerData[currentHawker].address);
+      }
+    });
+  </script>
 </body>
 </html>
+
+
+

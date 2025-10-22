@@ -4,37 +4,632 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Online Order - Select Stall</title>
+
+  <!-- Bootstrap & Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
   <link rel="stylesheet" href="/styles/main.css" />
-  <link rel="stylesheet" href="/styles/components.css">
+  <link rel="stylesheet" href="/styles/components.css" />
+
   <style>
-    body { background: var(--clr-cloud); color: var(--clr-ink); }
-    .container.tight { max-width: 100%; padding-left: 12px; padding-right: 12px; }
-    .location-header { font-size: 1.17em; font-weight: 700; display: flex; align-items: center; gap: 6px; margin: 16px 0 6px; color: var(--clr-ink); }
-    .search-bar { margin: 2px 0 14px; border: none; border-radius: 0; border-bottom: 1px solid var(--clr-ink); padding-left: 0; padding-right: 36px; background: transparent; color: var(--clr-ink); }
-    .search-wrap { position: relative; }
-    .search-clear { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); border: none; background: transparent; color: var(--clr-ink); width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 50%; }
-    .stall-list-title { margin: 10px 0 8px; font-size: 1.3em; font-weight: 700; color: var(--clr-ink); }
-    .stall-card { background: #fff; border: 1px solid rgba(38,38,38,0.12); border-radius: 10px; display: flex; gap: 12px; padding: 12px; margin-bottom: 10px; cursor: pointer; box-shadow: 0 1px 6px rgba(38,38,38,0.06); }
-    .stall-card:hover { border-color: var(--clr-sand); box-shadow: 0 2px 10px rgba(38,38,38,0.08); }
-    .stall-img-wrap { width: 120px; height: 120px; display: flex; align-items: center; justify-content: center; }
-    .stall-img { width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid var(--clr-cloud); display: block; }
-    .status-dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
-    .status-open { background: #28a745; } .status-closed { background: #dc3545; }
-    .stars { color: #FFC107; }
-    .stall-info { flex: 1 1 0; padding-left: 3px; display: flex; flex-direction: column; justify-content: center; color: var(--clr-ink); }
-    .stall-info b { font-size: 1.05em; margin-bottom: 2px; display: block; color: var(--clr-ink); }
-    .stall-info small { display: block; font-size: 0.9em; color: var(--clr-ink); margin-bottom: 2px; }
-    .stall-meta { margin: 0; font-size: 0.9em; color: var(--clr-ink); }
-    @media (max-width: 575px) { .container { max-width: 99vw !important; } .stall-img, .stall-img-wrap { width: 80px; height: 80px; } }
-    @media (max-width: 400px) { .stall-img, .stall-img-wrap { width: 60px; height: 60px; } .stall-card { padding: 6px 1vw; gap:8px; } }
-    @media (min-width: 576px) { .container.tight { max-width: 520px; margin-left: auto; margin-right: auto; } }
-    @media (min-width: 992px) { .container.tight { max-width: 720px; } }
+    :root {
+      --clr-cloud: #f8f9fa;
+      --clr-ink: #222;
+      --clr-sand: #f1f3f5;
+    }
+
+    body {
+      color: var(--clr-ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 0 0 100px 0;
+      margin: 0;
+      background-color: var(--clr-cloud);
+      overflow-x: hidden;
+    }
+
+    .main-content {
+      padding: 0 20px;
+      max-width: 100%;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    /* Desktop Layout */
+    @media (min-width: 1200px) {
+      .main-content {
+        padding: 32px 40px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      
+      .stall-card {
+        height: 220px;
+        padding: 24px;
+        gap: 20px;
+      }
+      
+      #closedStalls .stall-card {
+        height: 220px;
+      }
+      
+      .stall-img-wrap {
+        width: 140px;
+        height: 180px;
+      }
+      
+      .stall-img {
+        width: 140px !important;
+        height: 180px !important;
+      }
+      
+      #closedStalls .stall-img-wrap {
+        width: 140px;
+        height: 180px;
+      }
+      
+      #closedStalls .stall-img {
+        width: 140px !important;
+        height: 180px !important;
+      }
+      
+      .stall-info b {
+        font-size: 1.2em;
+      }
+      
+      .stall-info small {
+        font-size: 1em;
+      }
+      
+      .stall-meta {
+        font-size: 0.9em;
+      }
+    }
+
+    /* Large Desktop Layout */
+    @media (min-width: 992px) and (max-width: 1199px) {
+      .main-content {
+        padding: 24px 32px;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      
+      .stall-card {
+        height: 200px;
+        padding: 20px;
+        gap: 16px;
+      }
+      
+      #closedStalls .stall-card {
+        height: 200px;
+      }
+      
+      .stall-img-wrap {
+        width: 120px;
+        height: 160px;
+      }
+      
+      .stall-img {
+        width: 120px !important;
+        height: 160px !important;
+      }
+      
+      #closedStalls .stall-img-wrap {
+        width: 120px;
+        height: 160px;
+      }
+      
+      #closedStalls .stall-img {
+        width: 120px !important;
+        height: 160px !important;
+      }
+    }
+
+
+    .location-header {
+      font-size: 1.17em;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 16px 0 8px;
+      color: var(--clr-ink);
+    }
+
+    .search-wrap {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .search-bar {
+      border: none;
+      border-bottom: 1px solid var(--clr-ink);
+      border-radius: 0;
+      padding-left: 0;
+      padding-right: 36px;
+      background: transparent;
+      color: var(--clr-ink);
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      color: var(--clr-ink);
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border-radius: 50%;
+    }
+
+    .stall-list-title {
+      margin: 24px 0 16px;
+      font-size: 1.3em;
+      font-weight: 700;
+      color: var(--clr-ink);
+    }
+
+    /* Grid layout for stalls */
+    #availableStalls, #closedStalls {
+      display: grid;
+      gap: 16px;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* Desktop Grid Layout */
+    @media (min-width: 1200px) {
+      #availableStalls, #closedStalls {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 32px;
+      }
+    }
+    
+    @media (min-width: 992px) and (max-width: 1199px) {
+      #availableStalls, #closedStalls {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+      }
+    }
+    
+    /* Tablet Grid Layout */
+    @media (min-width: 768px) and (max-width: 991px) {
+      #availableStalls, #closedStalls {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+    }
+
+    .stall-card {
+      background: #fff;
+      border: 1px solid rgba(38,38,38,0.12);
+      border-radius: 12px;
+      display: flex;
+      gap: 12px;
+      padding: 16px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(38,38,38,0.08);
+      transition: all 0.3s ease;
+      width: 100%;
+      height: 180px;
+      align-items: flex-start;
+    }
+
+    .stall-card:hover {
+      border-color: var(--clr-sand);
+      box-shadow: 0 4px 16px rgba(38,38,38,0.12);
+      transform: translateY(-2px);
+    }
+
+    /* Closed stalls styling - same size as available */
+    #closedStalls .stall-card {
+      opacity: 0.7;
+      background: #f8f9fa;
+      height: 180px;
+    }
+
+    #closedStalls .stall-card:hover {
+      opacity: 0.8;
+      border-color: #dc3545;
+    }
+
+    .stall-img-wrap {
+      width: 100px;
+      height: 140px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(38,38,38,0.1);
+    }
+
+    .stall-img {
+      width: 100px !important;
+      height: 140px !important;
+      object-fit: cover;
+      border-radius: 10px;
+      border: 2px solid var(--clr-cloud);
+      display: block;
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+
+    .stall-card:hover .stall-img {
+      border-color: var(--clr-sand);
+      transform: scale(1.02);
+    }
+
+    /* Ensure closed stalls have same image size */
+    #closedStalls .stall-img-wrap {
+      width: 100px;
+      height: 140px;
+    }
+
+    #closedStalls .stall-img {
+      width: 100px !important;
+      height: 140px !important;
+    }
+
+    .stall-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: var(--clr-ink);
+      min-width: 0;
+      padding: 2px 0;
+      height: 100%;
+    }
+
+    .stall-info b {
+      font-size: 1.1em;
+      margin-bottom: 4px;
+      display: block;
+      color: var(--clr-ink);
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .stall-info small {
+      display: block;
+      font-size: 0.9em;
+      color: var(--clr-ink);
+      margin-bottom: 3px;
+      line-height: 1.3;
+      opacity: 0.9;
+    }
+
+    .stall-info small:first-of-type {
+      color: var(--clr-primary);
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .stall-meta {
+      margin: 6px 0 0 0;
+      font-size: 0.85em;
+      color: var(--clr-ink);
+      opacity: 0.8;
+      line-height: 1.3;
+      padding-top: 3px;
+      border-top: 1px solid rgba(38,38,38,0.1);
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+    .status-open { 
+      background: #28a745;
+      box-shadow: 0 0 0 2px rgba(40, 167, 69, 0.2);
+    }
+    .status-closed { 
+      background: #dc3545;
+      box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+    }
+    .stars { 
+      color: #FFC107;
+      font-weight: 600;
+    }
+
+    /* Mobile Layout */
+    @media (max-width: 767px) {
+      body {
+        padding: 0 0 120px 0;
+      }
+      
+      .main-content {
+        padding: 0 16px 20px 16px;
+      }
+      
+      .location-header {
+        font-size: 1.1em;
+        margin: 12px 0 8px;
+      }
+      
+      .stall-list-title {
+        font-size: 1.2em;
+        margin: 20px 0 12px;
+      }
+      
+      .stall-card {
+        padding: 12px;
+        gap: 12px;
+        height: 160px;
+        width: 100%;
+        margin: 0;
+      }
+      
+      #closedStalls .stall-card {
+        height: 160px;
+      }
+      
+      .stall-img-wrap {
+        width: 90px;
+        height: 130px;
+      }
+      
+      .stall-img {
+        width: 90px !important;
+        height: 130px !important;
+      }
+      
+      #closedStalls .stall-img-wrap {
+        width: 90px;
+        height: 130px;
+      }
+      
+      #closedStalls .stall-img {
+        width: 90px !important;
+        height: 130px !important;
+      }
+      
+      .stall-info b {
+        font-size: 1.05em;
+        margin-bottom: 3px;
+      }
+      
+      .stall-info small {
+        font-size: 0.85em;
+        margin-bottom: 2px;
+      }
+      
+      .stall-meta {
+        font-size: 0.8em;
+        margin-top: 4px;
+        padding-top: 2px;
+      }
+    }
+
+    /* iPhone SE Specific (375px width) */
+    @media (max-width: 375px) {
+      body {
+        padding: 0 0 100px 0;
+      }
+      
+      .main-content {
+        padding: 0 12px 16px 12px;
+      }
+      
+      .location-header {
+        font-size: 1em;
+        margin: 10px 0 6px;
+      }
+      
+      .search-wrap {
+        margin-bottom: 12px;
+      }
+      
+      .search-bar {
+        font-size: 0.9em;
+        padding: 8px 0;
+      }
+      
+      .stall-list-title {
+        font-size: 1.1em;
+        margin: 16px 0 10px;
+      }
+      
+      .stall-card {
+        padding: 10px;
+        gap: 10px;
+        height: 140px;
+        width: 100%;
+        margin: 0;
+      }
+      
+      #closedStalls .stall-card {
+        height: 140px;
+      }
+      
+      .stall-img-wrap {
+        width: 75px;
+        height: 110px;
+      }
+      
+      .stall-img {
+        width: 75px !important;
+        height: 110px !important;
+      }
+      
+      #closedStalls .stall-img-wrap {
+        width: 75px;
+        height: 110px;
+      }
+      
+      #closedStalls .stall-img {
+        width: 75px !important;
+        height: 110px !important;
+      }
+      
+      .stall-info {
+        padding: 1px 0;
+        flex: 1;
+      }
+      
+      .stall-info b {
+        font-size: 0.95em;
+        margin-bottom: 2px;
+        line-height: 1.2;
+      }
+      
+      .stall-info small {
+        font-size: 0.8em;
+        margin-bottom: 1px;
+        line-height: 1.2;
+      }
+      
+      .stall-meta {
+        font-size: 0.75em;
+        margin-top: 3px;
+        padding-top: 1px;
+        line-height: 1.2;
+      }
+      
+      .status-dot {
+        width: 6px;
+        height: 6px;
+        margin-right: 4px;
+      }
+      
+      .nav-bar {
+        height: 70px;
+        padding: 8px 0 6px 0;
+      }
+      
+      .nav-bar button {
+        font-size: 0.7em;
+      }
+      
+      .nav-bar i {
+        font-size: 1.1em;
+      }
+    }
+
+    /* Extra Small Screens */
+    @media (max-width: 320px) {
+      .main-content {
+        padding: 0 8px 12px 8px;
+      }
+      
+      .stall-card {
+        padding: 8px;
+        gap: 8px;
+        height: 130px;
+      }
+      
+      #closedStalls .stall-card {
+        height: 130px;
+      }
+      
+      .stall-img-wrap {
+        width: 65px;
+        height: 95px;
+      }
+      
+      .stall-img {
+        width: 65px !important;
+        height: 95px !important;
+      }
+      
+      #closedStalls .stall-img-wrap {
+        width: 65px;
+        height: 95px;
+      }
+      
+      #closedStalls .stall-img {
+        width: 65px !important;
+        height: 95px !important;
+      }
+      
+      .stall-info b {
+        font-size: 0.9em;
+      }
+      
+      .stall-info small {
+        font-size: 0.75em;
+      }
+      
+      .stall-meta {
+        font-size: 0.7em;
+      }
+    }
+
+    /* Navigation Bar */
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-top: 1px solid rgba(38,38,38,0.1);
+      display: flex;
+      justify-content: space-around;
+      padding: 12px 0 8px 0;
+      z-index: 1000;
+      height: 80px;
+      box-sizing: border-box;
+      width: 100%;
+    }
+    
+    .nav-bar button {
+      background: none;
+      border: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.8em;
+      color: var(--clr-ink);
+      cursor: pointer;
+      transition: color 0.2s ease;
+      min-width: 0;
+      flex: 1;
+    }
+    
+    .nav-bar button:hover {
+      color: var(--clr-clay);
+    }
+    
+    .nav-bar i {
+      font-size: 1.3em;
+      margin-bottom: 2px;
+    }
+    
+    /* Desktop Navigation */
+    @media (min-width: 992px) {
+      .nav-bar {
+        height: 90px;
+        padding: 16px 0 12px 0;
+      }
+      
+      .nav-bar button {
+        font-size: 0.9em;
+      }
+      
+      .nav-bar i {
+        font-size: 1.5em;
+        margin-bottom: 4px;
+      }
+    }
   </style>
 </head>
+
 <body>
-  <div class="container tight">
+  <div class="main-content">
     <div class="location-header mb-1 mt-2">
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#000" class="me-1" viewBox="0 0 16 16">
         <path d="M8 16s6-5.686 6-10A6 6 0 1 0 2 6c0 4.314 6 10 6 10Zm0-8a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"/>
@@ -48,31 +643,92 @@
     </div>
 
     <div class="stall-list-title fw-bold">Available Stalls</div>
-    <div id="stallList"></div>
+    <div id="availableStalls"></div>
+    
+    <div class="stall-list-title fw-bold mt-4">Closed Stalls</div>
+    <div id="closedStalls"></div>
   </div>
 
   <script>
-    // Base data
     const baseStalls = [
-      { name: "Peanuts Soup",               cuisine: "Chinese",   status: "Open",   priceRange: "$5-10", rating: 4.3, waitTime: "10 min", img: "/img/stall1.jpg" },
-      { name: "Hajmeer Kwaja Muslim Food",  cuisine: "Malay",     status: "Closed", priceRange: "$3-10", rating: 4.8, waitTime: "N/A",    img: "/img/stall2.jpg" },
-      { name: "LuckMeow",                   cuisine: "Indian",    status: "Open",   priceRange: "$2-10", rating: 4.1, waitTime: "15 min", img: "/img/stall3.jpg" },
-      { name: "Ramen Taisho",               cuisine: "Japanese",  status: "Open",   priceRange: "$7-15", rating: 4.2, waitTime: "8 min",  img: "/img/stall4.jpg" },
-      { name: "China Street Fritters",      cuisine: "Chinese",   status: "Open",   priceRange: "$2-8",  rating: 4.5, waitTime: "12 min", img: "/img/stall5.jpg" },
-      { name: "Bold X Braised",             cuisine: "Taiwanese", status: "Closed", priceRange: "$6-16", rating: 4.0, waitTime: "N/A",    img: "/img/stall6.jpg" }
+      { name: "Peanuts Soup", cuisine: "Chinese", status: "Open", priceRange: "$5-10", rating: 4.3, waitTime: "10 min", img: "/img/stall1.jpg" },
+      { name: "Hajmeer Kwaja", cuisine: "Malay", status: "Closed", priceRange: "$3-10", rating: 4.8, waitTime: "N/A", img: "/img/stall2.jpg" },
+      { name: "LuckMeow", cuisine: "Indian", status: "Open", priceRange: "$2-10", rating: 4.1, waitTime: "15 min", img: "/img/stall3.jpg" },
+      { name: "Ramen Taisho", cuisine: "Japanese", status: "Open", priceRange: "$7-15", rating: 4.2, waitTime: "8 min", img: "/img/stall4.jpg" },
+      { name: "China Street Fritters", cuisine: "Chinese", status: "Open", priceRange: "$2-8", rating: 4.5, waitTime: "12 min", img: "/img/stall5.jpg" },
+      { name: "Bold X Braised", cuisine: "Taiwanese", status: "Closed", priceRange: "$6-16", rating: 4.0, waitTime: "N/A", img: "/img/stall6.jpg" }
     ];
 
-    // Add stable slug for navigation
     const toSlug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
     const stalls = baseStalls.map((s, i) => ({ id: i + 1, slug: toSlug(s.name), ...s }));
 
-    function statusDot(open){
-      const label = open ? 'Open' : 'Closed';
-      return `<span class="status-dot ${open ? 'status-open' : 'status-closed'}" aria-hidden="true"></span>${label}`;
+    function statusDot(open) {
+      const label = open ? "Open" : "Closed";
+      return `<span class="status-dot ${open ? "status-open" : "status-closed"}"></span>${label}`;
     }
-    function stars(rating){
+
+    function stars(rating) {
       const full = Math.max(1, Math.min(5, Math.round(Number(rating) || 0)));
       return `<span class="stars" aria-label="Rating: ${full} out of 5">${"★".repeat(full)}</span>`;
+    }
+
+    function showClosedStallPopup(stallName) {
+      // Create popup modal
+      const modal = document.createElement('div');
+      modal.className = 'modal fade';
+      modal.id = 'closedStallModal';
+      modal.setAttribute('tabindex', '-1');
+      modal.setAttribute('aria-labelledby', 'closedStallModalLabel');
+      modal.setAttribute('aria-hidden', 'true');
+      
+      modal.innerHTML = `
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="closedStallModalLabel">
+                <i class="bi bi-exclamation-triangle text-warning me-2"></i>
+                Stall Closed
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+              <div class="mb-3">
+                <i class="bi bi-shop text-muted" style="font-size: 3rem;"></i>
+              </div>
+              <p class="mb-3">
+                <strong>${stallName}</strong> is currently closed.
+              </p>
+              <p class="text-muted">
+                Please select another stall that is open for ordering.
+              </p>
+            </div>
+            <div class="modal-footer justify-content-center">
+              <button type="button" class="btn btn-primary" data-bs-dismiss="modal">
+                <i class="bi bi-check-circle me-1"></i>
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      // Remove existing modal if it exists
+      const existingModal = document.getElementById('closedStallModal');
+      if (existingModal) {
+        existingModal.remove();
+      }
+      
+      // Add modal to body
+      document.body.appendChild(modal);
+      
+      // Show modal
+      const bootstrapModal = new bootstrap.Modal(modal);
+      bootstrapModal.show();
+      
+      // Remove modal from DOM when hidden
+      modal.addEventListener('hidden.bs.modal', function() {
+        modal.remove();
+      });
     }
 
     function showStalls(filter = "") {
@@ -81,65 +737,101 @@
         ? stalls.filter(stall => stall.name.toLowerCase().includes(f) || stall.cuisine.toLowerCase().includes(f))
         : stalls;
 
-      const html = filtered.length
-        ? filtered.map(stall => `
-            <div class="stall-card" data-stall-slug="${stall.slug}">
-              <div class="stall-img-wrap"><img src="${stall.img}" alt="Stall image" class="stall-img"></div>
-              <div class="stall-info ps-1">
-                <b>${stall.name}</b>
-                <small>${stall.cuisine}</small>
-                <small>${statusDot(String(stall.status).toLowerCase()==='open')}</small>
-                <small>Price range: ${stall.priceRange}</small>
-                <small>Ratings: ${stars(stall.rating||4)}</small>
-                <div class="stall-meta">Estimated wait time: ${(String(stall.status).toLowerCase()==='open') ? (stall.waitTime && stall.waitTime !== 'N/A' ? stall.waitTime : '10 min') : 'N/A'}</div>
-              </div>
-            </div>
-          `).join('')
-        : '<div class="text-muted">No stalls found.</div>';
+      // Separate stalls into available and closed
+      const availableStalls = filtered.filter(stall => stall.status.toLowerCase() === 'open');
+      const closedStalls = filtered.filter(stall => stall.status.toLowerCase() === 'closed');
 
-      const list = document.getElementById('stallList');
-      list.innerHTML = html;
+      // Function to create stall card HTML
+      const createStallCard = (stall) => `
+        <div class="stall-card" data-stall-slug="${stall.slug}">
+          <div class="stall-img-wrap"><img src="${stall.img}" alt="${stall.name}" class="stall-img"></div>
+          <div class="stall-info">
+            <b>${stall.name}</b>
+            <small>${stall.cuisine}</small>
+            <small>${statusDot(stall.status.toLowerCase() === 'open')}</small>
+            <small>Price range: ${stall.priceRange}</small>
+            <small>Ratings: ${stars(stall.rating || 4)}</small>
+            <div class="stall-meta">Estimated wait time: ${(stall.status.toLowerCase() === 'open') ? stall.waitTime : 'N/A'}</div>
+          </div>
+        </div>`;
 
-      // Navigate using STABLE slug
-      list.querySelectorAll('.stall-card').forEach(card => {
-        card.addEventListener('click', () => {
-          const slug = card.getAttribute('data-stall-slug');
-          const url = new URL('stall.html', window.location.href);
-          url.searchParams.set('slug', slug);
-          // session fallback if some router strips query
-          sessionStorage.setItem('stallSlug', slug);
+      // Render available stalls
+      const availableHtml = availableStalls.length
+        ? availableStalls.map(createStallCard).join("")
+        : '<div class="text-muted">No available stalls found.</div>';
+
+      // Render closed stalls
+      const closedHtml = closedStalls.length
+        ? closedStalls.map(createStallCard).join("")
+        : '<div class="text-muted">No closed stalls found.</div>';
+
+      // Update the DOM
+      document.getElementById("availableStalls").innerHTML = availableHtml;
+      document.getElementById("closedStalls").innerHTML = closedHtml;
+
+      // Add click event listeners to all stall cards
+      document.querySelectorAll(".stall-card").forEach(card => {
+        card.addEventListener("click", () => {
+          const slug = card.getAttribute("data-stall-slug");
+          
+          // Find the stall data to check its status
+          const stall = stalls.find(s => s.slug === slug);
+          
+          if (stall && stall.status.toLowerCase() === 'closed') {
+            // Show popup for closed stalls
+            showClosedStallPopup(stall.name);
+            return;
+          }
+          
+          // Navigate to open stalls
+          const url = new URL("selection.html", window.location.href);
+          url.searchParams.set("slug", slug);
+          sessionStorage.setItem("stallSlug", slug);
           window.location.href = url.toString();
         });
       });
     }
 
-    // initial render
     showStalls();
 
-    // search controls
-    const searchInput = document.getElementById('stallSearch');
-    const clearBtn = document.getElementById('clearSearch');
-    searchInput.addEventListener('input', function() {
+    const searchInput = document.getElementById("stallSearch");
+    const clearBtn = document.getElementById("clearSearch");
+    searchInput.addEventListener("input", function() {
       showStalls(this.value);
-      clearBtn.style.visibility = this.value ? 'visible' : 'hidden';
+      clearBtn.style.visibility = this.value ? "visible" : "hidden";
     });
-    clearBtn.addEventListener('click', function(){
-      searchInput.value = '';
-      showStalls('');
-      this.style.visibility = 'hidden';
+    clearBtn.addEventListener("click", function() {
+      searchInput.value = "";
+      showStalls("");
+      this.style.visibility = "hidden";
       searchInput.focus();
     });
-    clearBtn.style.visibility = 'hidden';
+    clearBtn.style.visibility = "hidden";
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
   <div class="nav-bar">
-    <button onclick="location.href='/pages/order/online-order-home.html'"><i class="bi bi-cart3"></i><span>Order</span></button>
-    <button onclick="location.href='/pages/community/community.html'"><i class="bi bi-people"></i><span>Community</span></button>
-    <button onclick="location.href='/pages/chope/chope.html'"><i class="bi bi-bookmark"></i><span>Chope</span></button>
-    <button onclick="location.href='/pages/crowd/crowd-view.html'"><i class="bi bi-eye"></i><span>Crowd View</span></button>
-    <button onclick="location.href='/pages/profile/profile.html'"><i class="bi bi-person"></i><span>Profile</span></button>
-  </div>
+    <button onclick="location.href='/pages/order/online-order-home.html'">
+        <i class="bi bi-cart3"></i>
+        <span>Order</span>
+    </button>
+    <button onclick="location.href='/pages/community/community.html'">
+        <i class="bi bi-people"></i>
+        <span>Community</span>
+    </button>
+    <button onclick="location.href='/pages/chope/chope.html'">
+        <i class="bi bi-bookmark"></i>
+        <span>Chope</span>
+    </button>
+    <button onclick="location.href='/pages/crowd/crowd-view.html'">
+        <i class="bi bi-eye"></i>
+        <span>Crowd View</span>
+    </button>
+    <button onclick="location.href='/pages/profile/profile.html'">
+        <i class="bi bi-person"></i>
+        <span>Profile</span>
+    </button>
+</div>
 </body>
 </html>
