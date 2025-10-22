@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/styles/main.css" />
   <link rel="stylesheet" href="/styles/components.css" />
   <script type="module" src="/scripts/firebaseauth.js"></script>
+  <script src="/scripts/orderSession.js"></script>
   <style>
     :root {
       --clr-cloud: #f8f9fa;
@@ -1294,8 +1295,45 @@
       document.addEventListener('keydown', handleEscape);
     }
 
+    // ===== SESSION MANAGEMENT =====
+    function saveSelectionData() {
+        const selectionData = {
+            foodCentre: 'Hawker A', // Default or from URL
+            stall: currentStall?.name || '',
+            option: selectedOption,
+            selectedTime: selectedTime,
+            dateTime: formatDateTime()
+        };
+        
+        window.OrderSession.saveSelection(selectionData);
+        console.log('Selection data saved:', selectionData);
+    }
+    
+    function loadSelectionData() {
+        const session = window.OrderSession.restorePageState('selection');
+        console.log('Selection data loaded:', session);
+        return session;
+    }
+    
+    function formatDateTime() {
+        if (selectedOption && selectedOption.toLowerCase() === 'asap') {
+            return 'ASAP';
+        }
+        
+        const today = new Date();
+        const day = String(today.getDate()).padStart(2, '0');
+        const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        const month = monthNames[today.getMonth()];
+        const year = today.getFullYear();
+        
+        return selectedTime ? `${day} ${month} ${year} ${selectedTime}` : `${day} ${month} ${year}`;
+    }
+
     // ===== INITIALIZATION & EVENT HANDLERS =====
     document.addEventListener('DOMContentLoaded', function() {
+      // Load session data first
+      loadSelectionData();
+      
       // Get stall from URL parameter or default
       const params = new URLSearchParams(window.location.search);
       const slug = params.get("slug") || "peanuts-soup";
@@ -1341,6 +1379,7 @@
       // Checkout functionality
       document.getElementById('viewCartBtn').onclick = function() {
         if (validateCheckout()) {
+          saveSelectionData(); // Save session data before checkout
           saveCart();
           window.location.href = "checkout.html";
         }
