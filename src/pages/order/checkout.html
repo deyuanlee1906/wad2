@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/styles/main.css" />
   <link rel="stylesheet" href="/styles/components.css">
   <script type="module" src="/scripts/firebaseauth.js"></script>
+  <script src="/scripts/orderSession.js"></script>
   <style>
     :root {
       /* Custom Color Theme */
@@ -798,9 +799,9 @@
      * Navigation helpers
      *****************************************************************/
     function orderMore() {
-      // Return to menu page to add more items.
-      // checkout.html lives in the "order" folder; the menu is order/menu.html
-      window.location.href = "menu.html";
+      // Return to selection page to add more items
+      // Session data is automatically managed by OrderSession
+      window.location.href = "selection.html";
     }
     
     /*****************************************************************

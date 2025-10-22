@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="/styles/main.css" />
   <link rel="stylesheet" href="/styles/components.css">
   <script type="module" src="/scripts/firebaseauth.js"></script>
+  <script src="/scripts/orderSession.js"></script>
   <style>
     :root {
       --clr-cloud: #f8f9fa;
@@ -659,11 +660,15 @@
 
     // Navigation functions
     function orderMore() {
-      window.location.href = 'menu.html';
+      // Clear session data and go back to selection to start fresh
+      window.OrderSession.clearSession();
+      window.location.href = 'selection.html';
     }
-
+    
     function goHome() {
-      window.location.href = 'home.html';
+      // Clear session data and go back to order home
+      window.OrderSession.clearSession();
+      window.location.href = 'online-order-home.html';
     }
 
     // Auto-refresh order status (simulate real-time updates)
