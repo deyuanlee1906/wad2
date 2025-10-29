@@ -33,7 +33,8 @@
                 <div class="col-12 col-md-6">
                     <label for="timeslot" class="form-label">Select Timeslot</label>
                     <select id="timeslot" class="form-select">
-                        <option selected>11:00 AM</option>
+                        <option value="" disabled selected>Choose a timeslot</option> <!--use as a placeholder with value=""-->
+                        <option>11:00 AM</option>
                         <option>11:30 AM</option>
                         <option>12:00 PM</option>
                         <option>12:30 PM</option>
@@ -47,7 +48,8 @@
                 <div class="col-12 col-md-6">
                     <label for="duration" class="form-label">Duration</label>
                     <select id="duration" class="form-select">
-                        <option value="30 mins" selected>30 mins</option>
+                        <option value="" disabled selected>Choose duration</option> <!--use as a placeholder with value=""-->
+                        <option value="30 mins">30 mins</option>
                         <option value="1 hour">1 hr</option>
                     </select>
                 </div>
@@ -166,6 +168,11 @@
             // store both value of user's choice
             const time = document.getElementById("timeslot").value;
             const duration = document.getElementById("duration").value;
+            if(!time || !duration){
+                // if the user not enter anything, prompt the alert
+                alert("Please selected a time and duration first.")
+                return;
+            }
             // pass them to the next page when click on checkBtn
             window.location.href = `availableFoodCenter.html?time=${encodeURIComponent(time)}&duration=${encodeURIComponent(duration)}`;
         });

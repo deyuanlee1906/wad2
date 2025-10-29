@@ -39,8 +39,8 @@
     <script>
         // get the params from home.html 
         const params = new URLSearchParams(window.location.search); // get the key value pair
-        const time = params.get("time") || "11:00 AM";
-        const duration = params.get("duration") || "30 mins";
+        const time = params.get("time");
+        const duration = params.get("duration");
 
         // Food center configuration
         let centers = [
