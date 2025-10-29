@@ -17,11 +17,6 @@
 <body class="theme-gradient">
     <div class="container-fluid my-4">
         <h2 class="mb-3 text-center">Available Food Centers</h2>
-        <p class="text-center" id="info"></p>
-
-        <div class="row" id="centers">
-            <!-- food centers will display here -->
-        </div>
 
         <div class="card p-4 mt-4">
             <p class="text-center mb-4" id="info"></p>
@@ -41,6 +36,10 @@
         const params = new URLSearchParams(window.location.search); // get the key value pair
         const time = params.get("time");
         const duration = params.get("duration");
+
+        console.log("Query:", window.location.search);
+        console.log("Time:", time);
+        console.log("Duration:", duration);
 
         // Food center configuration
         let centers = [

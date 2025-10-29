@@ -26,9 +26,6 @@
             <button class="btn btn-link px-4 py-2 border-bottom border-primary border-2 text-decoration-none fw-bold" id="seatPlanTab">
                 SEAT PLAN
             </button>
-            <button class="btn btn-link px-4 py-2 text-decoration-none text-muted" id="floorPlanTab">
-                FLOOR PLAN
-            </button>
         </div>
 
         <!-- Location title -->
@@ -311,9 +308,6 @@
             border-bottom-color: var(--primary-color) !important;
         }
         
-        #floorPlanTab {
-            color: #6c757d !important;
-        }
 
         /* Modal Styling */
         .custom-modal {
@@ -434,16 +428,8 @@
             document.getElementById('seatPlanTab').addEventListener('click', function() {
                 this.classList.add('border-primary', 'border-bottom', 'border-2', 'fw-bold');
                 this.classList.remove('text-muted');
-                document.getElementById('floorPlanTab').classList.remove('border-primary', 'border-bottom', 'border-2', 'fw-bold');
-                document.getElementById('floorPlanTab').classList.add('text-muted');
             });
             
-            document.getElementById('floorPlanTab').addEventListener('click', function() {
-                this.classList.add('border-primary', 'border-bottom', 'border-2', 'fw-bold');
-                this.classList.remove('text-muted');
-                document.getElementById('seatPlanTab').classList.remove('border-primary', 'border-bottom', 'border-2', 'fw-bold');
-                document.getElementById('seatPlanTab').classList.add('text-muted');
-            });
         });
         
         function loadSeatStatus() {

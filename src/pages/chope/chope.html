@@ -56,7 +56,7 @@
 
                 <!-- Buttons -->
                 <div class="col-12 col-md-4">
-                    <button id="checkBtn" class="btn btn-primary w-100">Check Availability</button>
+                    <button id="checkBtn" class="btn btn-primary w-100" type="button">Check Availability</button>
                 </div>
                 <div class="col-12 col-md-4">
                     <button id="resetBtn" class="btn btn-outline-secondary w-100">Reset</button>
@@ -164,8 +164,9 @@
         });
 
         // add event listener to the check button
-        document.getElementById("checkBtn").addEventListener("click", () =>{
+        document.getElementById("checkBtn").addEventListener("click", (event) =>{
             // store both value of user's choice
+            event.preventDefault();
             const time = document.getElementById("timeslot").value;
             const duration = document.getElementById("duration").value;
             if(!time || !duration){
@@ -181,7 +182,7 @@
         window.onload = initMap;
     </script>
     <!-- google maps link and YOUR OWN API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_OWN_API&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAzUZ1FSozvqFSbmTHUSGldlkEpuKupKZs&callback=initMap" async defer></script>
 
 
     <!-------------------------Bootstrap------------------------- -->
