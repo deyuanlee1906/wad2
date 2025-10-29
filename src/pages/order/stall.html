@@ -12,7 +12,8 @@
 
   <style>
     :root{--bg:#f8f9fa;--card:#fff;--accent:#d98566}
-    body{background:var(--bg);margin:0;padding-bottom:140px;font-family:Inter,system-ui}
+    body{background:var(--bg);margin:0;padding-top:70px;padding-bottom:140px;font-family:Inter,system-ui}
+    @media (max-width:768px){ body{padding-top:0;padding-bottom:140px} }
     .container{max-width:1200px;padding:18px;margin:0 auto}
     .header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
     .header h2{margin:0;font-size:1.25rem}
@@ -20,7 +21,8 @@
     .time-select{min-width:160px}
     .layout{display:grid;grid-template-columns: 220px 1fr; gap:18px}
     @media (max-width:767px){ .layout { grid-template-columns: 1fr; } .left-rail{order:2} .menu-col{order:1} }
-    .left-rail{position:sticky;top:12px;height:calc(100vh - 170px);overflow:auto;padding-right:8px}
+    .left-rail{position:sticky;top:82px;height:calc(100vh - 170px);overflow:auto;padding-right:8px}
+    @media (max-width:768px){ .left-rail{top:12px} }
     .category-pill{padding:8px 12px;border-radius:999px;background:#fff;margin-bottom:8px;display:block;border:1px solid rgba(0,0,0,0.06);cursor:pointer}
     .category-pill.active{background:var(--accent);color:#fff;border-color:var(--accent)}
     .menu-list{padding:10px}
