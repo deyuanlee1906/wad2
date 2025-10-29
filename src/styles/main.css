@@ -28,9 +28,17 @@ html, body {
 
 body {
   background-color: #F2F2F2;
-  padding-bottom: 70px;
+  padding-top: 70px;
   font-family: Arial, sans-serif;
   color: #262626;
+}
+
+/* Mobile view - padding at bottom instead of top */
+@media (max-width: 768px) {
+  body {
+    padding-top: 0;
+    padding-bottom: 70px;
+  }
 }
 
 a {
@@ -62,10 +70,15 @@ a:hover {
 /* === Theme Gradient Background (for login/auth pages) === */
 body.theme-gradient {
   background: linear-gradient(135deg, #F2D9BB 0%, #F2C6B6 50%, #F2F2F2 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+  display: block;
+  padding: 90px 20px 20px 20px;
+}
+
+/* Mobile view - adjust padding for bottom navbar */
+@media (max-width: 768px) {
+  body.theme-gradient {
+    padding: 20px 20px 90px 20px;
+  }
 }
 
 /* === Animations === */
@@ -137,6 +150,7 @@ body.theme-gradient {
 
 @media (max-width: 480px) {
   body {
+    padding-top: 0;
     padding-bottom: 60px;
   }
 }

@@ -265,19 +265,30 @@ input:not(:placeholder-shown) ~ label {
   box-shadow: 0 4px 15px rgba(217, 133, 102, 0.3);
 }
 
-/* === Navigation Bar (Bottom) === */
+/* === Navigation Bar === */
 .nav-bar {
   position: fixed;
-  bottom: 0;
+  top: 0;
   left: 0;
   right: 0;
   background: #F2D9BB;
-  border-top: 2px solid #D98566;
+  border-bottom: 2px solid #D98566;
   display: flex;
   justify-content: space-around;
   padding: 12px 0;
   z-index: 1040;
-  box-shadow: 0 -2px 10px rgba(217, 133, 102, 0.2);
+  box-shadow: 0 2px 10px rgba(217, 133, 102, 0.2);
+}
+
+/* Mobile view - keep navbar at bottom */
+@media (max-width: 768px) {
+  .nav-bar {
+    top: auto;
+    bottom: 0;
+    border-bottom: none;
+    border-top: 2px solid #D98566;
+    box-shadow: 0 -2px 10px rgba(217, 133, 102, 0.2);
+  }
 }
 
 .nav-bar button {
@@ -378,7 +389,16 @@ input:not(:placeholder-shown) ~ label {
   margin: 0 auto;
   background-color: #F2F2F2;
   min-height: 100vh;
+  padding-top: 70px;
   padding-bottom: 80px;
+}
+
+/* Mobile view - padding at bottom instead */
+@media (max-width: 768px) {
+  .instagram-container {
+    padding-top: 0;
+    padding-bottom: 80px;
+  }
 }
 
 .instagram-header {
@@ -387,8 +407,15 @@ input:not(:placeholder-shown) ~ label {
   text-align: center;
   border-bottom: 2px solid #D98566;
   position: sticky;
-  top: 0;
+  top: 70px;
   z-index: 100;
+}
+
+/* Mobile view - stick to top since navbar is at bottom */
+@media (max-width: 768px) {
+  .instagram-header {
+    top: 0;
+  }
 }
 
 .instagram-header h1 {
