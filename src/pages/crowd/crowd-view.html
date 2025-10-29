@@ -9,6 +9,28 @@
   <link rel="stylesheet" href="/styles/main.css" />
   <link rel="stylesheet" href="/styles/components.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;              /* spacing between label and select */
+  width: 100%;
+}
+
+.dropdown label {
+  font-weight: 600;
+  color: #262626;
+}
+
+.dropdown select {
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #F2C6B6;
+  border-radius: 8px;
+  background-color: #F2F2F2;
+  color: #262626;
+}
+  </style>
 </head>
 <body>
 <div class="instagram-container">
@@ -35,22 +57,22 @@
       
       <div class="post-caption">
         <div class="dropdown" style="margin: 15px 0;">
-          <label for="hawker-select" style="display: block; margin-bottom: 8px; font-weight: bold; color: #262626;">Select Hawker Centre:</label>
-          <select id="hawker-select" style="width: 100%; padding: 10px; border: 2px solid #F2C6B6; border-radius: 8px; background-color: #F2F2F2; color: #262626;">
+        <label for="hawker-select">Select Hawker Centre:</label>
+        <select id="hawker-select">
             <option value="maxwell" selected>Maxwell Food Centre</option>
             <option value="newton">Newton Food Centre</option>
             <option value="changi">Changi Village Food Centre</option>
-          </select>
+        </select>
         </div>
-        
+
         <div class="dropdown" style="margin: 15px 0;">
-          <label for="stall-select" style="display: block; margin-bottom: 8px; font-weight: bold; color: #262626;">Select Stall:</label>
-          <select id="stall-select" style="width: 100%; padding: 10px; border: 2px solid #F2C6B6; border-radius: 8px; background-color: #F2F2F2; color: #262626;">
+        <label for="stall-select">Select Stall:</label>
+        <select id="stall-select">
             <option value="all">All Stalls</option>
             <option value="tian_tian">Tian Tian Hainanese Chicken Rice</option>
             <option value="zhen_zhen">Zhen Zhen Porridge</option>
             <option value="maxwell_fuzhou">Maxwell Fuzhou Oyster Cake</option>
-          </select>
+        </select>
         </div>
         
         <div style="margin: 15px 0; padding: 15px; background-color: #F2D9BB; border-radius: 10px;">
