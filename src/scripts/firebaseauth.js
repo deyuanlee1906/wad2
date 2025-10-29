@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
-import { getFirestore, setDoc, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+import { getFirestore, setDoc, doc, getDoc, collection, query, where, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 // === GOOGLE LOGIN ===
@@ -24,6 +24,17 @@ const auth = getAuth(app);
 // Use browser language for auth emails
 try { auth.useDeviceLanguage && auth.useDeviceLanguage(); } catch (_) {}
 const db = getFirestore(app);
+
+// Export Firebase functions globally for use in other scripts
+window.db = db;
+window.doc = doc;
+window.setDoc = setDoc;
+window.getDoc = getDoc;
+window.collection = collection;
+window.query = query;
+window.where = where;
+window.getDocs = getDocs;
+window.updateDoc = updateDoc;
 
 // Defer DOM queries and event bindings until content is loaded
 document.addEventListener('DOMContentLoaded', () => {
