@@ -204,15 +204,63 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Get URL parameters
+            // Get URL parameters and sessionStorage fallback
             const params = new URLSearchParams(window.location.search);
-            
+
+            // Prefer booking_* snapshot first (authoritative), then URL params, then chope_* fallback, then defaults
+            const getSS = (k) => { try { return sessionStorage.getItem(k); } catch(e) { console.warn('sessionStorage.getItem failed', e); return null; } };
+
+            const booking = {
+                foodCenter: getSS('booking_foodCenter'),
+                table: getSS('booking_table'),
+                seat: getSS('booking_seat'),
+                time: getSS('booking_time'),
+                duration: getSS('booking_duration')
+            };
+
+            const chope = {
+                foodCenter: getSS('chope_foodCenter'),
+                table: getSS('chope_table'),
+                seat: getSS('chope_seat'),
+                time: getSS('chope_time'),
+                duration: getSS('chope_duration')
+            };
+
+            // Helper to pick field value and record source
+            const pick = (field, defaultVal) => {
+                if (booking[field]) return { value: booking[field], src: 'booking_*' };
+                if (params.get(field)) return { value: params.get(field), src: 'url' };
+                if (chope[field]) return { value: chope[field], src: 'chope_*' };
+                return { value: defaultVal, src: 'default' };
+            };
+
+            // will take the value or it no value, it will be "-"
+            const pickedFoodCenter = pick('foodCenter', '-');
+            const pickedTable = pick('table', '-');
+            const pickedSeat = pick('seat', '-');
+            const pickedTime = pick('time', '-');
+            const pickedDuration = pick('duration', '-');
+
+            console.log('[booking-confirmation] picked sources:', {
+                foodCenter: pickedFoodCenter.src,
+                table: pickedTable.src,
+                seat: pickedSeat.src,
+                time: pickedTime.src,
+                duration: pickedDuration.src
+            });
+
+            const foodCenter = pickedFoodCenter.value;
+            const table = pickedTable.value;
+            const seat = pickedSeat.value;
+            const time = pickedTime.value;
+            const duration = pickedDuration.value;
+
             // Populate the booking details
-            document.getElementById('foodCenter').textContent = params.get('foodCenter') || 'Maxwell Food Centre';
-            document.getElementById('table').textContent = params.get('table') || '-';
-            document.getElementById('seat').textContent = params.get('seat') || '-';
-            document.getElementById('time').textContent = params.get('time') || '12:00 PM';
-            document.getElementById('duration').textContent = params.get('duration') || '1 hour';
+            document.getElementById('foodCenter').textContent = foodCenter;
+            document.getElementById('table').textContent = table;
+            document.getElementById('seat').textContent = seat;
+            document.getElementById('time').textContent = time;
+            document.getElementById('duration').textContent = duration;
             
             // Set current date
             const now = new Date();
@@ -224,6 +272,16 @@
                 minute: '2-digit'
             };
             document.getElementById('bookingDate').textContent = now.toLocaleDateString('en-US', options);
+            // Clear booking snapshot keys so later bookings don't pick stale data
+            try {
+                sessionStorage.removeItem('booking_foodCenter');
+                sessionStorage.removeItem('booking_table');
+                sessionStorage.removeItem('booking_seat');
+                sessionStorage.removeItem('booking_time');
+                sessionStorage.removeItem('booking_duration');
+            } catch (e) {
+                // ignore
+            }
         });
     </script>
 

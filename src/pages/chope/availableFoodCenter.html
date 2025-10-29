@@ -17,10 +17,9 @@
 <body class="theme-gradient">
     <div class="container-fluid my-4">
         <h2 class="mb-3 text-center">Available Food Centers</h2>
+        <p class="text-center" id="info"></p>
 
         <div class="card p-4 mt-4">
-            <p class="text-center mb-4" id="info"></p>
-
             <div class="row" id="centers">
                 <!-- food centers will display here -->
             </div>
@@ -32,14 +31,32 @@
     </div>
     
     <script>
-        // get the params from home.html 
-        const params = new URLSearchParams(window.location.search); // get the key value pair
-        const time = params.get("time");
-        const duration = params.get("duration");
+        // Retrieve selected time/duration: prefer sessionStorage (more reliable), fall back to URL params
+        const params = new URLSearchParams(window.location.search);
+        const urlTime = params.get("time");
+        const urlDuration = params.get("duration");
 
-        console.log("Query:", window.location.search);
-        console.log("Time:", time);
-        console.log("Duration:", duration);
+        let time = null;
+        let duration = null;
+
+        try {
+            // read from sessionStorage first from chope.html
+            const sTime = sessionStorage.getItem('chope_time');
+            const sDuration = sessionStorage.getItem('chope_duration');
+            // if there is value then set time and duration to the value to be use in the card below
+            if (sTime) time = sTime;
+            if (sDuration) duration = sDuration;
+        } catch (e) {
+            console.warn('Could not read from sessionStorage', e);
+        }
+
+        // fallback to URL params if not available in sessionStorage
+        if (!time && urlTime) time = decodeURIComponent(urlTime);
+        if (!duration && urlDuration) duration = decodeURIComponent(urlDuration);
+
+
+        // Show the selected time and duration (use a friendly fallback)
+        document.getElementById("info").textContent = `Selected Time: ${time || 'Not selected'} - Duration: ${duration || 'Not selected'}`;
 
         // Food center configuration
         let centers = [
@@ -166,8 +183,13 @@
                     // Check if seats are available
                     const seatCounts = window.seatDatabase.getSeatCounts(center.databaseKey);
                     if (seatCounts.available > 0) {
-                        // direct to that food center's page
-                        window.location.href = center.link;
+                        // direct to that food center's page, include time/duration as query params
+                        const t = time ? encodeURIComponent(time) : '';
+                        const d = duration ? encodeURIComponent(duration) : '';
+                        const sep = center.link.includes('?') ? '&' : '?';
+                        const url = center.link + sep + 'time=' + t + '&duration=' + d;
+                        console.log('[availableFoodCenter] Redirecting to center with params:', url);
+                        window.location.href = url;
                     } else {
                         alert("No seats left!");
                     }

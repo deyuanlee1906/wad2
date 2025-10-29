@@ -31,32 +31,30 @@
             <div class="row justify-content-center g-3">
                 <!-- timeslot dropdown -->
                 <div class="col-12 col-md-6">
-                    <label for="timeslot" class="form-label">Select Timeslot</label>
-                    <select id="timeslot" class="form-select">
-                        <option value="" disabled selected>Choose a timeslot</option> <!--use as a placeholder with value=""-->
-                        <option>11:00 AM</option>
-                        <option>11:30 AM</option>
-                        <option>12:00 PM</option>
-                        <option>12:30 PM</option>
-                        <option>1:00 PM</option>
-                        <option>1:30 PM</option>
-                        <option>2:00 PM</option>
+                     Select Timeslot
+                    <select id="timeslot" class="form-select" required> <!-- require to select-->
+                        <option value="11:00 AM" selected>11:00 AM</option>
+                        <option value="11:30 AM">11:30 AM</option>
+                        <option value="12:00 PM">12:00 PM</option>
+                        <option value="12:30 PM">12:30 PM</option>
+                        <option value="1:00 PM">1:00 PM</option>
+                        <option value="1:30 PM">1:30 PM</option>
+                        <option value="2:00 PM">2:00 PM</option>
                     </select>
                 </div>
 
                 <!-- Duration dropdown -->
                 <div class="col-12 col-md-6">
-                    <label for="duration" class="form-label">Duration</label>
-                    <select id="duration" class="form-select">
-                        <option value="" disabled selected>Choose duration</option> <!--use as a placeholder with value=""-->
-                        <option value="30 mins">30 mins</option>
+                     Duration
+                    <select id="duration" class="form-select" required>
+                        <option value="30 mins" selected>30 mins</option>
                         <option value="1 hour">1 hr</option>
                     </select>
                 </div>
 
                 <!-- Buttons -->
                 <div class="col-12 col-md-4">
-                    <button id="checkBtn" class="btn btn-primary w-100" type="button">Check Availability</button>
+                    <button id="checkBtn" class="btn btn-primary w-100">Check Availability</button>
                 </div>
                 <div class="col-12 col-md-4">
                     <button id="resetBtn" class="btn btn-outline-secondary w-100">Reset</button>
@@ -164,18 +162,23 @@
         });
 
         // add event listener to the check button
-        document.getElementById("checkBtn").addEventListener("click", (event) =>{
-            // store both value of user's choice
-            event.preventDefault();
+        document.getElementById("checkBtn").addEventListener("click", () => {
             const time = document.getElementById("timeslot").value;
             const duration = document.getElementById("duration").value;
-            if(!time || !duration){
-                // if the user not enter anything, prompt the alert
-                alert("Please selected a time and duration first.")
-                return;
+
+            // Save selection to sessionStorage so don't depend on query string behavior
+            try {
+                sessionStorage.setItem('chope_time', time);
+                sessionStorage.setItem('chope_duration', duration);
+            } catch (e) {
+                console.warn('Could not write to sessionStorage', e);
             }
-            // pass them to the next page when click on checkBtn
-            window.location.href = `availableFoodCenter.html?time=${encodeURIComponent(time)}&duration=${encodeURIComponent(duration)}`;
+
+            
+
+            // Build the URL and redirect (keep params as fallback) instead to set it directly
+            const url = 'availableFoodCenter.html?time=' + encodeURIComponent(time) + '&duration=' + encodeURIComponent(duration);
+            window.location.href = url;
         });
 
         // load the map

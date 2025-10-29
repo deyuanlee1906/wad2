@@ -454,11 +454,13 @@
             // Confirm booking button
             document.getElementById('confirmBooking').addEventListener('click', function() {
                 if (selectedSeat) {
-                    // Get duration from URL parameters
                     const params = new URLSearchParams(window.location.search);
-                    const duration = params.get("duration") || "1 hour";
-                    const durationMinutes = duration.includes('hour') ? 
-                        parseInt(duration) * 60 : parseInt(duration);
+                    // Prefer chope selections saved in sessionStorage, then URL params, then sensible defaults
+                    const chopeTime = sessionStorage.getItem('chope_time');
+                    const chopeDuration = sessionStorage.getItem('chope_duration');
+                    const durationRaw = chopeDuration || params.get("duration");
+                    const durationMinutes = (typeof durationRaw === 'string' && durationRaw.includes('hour')) ? 
+                        parseInt(durationRaw) * 60 : parseInt(durationRaw);
                     
                     // Book the seat in database
                     const success = window.seatDatabase.bookSeat('maxwell', selectedSeat.table, selectedSeat.seat, durationMinutes);
@@ -473,11 +475,23 @@
                         // Close modal
                         bookingModal.hide();
                         
-                        // Redirect to confirmation page
-                        const time = params.get("time") || "12:00 PM";
+                        // Resolve time to save/forward
+                        const time = chopeTime || params.get("time");
                         
-                        const confirmationUrl = `booking-confirmation.html?foodCenter=Maxwell Food Centre&table=${selectedSeat.table}&seat=${selectedSeat.seat}&time=${encodeURIComponent(time)}&duration=${encodeURIComponent(duration)}`;
-                        window.location.href = confirmationUrl;
+                        const confirmationUrl = `booking-confirmation.html?foodCenter=Maxwell Food Centre&table=${selectedSeat.table}&seat=${selectedSeat.seat}&time=${encodeURIComponent(time)}&duration=${encodeURIComponent(durationRaw)}`;
+                        try {
+                            // save a dedicated booking snapshot (avoid overwriting chope_* used elsewhere)
+                            sessionStorage.setItem('booking_foodCenter', 'Maxwell Food Centre');
+                            sessionStorage.setItem('booking_table', selectedSeat.table);
+                            sessionStorage.setItem('booking_seat', selectedSeat.seat);
+                            sessionStorage.setItem('booking_time', time);
+                            sessionStorage.setItem('booking_duration', durationRaw);
+                        } catch (e) {
+                            console.warn('Could not write booking info to sessionStorage', e);
+                        }
+                        // include booking details in query string as well
+                        const confUrl = confirmationUrl + '&_cached=1';
+                        window.location.href = confUrl;
                     } else {
                         alert('Failed to book seat. Please try again.');
                     }
