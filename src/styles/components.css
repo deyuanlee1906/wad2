@@ -1106,3 +1106,33 @@ input:not(:placeholder-shown) ~ label {
   }
 }
 
+/* Stack label + select nicely in your post-caption area */
+.post-caption .dropdown {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Kill the global floating-positioning for these specific labels */
+.post-caption .dropdown > label {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+  pointer-events: auto !important;
+  display: block;
+  margin: 0 0 8px 0;
+  font-weight: 600;
+  color: #262626;
+}
+
+/* Keep the select full-width and padded */
+.post-caption .dropdown > select {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border: 2px solid #F2C6B6;
+  border-radius: 8px;
+  background-color: #F2F2F2;
+  color: #262626;
+}
