@@ -687,7 +687,6 @@
     function loadOrderData() {
       try {
         const cartData = localStorage.getItem('cart');
-        const orderInfo = JSON.parse(localStorage.getItem('orderInfo') || '{}');
         
         if (!cartData) {
           showError('No order found. Please add items to your cart first.');
@@ -695,10 +694,19 @@
         }
 
         const cart = JSON.parse(cartData);
+        
+        // Build order info from localStorage
+        const orderInfo = {
+          foodCentre: localStorage.getItem('selectedFoodCentre') || 'Maxwell Food Centre',
+          stall: localStorage.getItem('stallName') || 'Peanuts Soup',
+          option: localStorage.getItem('selectedOption') || 'Dine In',
+          dateTime: localStorage.getItem('selectedTime') || ''
+        };
+        
         orderData = {
           items: cart.filter(item => item.qty > 0),
           info: orderInfo,
-          total: cart.reduce((sum, item) => sum + (item.price * item.qty), 0)
+          total: cart.reduce((sum, item) => sum + ((item.price || 0) * (item.qty || 0)), 0)
         };
 
         renderOrderSummary();
@@ -811,14 +819,23 @@
 
     // Setup form validation
     function setupFormValidation() {
+      // Validate form and enable/disable payment button
       function validateForm() {
         const isPaymentSelected = selectedPaymentMethod !== null;
-        document.getElementById('payButton').disabled = !isPaymentSelected;
+        const payButton = document.getElementById('payButton');
+        if (payButton) {
+          payButton.disabled = !isPaymentSelected;
+        }
       }
+
+      // Initial validation
+      validateForm();
 
       // Validate when payment method changes
       document.querySelectorAll('input[name="paymentMethod"]').forEach(radio => {
-        radio.addEventListener('change', validateForm);
+        radio.addEventListener('change', function() {
+          validateForm();
+        });
       });
     }
 
@@ -842,8 +859,9 @@
       const stripeContainer = document.getElementById('stripeElementsContainer');
       stripeContainer.style.display = method === 'stripe' ? 'block' : 'none';
       
-      // Validate form
-      setupFormValidation();
+      // Enable/disable payment button
+      const isPaymentSelected = selectedPaymentMethod !== null;
+      document.getElementById('payButton').disabled = !isPaymentSelected;
     }
 
     // Process payment

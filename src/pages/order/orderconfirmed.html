@@ -578,13 +578,31 @@
     // Load order data from localStorage
     function loadOrderData() {
       try {
+        // Try to get latest order from payment completion
         const latestOrder = localStorage.getItem('latestOrder');
-        if (!latestOrder) {
-          showError('No order found. Please place an order first.');
-          return;
+        
+        if (latestOrder) {
+          orderData = JSON.parse(latestOrder);
+        } else {
+          // Fallback: construct from current session data
+          const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+          const orderInfo = {
+            foodCentre: localStorage.getItem('selectedFoodCentre') || 'Maxwell Food Centre',
+            stall: localStorage.getItem('stallName') || 'Peanuts Soup',
+            option: localStorage.getItem('selectedOption') || 'Dine In',
+            dateTime: localStorage.getItem('selectedTime') || ''
+          };
+          
+          orderData = {
+            id: 'ord_' + Date.now(),
+            items: cart,
+            info: orderInfo,
+            total: cart.reduce((sum, item) => sum + ((item.price || 0) * (item.qty || 0)), 0),
+            status: 'paid',
+            paymentMethod: 'card'
+          };
         }
-
-        orderData = JSON.parse(latestOrder);
+        
         renderOrderConfirmation();
       } catch (error) {
         console.error('Error loading order data:', error);
@@ -660,14 +678,15 @@
 
     // Navigation functions
     function orderMore() {
-      // Clear session data and go back to selection to start fresh
-      window.OrderSession.clearSession();
+      // Clear cart and go back to selection to start fresh
+      localStorage.removeItem('cart');
       window.location.href = 'selection.html';
     }
     
     function goHome() {
-      // Clear session data and go back to order home
-      window.OrderSession.clearSession();
+      // Clear cart and go back to order home
+      localStorage.removeItem('cart');
+      localStorage.removeItem('latestOrder');
       window.location.href = 'online-order-home.html';
     }
 
