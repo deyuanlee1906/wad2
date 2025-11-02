@@ -1,792 +1,809 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Seed Database</title>
-    <script type="module" src="/scripts/firebaseauth.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin - Seed Database</title>
+        <script type="module" src="/scripts/firebaseauth.js"></script>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                padding: 20px;
+            }
 
-        .container {
-            background: white;
-            border-radius: 12px;
-            padding: 40px;
-            max-width: 600px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-        }
+            .container {
+                background: white;
+                border-radius: 12px;
+                padding: 40px;
+                max-width: 600px;
+                width: 100%;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            }
 
-        h1 {
-            color: #333;
-            margin-bottom: 10px;
-            font-size: 28px;
-        }
+            h1 {
+                color: #333;
+                margin-bottom: 10px;
+                font-size: 28px;
+            }
 
-        .subtitle {
-            color: #666;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
+            .subtitle {
+                color: #666;
+                margin-bottom: 30px;
+                font-size: 14px;
+            }
 
-        .info-box {
-            background: #f0f4ff;
-            border-left: 4px solid #667eea;
-            padding: 15px;
-            margin-bottom: 25px;
-            border-radius: 4px;
-            font-size: 14px;
-            color: #555;
-        }
+            .info-box {
+                background: #f0f4ff;
+                border-left: 4px solid #667eea;
+                padding: 15px;
+                margin-bottom: 25px;
+                border-radius: 4px;
+                font-size: 14px;
+                color: #555;
+            }
 
-        .stats {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 25px;
-        }
+            .stats {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+                margin-bottom: 25px;
+            }
 
-        .stat-box {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-            border: 1px solid #eee;
-        }
+            .stat-box {
+                background: #f9f9f9;
+                padding: 15px;
+                border-radius: 8px;
+                text-align: center;
+                border: 1px solid #eee;
+            }
 
-        .stat-number {
-            font-size: 24px;
-            font-weight: bold;
-            color: #667eea;
-            margin-bottom: 5px;
-        }
+            .stat-number {
+                font-size: 24px;
+                font-weight: bold;
+                color: #667eea;
+                margin-bottom: 5px;
+            }
 
-        .stat-label {
-            font-size: 12px;
-            color: #999;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+            .stat-label {
+                font-size: 12px;
+                color: #999;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
 
-        button {
-            width: 100%;
-            padding: 12px 24px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-bottom: 12px;
-        }
+            button {
+                width: 100%;
+                padding: 12px 24px;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                border: none;
+                border-radius: 6px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                margin-bottom: 12px;
+            }
 
-        button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
-        }
+            button:hover:not(:disabled) {
+                transform: translateY(-2px);
+                box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+            }
 
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
+            button:disabled {
+                opacity: 0.6;
+                cursor: not-allowed;
+            }
 
-        .secondary-btn {
-            background: #f0f0f0;
-            color: #333;
-        }
+            .secondary-btn {
+                background: #f0f0f0;
+                color: #333;
+            }
 
-        .secondary-btn:hover:not(:disabled) {
-            background: #e0e0e0;
-            box-shadow: none;
-        }
+            .secondary-btn:hover:not(:disabled) {
+                background: #e0e0e0;
+                box-shadow: none;
+            }
 
-        .progress {
-            margin-top: 20px;
-            display: none;
-        }
+            .progress {
+                margin-top: 20px;
+                display: none;
+            }
 
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #f0f0f0;
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 10px;
-        }
+            .progress-bar {
+                width: 100%;
+                height: 8px;
+                background: #f0f0f0;
+                border-radius: 4px;
+                overflow: hidden;
+                margin-bottom: 10px;
+            }
 
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
+            .progress-fill {
+                height: 100%;
+                background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+                width: 0%;
+                transition: width 0.3s ease;
+            }
 
-        .progress-text {
-            font-size: 13px;
-            color: #666;
-            text-align: center;
-        }
+            .progress-text {
+                font-size: 13px;
+                color: #666;
+                text-align: center;
+            }
 
-        .log {
-            max-height: 300px;
-            overflow-y: auto;
-            background: #f9f9f9;
-            border: 1px solid #eee;
-            border-radius: 6px;
-            padding: 12px;
-            font-size: 12px;
-            font-family: 'Courier New', monospace;
-            color: #666;
-            margin-top: 15px;
-            display: none;
-        }
+            .log {
+                max-height: 300px;
+                overflow-y: auto;
+                background: #f9f9f9;
+                border: 1px solid #eee;
+                border-radius: 6px;
+                padding: 12px;
+                font-size: 12px;
+                font-family: 'Courier New', monospace;
+                color: #666;
+                margin-top: 15px;
+                display: none;
+            }
 
-        .log-item {
-            margin-bottom: 8px;
-            padding: 4px 0;
-        }
+            .log-item {
+                margin-bottom: 8px;
+                padding: 4px 0;
+            }
 
-        .log-item.success {
-            color: #22c55e;
-        }
+            .log-item.success {
+                color: #22c55e;
+            }
 
-        .log-item.error {
-            color: #ef4444;
-        }
+            .log-item.error {
+                color: #ef4444;
+            }
 
-        .log-item.info {
-            color: #3b82f6;
-        }
+            .log-item.info {
+                color: #3b82f6;
+            }
 
-        .success-message {
-            background: #d4edda;
-            border: 1px solid #c3e6cb;
-            color: #155724;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 15px;
-            display: none;
-            font-size: 14px;
-        }
+            .success-message {
+                background: #d4edda;
+                border: 1px solid #c3e6cb;
+                color: #155724;
+                padding: 12px;
+                border-radius: 6px;
+                margin-top: 15px;
+                display: none;
+                font-size: 14px;
+            }
 
-        .error-message {
-            background: #f8d7da;
-            border: 1px solid #f5c6cb;
-            color: #721c24;
-            padding: 12px;
-            border-radius: 6px;
-            margin-top: 15px;
-            display: none;
-            font-size: 14px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🍽️ Database Seeding</h1>
-        <p class="subtitle">Populate your database with stalls and menu items</p>
+            .error-message {
+                background: #f8d7da;
+                border: 1px solid #f5c6cb;
+                color: #721c24;
+                padding: 12px;
+                border-radius: 6px;
+                margin-top: 15px;
+                display: none;
+                font-size: 14px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🍽️ Database Seeding</h1>
+            <p class="subtitle">Populate your database with stalls and menu items</p>
 
-        <div class="info-box">
-            ℹ️ This page will insert sample data into Firebase. Duplicates will be skipped automatically. All records will include an updatedAt timestamp.
+            <div class="info-box">
+                ℹ️ This page will insert sample data into Firebase. Duplicates will be skipped automatically. All records will include an updatedAt timestamp.
+            </div>
+
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-number" id="stallCount">0</div>
+                    <div class="stat-label">Stalls</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-number" id="menuCount">0</div>
+                    <div class="stat-label">Menu Items</div>
+                </div>
+            </div>
+
+            <button id="seedBtn">Start Seeding Data</button>
+            <button class="secondary-btn" id="resetBtn" style="display: none;">Clear All Data</button>
+
+            <div class="progress" id="progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">0%</div>
+            </div>
+
+            <div class="log" id="log"></div>
+            <div class="success-message" id="successMsg"></div>
+            <div class="error-message" id="errorMsg"></div>
         </div>
 
-        <div class="stats">
-            <div class="stat-box">
-                <div class="stat-number" id="stallCount">25</div>
-                <div class="stat-label">Stalls</div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-number" id="menuCount">30</div>
-                <div class="stat-label">Menu Items</div>
-            </div>
-        </div>
-
-        <button id="seedBtn">Start Seeding Data</button>
-        <button class="secondary-btn" id="resetBtn" style="display: none;">Clear All Data</button>
-
-        <div class="progress" id="progress">
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            <div class="progress-text" id="progressText">0%</div>
-        </div>
-
-        <div class="log" id="log"></div>
-        <div class="success-message" id="successMsg"></div>
-        <div class="error-message" id="errorMsg"></div>
-    </div>
-
-    <script type="module">
-        // Try to import directly from firebaseauth.js, fall back to window globals
-        let db, docFn, setDocFn, getDocFn, serverTimestampFn, deleteDocFn;
-        
-        async function waitForFirebase() {
-            // First, try to import from firebaseauth.js if it exports db
-            try {
-                // Check if we can access db from window (set by firebaseauth.js)
-                let waitCount = 0;
-                const maxWait = 150;
-                
-                while (
-                    (typeof window.db === 'undefined' || 
-                     typeof window.serverTimestamp === 'undefined' ||
-                     typeof window.doc === 'undefined' ||
-                     typeof window.setDoc === 'undefined' ||
-                     typeof window.deleteDoc === 'undefined') && 
-                    waitCount < maxWait
-                ) {
-                    await new Promise(r => setTimeout(r, 100));
-                    waitCount++;
+        <script type="module">
+            // Try to import directly from firebaseauth.js, fall back to window globals
+            let db, docFn, setDocFn, getDocFn, serverTimestampFn, deleteDocFn;
+            
+            async function waitForFirebase() {
+                // First, try to import from firebaseauth.js if it exports db
+                try {
+                    // Check if we can access db from window (set by firebaseauth.js)
+                    let waitCount = 0;
+                    const maxWait = 150;
                     
-                    // Log progress every 2 seconds
-                    if (waitCount % 20 === 0) {
-                        console.log(`⏳ Waiting for Firebase... (${waitCount * 0.1}s)`);
-                        console.log(`Status: window.db=${typeof window.db}, window.doc=${typeof window.doc}, window.setDoc=${typeof window.setDoc}, window.serverTimestamp=${typeof window.serverTimestamp}, window.deleteDoc=${typeof window.deleteDoc}`);
+                    while (
+                        (typeof window.db === 'undefined' || 
+                        typeof window.serverTimestamp === 'undefined' ||
+                        typeof window.doc === 'undefined' ||
+                        typeof window.setDoc === 'undefined' ||
+                        typeof window.deleteDoc === 'undefined') && 
+                        waitCount < maxWait
+                    ) {
+                        await new Promise(r => setTimeout(r, 100));
+                        waitCount++;
+                        
+                        // Log progress every 2 seconds
+                        if (waitCount % 20 === 0) {
+                            console.log(`⏳ Waiting for Firebase... (${waitCount * 0.1}s)`);
+                            console.log(`Status: window.db=${typeof window.db}, window.doc=${typeof window.doc}, window.setDoc=${typeof window.setDoc}, window.serverTimestamp=${typeof window.serverTimestamp}, window.deleteDoc=${typeof window.deleteDoc}`);
+                        }
                     }
+                    
+                    if (typeof window.db !== 'undefined' && typeof window.doc !== 'undefined') {
+                        // Use window globals from firebaseauth.js
+                        db = window.db;
+                        docFn = window.doc;
+                        setDocFn = window.setDoc;
+                        getDocFn = window.getDoc;
+                        serverTimestampFn = window.serverTimestamp;
+                        deleteDocFn = window.deleteDoc;
+                        console.log('✅ Using Firebase from window globals');
+                        return;
+                    }
+                } catch (err) {
+                    console.warn('Error waiting for window globals:', err);
                 }
                 
-                if (typeof window.db !== 'undefined' && typeof window.doc !== 'undefined') {
-                    // Use window globals from firebaseauth.js
-                    db = window.db;
-                    docFn = window.doc;
-                    setDocFn = window.setDoc;
-                    getDocFn = window.getDoc;
-                    serverTimestampFn = window.serverTimestamp;
-                    deleteDocFn = window.deleteDoc;
-                    console.log('✅ Using Firebase from window globals');
+                // If window globals didn't work, try direct Firebase import
+                try {
+                    console.log('⚠️ window.db not available, trying direct Firebase import...');
+                    const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js");
+                    const { getFirestore, doc, setDoc, getDoc, serverTimestamp, deleteDoc } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js");
+                    
+                    // Use the same config as firebaseauth.js
+                    const firebaseConfig = {
+                        apiKey: "AIzaSyApmvl3E-sbQMZfadYGfa4P0EJ6N7IEZmo",
+                        authDomain: "wad2-login-5799b.firebaseapp.com",
+                        projectId: "wad2-login-5799b",
+                        storageBucket: "wad2-login-5799b.appspot.com",
+                        messagingSenderId: "148986270821",
+                        appId: "1:148986270821:web:fc17df5adf49b464a1628c"
+                    };
+                    
+                    const app = initializeApp(firebaseConfig);
+                    db = getFirestore(app);
+                    docFn = doc;
+                    setDocFn = setDoc;
+                    getDocFn = getDoc;
+                    serverTimestampFn = serverTimestamp;
+                    deleteDocFn = deleteDoc;
+                    console.log('✅ Using Firebase from direct import');
                     return;
+                } catch (err) {
+                    console.error('❌ Failed to initialize Firebase:', err);
+                    throw new Error('Firebase not initialized. Please check the browser console for errors in firebaseauth.js');
                 }
-            } catch (err) {
-                console.warn('Error waiting for window globals:', err);
             }
             
-            // If window globals didn't work, try direct Firebase import
-            try {
-                console.log('⚠️ window.db not available, trying direct Firebase import...');
-                const { initializeApp } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js");
-                const { getFirestore, doc, setDoc, getDoc, serverTimestamp, deleteDoc } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js");
-                
-                // Use the same config as firebaseauth.js
-                const firebaseConfig = {
-                    apiKey: "AIzaSyApmvl3E-sbQMZfadYGfa4P0EJ6N7IEZmo",
-                    authDomain: "wad2-login-5799b.firebaseapp.com",
-                    projectId: "wad2-login-5799b",
-                    storageBucket: "wad2-login-5799b.appspot.com",
-                    messagingSenderId: "148986270821",
-                    appId: "1:148986270821:web:fc17df5adf49b464a1628c"
-                };
-                
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                docFn = doc;
-                setDocFn = setDoc;
-                getDocFn = getDoc;
-                serverTimestampFn = serverTimestamp;
-                deleteDocFn = deleteDoc;
-                console.log('✅ Using Firebase from direct import');
-                return;
-            } catch (err) {
-                console.error('❌ Failed to initialize Firebase:', err);
-                throw new Error('Firebase not initialized. Please check the browser console for errors in firebaseauth.js');
+            const STALLS_DATA = [
+            {
+                    id: 'stallPeanutsSoup',
+                    name: "Peanuts Soup",
+                    slug: "peanuts-soup",
+                    foodCentre: "Maxwell Food Centre",
+                    cuisine: "Chinese",
+                    rating: 4.8,
+                    status: "open",
+                    priceRange: "$3-10",
+                    waitTime: "4 min",
+                    image: "/img/stall1.jpg",
+                    categories: ["Rice", "Noodles"]
+                },
+                {
+                    id: 'stallHajmeerKwaja',
+                    name: "Hajmeer Kwaja",
+                    slug: "hajmeer-kwaja",
+                    foodCentre: "Maxwell Food Centre",
+                    cuisine: "Malay",
+                    rating: 4.8,
+                    status: "closed",
+                    priceRange: "$3-10",
+                    waitTime: "N/A",
+                    image: "/img/stall2.jpg",
+                    categories: ["Rice", "Noodles"]
+                },
+                {
+                    id: 'stallLuckMeow',
+                    name: "LuckMeow",
+                    slug: "luckmeow",
+                    foodCentre: "Maxwell Food Centre",
+                    cuisine: "Indian",
+                    rating: 4.1,
+                    status: "open",
+                    priceRange: "$2-10",
+                    waitTime: "15 min",
+                    image: "/img/stall3.jpg",
+                    categories: ["Curry", "Rice", "Naan"]
+                },
+                {
+                    id: 'stallRamenTaisho',
+                    name: "Ramen Taisho",
+                    slug: "ramen-taisho",
+                    foodCentre: "Maxwell Food Centre",
+                    cuisine: "Japanese",
+                    rating: 4.2,
+                    status: "open",
+                    priceRange: "$7-15",
+                    waitTime: "8 min",
+                    image: "/img/stall4.jpg",
+                    categories: ["Ramen", "Rice Bowls", "Appetizers"]
+                },
+                {
+                    id: 'stallChinaStreetFritters',
+                    name: "China Street Fritters",
+                    slug: "china-street-fritters",
+                    foodCentre: "Maxwell Food Centre",
+                    cuisine: "Chinese",
+                    rating: 4.5,
+                    status: "open",
+                    priceRange: "$2-8",
+                    waitTime: "12 min",
+                    image: "/img/stall5.jpg",
+                    categories: ["Fritters", "Snacks", "Rice"]
+                },
+                {
+                    id: 'stallBoldXBraised',
+                    name: "Bold X Braised",
+                    slug: "bold-x-braised",
+                    foodCentre: "Maxwell Food Centre",
+                    cuisine: "Taiwanese",
+                    rating: 4.0,
+                    status: "closed",
+                    priceRange: "$6-16",
+                    waitTime: "N/A",
+                    image: "/img/stall6.jpg",
+                    categories: ["Braised", "Rice", "Noodles"]
+                },
+                {
+                    id: 'stallKoreanCuisine',
+                    name: "Korean Cuisine",
+                    slug: "korean-cuisine",
+                    foodCentre: "Maxwell Food Centre",
+                    cuisine: "Korean",
+                    rating: 4.0,
+                    status: "open",
+                    priceRange: "$5-20",
+                    waitTime: "10 min",
+                    image: "/img/stall7.jpg",
+                    categories: ["Braised", "Rice", "Noodles"]
+                },
+                {
+                    id: 'stallNeapolitanStylePizza',
+                    name: "Neapolitan Style Pizza",
+                    slug: "neapolitan-style-pizza",
+                    foodCentre: "Maxwell Food Centre",
+                    cuisine: "Western",
+                    rating: 4.0,
+                    status: "open",
+                    priceRange: "$10-20",
+                    waitTime: "10 min",
+                    image: "/img/stall8.jpg",
+                    categories: ["Braised", "Rice", "Noodles"]
+                },
+                {
+                    id: 'stallTianTianChickenRice',
+                    name: "Tian Tian Chicken Rice",
+                    slug: "tian-tian-chicken-rice",
+                    foodCentre: "Maxwell Food Centre",
+                    cuisine: "Chinese",
+                    rating: 4.0,
+                    status: "open",
+                    priceRange: "$2-10",
+                    waitTime: "2 min",
+                    image: "/img/stall9.jpg",
+                    categories: ["Braised", "Rice", "Noodles"]
+                },
+                {
+                    id: 'stallHotplateBBQSeafood',
+                    name: "Hotplate BBQ Seafood",
+                    slug: "hotplate-bbq-seafood",
+                    foodCentre: "Newton Food Centre",
+                    cuisine: "Seafood",
+                    rating: 4.6,
+                    status: "open",
+                    priceRange: "$10-25",
+                    waitTime: "20 min",
+                    image: "/img/stall10.jpg",
+                    categories: ["Seafood", "BBQ", "Rice"]
+                },
+                {
+                    id: 'stall22BestSatay',
+                    name: "22 Best Satay",
+                    slug: "22-best-satay",
+                    foodCentre: "Newton Food Centre",
+                    cuisine: "Malay",
+                    rating: 4.4,
+                    status: "open",
+                    priceRange: "$8-18",
+                    waitTime: "15 min",
+                    image: "/img/stall11.jpg",
+                    categories: ["Satay", "Rice", "BBQ"]
+                },
+                {
+                    id: 'stallHengHengChickenRice',
+                    name: "Heng Heng Chicken Rice",
+                    slug: "heng-heng-chicken-rice",
+                    foodCentre: "Newton Food Centre",
+                    cuisine: "Western",
+                    rating: 4.2,
+                    status: "open",
+                    priceRange: "$5-12",
+                    waitTime: "10 min",
+                    image: "/img/stall12.jpg",
+                    categories: ["Fried Chicken", "Fries", "Wings"]
+                },
+                {
+                    id: 'stallTeochewRiceAndPorridge',
+                    name: "Teochew Rice And Porridge",
+                    slug: "teochew-rice-and-porridge",
+                    foodCentre: "Newton Food Centre",
+                    cuisine: "Chinese",
+                    rating: 4.3,
+                    status: "open",
+                    priceRange: "$4-10",
+                    waitTime: "N/A",
+                    image: "/img/stall13.jpg",
+                    categories: ["Porridge", "Chinese Dishes"]
+                },
+                {
+                    id: 'stallLinaFishballNoodles',
+                    name: "Lina Fishball Noodles",
+                    slug: "lina-fishball-noodles",
+                    foodCentre: "Newton Food Centre",
+                    cuisine: "Chinese",
+                    rating: 4.0,
+                    status: "closed",
+                    priceRange: "$4-9",
+                    waitTime: "3 min",
+                    image: "/img/stall16.jpg",
+                    categories: ["Braised", "Rice", "Noodles"]
+                },
+                {
+                    id: 'stallAminahsPrata',
+                    name: "Aminah's Prata",
+                    slug: "aminahs-prata",
+                    foodCentre: "Newton Food Centre",
+                    cuisine: "Indian",
+                    rating: 4.0,
+                    status: "closed",
+                    priceRange: "$7-20",
+                    waitTime: "10 min",
+                    image: "/img/stall17.jpg",
+                    categories: ["Braised", "Rice", "Noodles"]
+                },
+                {
+                    id: "stallDAuthenticNasiLemak",
+                    name: "D Authentic Nasi Lemak",
+                    slug: "d-authentic-nasi-lemak",
+                    foodCentre: "Changi Village Food Centre",
+                    cuisine: "Malay",
+                    rating: 4.7,
+                    status: "open",
+                    priceRange: "$4-8",
+                    waitTime: "8 min",
+                    image: "/img/stall18.jpg",
+                    categories: ["Nasi Lemak", "Rice"]
+                },
+                {
+                    id: "stallAllianceSeafood",
+                    name: "Alliance Seafood",
+                    slug: "alliance-seafood",
+                    foodCentre: "Changi Village Food Centre",
+                    cuisine: "Seafood",
+                    rating: 4.5,
+                    status: "open",
+                    priceRange: "$12-30",
+                    waitTime: "25 min",
+                    image: "/img/stall19.jpg",
+                    categories: ["Seafood", "Chilli Crab", "Sambal"]
+                },
+                {
+                    id: "stallBurgs",
+                    name: "Burgs",
+                    slug: "burgs",
+                    foodCentre: "Changi Village Food Centre",
+                    cuisine: "Western",
+                    rating: 4.4,
+                    status: "open",
+                    priceRange: "$5-12",
+                    waitTime: "12 min",
+                    image: "/img/stall20.jpg",
+                    categories: ["Malay Dishes", "Rice", "Noodles"]
+                },
+                {
+                    id: "stallKokaWantonNoodles",
+                    name: "Koka Wanton Noodles",
+                    slug: "koka-wanton-noodles",
+                    foodCentre: "Changi Village Food Centre",
+                    cuisine: "Chinese",
+                    rating: 4.1,
+                    status: "open",
+                    priceRange: "$4-7",
+                    waitTime: "N/A",
+                    image: "/img/stall21.jpg",
+                    categories: ["Noodles", "Wanton"]
+                },
+                {
+                    id: "stallJiakMee",
+                    name: "Jiak Mee",
+                    slug: "jiak-mee",
+                    foodCentre: "Changi Village Food Centre",
+                    cuisine: "Chinese",
+                    rating: 4.1,
+                    status: "open",
+                    priceRange: "$4-7",
+                    waitTime: "N/A",
+                    image: "/img/stall22.jpg",
+                    categories: ["Noodles", "Wanton"]
+                },
+                {
+                    id: 'stallFortunePopiah',
+                    name: "Fortune Popiah",
+                    slug: "fortune-popiah",
+                    foodCentre: "Changi Village Food Centre",
+                    cuisine: "Chinese",
+                    rating: 4.0,
+                    status: "open",
+                    priceRange: "$1-5",
+                    waitTime: "2 min",
+                    image: "/img/stall14.jpg",
+                    categories: ["Braised", "Rice", "Noodles"]
+                },
+                {
+                    id: 'stallAliffNasiLemak',
+                    name: "Alif's Nasi Lemak",
+                    slug: "alifs-nasi-lemak",
+                    foodCentre: "Changi Village Food Centre",
+                    cuisine: "Malay",
+                    rating: 4.0,
+                    status: "open",
+                    priceRange: "$3-10",
+                    waitTime: "3 min",
+                    image: "/img/stall15.jpg",
+                    categories: ["Braised", "Rice", "Noodles"]
+                },
+                {
+                    id: 'stallMalaHotpot',
+                    name: "Mala Hotpot",
+                    slug: "mala-hotpot",
+                    foodCentre: "Changi Village Food Centre",
+                    cuisine: "Chinese",
+                    rating: 4.0,
+                    status: "closed",
+                    priceRange: "$7-20",
+                    waitTime: "10 min",
+                    image: "/img/stall23.jpg",
+                    categories: ["Braised", "Rice", "Noodles"]
+                },
+            ];
+
+            const MENU_ITEMS_DATA = [
+                { id: 'food-hajmeer-001', name: "Nasi Lemak", price: 5.50, category: "Rice", stallId: "stallHajmeerKwaja", image: "/img/food4.jpg", description: "Traditional coconut rice with fried chicken", available: true },
+                { id: 'food-hajmeer-002', name: "Mee Goreng", price: 6.00, category: "Noodles", stallId: "stallHajmeerKwaja", image: "/img/food5.jpg", description: "Spicy fried noodles", available: true },
+                { id: 'food-luckmeow-001', name: "Butter Chicken", price: 8.50, category: "Curry", stallId: "stallLuckMeow", image: "/img/food6.jpg", description: "Creamy butter chicken curry", available: true },
+                { id: 'food-luckmeow-002', name: "Chicken Biryani", price: 7.50, category: "Rice", stallId: "stallLuckMeow", image: "/img/food7.jpg", description: "Fragrant basmati rice with chicken", available: true },
+                { id: 'food-luckmeow-003', name: "Garlic Naan", price: 3.00, category: "Naan", stallId: "stallLuckMeow", image: "/img/food8.jpg", description: "Fresh garlic naan bread", available: true },
+                { id: 'food-ramen-001', name: "Tonkotsu Ramen", price: 12.00, category: "Ramen", stallId: "stallRamenTaisho", image: "/img/food9.jpg", description: "Rich pork bone broth ramen", available: true },
+                { id: 'food-ramen-002', name: "Chicken Teriyaki Bowl", price: 9.50, category: "Rice Bowls", stallId: "stallRamenTaisho", image: "/img/food10.jpg", description: "Grilled teriyaki chicken over rice", available: true },
+                { id: 'food-ramen-003', name: "Gyoza", price: 5.50, category: "Appetizers", stallId: "stallRamenTaisho", image: "/img/food1.jpg", description: "Pan-fried dumplings", available: true },
+                { id: 'food-china-001', name: "You Tiao", price: 2.50, category: "Fritters", stallId: "stallChinaStreetFritters", image: "/img/food2.jpg", description: "Crispy Chinese fried dough", available: true },
+                { id: 'food-china-002', name: "Prawn Fritters", price: 6.00, category: "Fritters", stallId: "stallChinaStreetFritters", image: "/img/food3.jpg", description: "Crispy prawn fritters", available: true },
+                { id: 'food-china-003', name: "Egg Fried Rice", price: 4.50, category: "Rice", stallId: "stallChinaStreetFritters", image: "/img/food4.jpg", description: "Classic egg fried rice", available: true },
+                { id: 'food-bold-001', name: "Braised Pork Rice", price: 8.00, category: "Braised", stallId: "stallBoldXBraised", image: "/img/food5.jpg", description: "Tender braised pork over rice", available: true },
+                { id: 'food-bold-002', name: "Beef Noodles", price: 9.50, category: "Noodles", stallId: "stallBoldXBraised", image: "/img/food6.jpg", description: "Rich beef broth noodles", available: true },
+                { id: 'food-changi-nl-001', name: "Nasi Lemak Set", price: 5.50, category: "Nasi Lemak", stallId: "stallDAuthenticNasiLemak", image: "/img/food4.jpg", description: "Coconut rice with fried chicken and sambal", available: true },
+                { id: 'food-changi-nl-002', name: "Nasi Lemak with Ikan Bilis", price: 4.50, category: "Nasi Lemak", stallId: "stallDAuthenticNasiLemak", image: "/img/food5.jpg", description: "Coconut rice with anchovies", available: true },
+                { id: 'food-changi-seafood-001', name: "Chilli Crab (Small)", price: 22.00, category: "Seafood", stallId: "stallAllianceSeafood", image: "/img/food6.jpg", description: "Fresh crab in sweet chilli sauce", available: true },
+                { id: 'food-changi-seafood-002', name: "Butter Prawns", price: 16.00, category: "Seafood", stallId: "stallAllianceSeafood", image: "/img/food7.jpg", description: "Crispy prawns in butter sauce", available: true },
+                { id: 'food-changi-malay-001', name: "Mee Goreng", price: 6.50, category: "Noodles", stallId: "stallBurgs", image: "/img/food8.jpg", description: "Spicy fried yellow noodles", available: true },
+                { id: 'food-changi-malay-002', name: "Nasi Goreng", price: 5.00, category: "Rice", stallId: "stallBurgs", image: "/img/food9.jpg", description: "Indonesian style fried rice", available: true }
+            ];
+
+            function log(message, type = 'info') {
+                const logEl = document.getElementById('log');
+                const item = document.createElement('div');
+                item.className = `log-item ${type}`;
+                item.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                logEl.appendChild(item);
+                logEl.scrollTop = logEl.scrollHeight;
             }
-        }
-        
-        const STALLS_DATA = [
-            {
-                id: 'stallHajmeerKwaja',
-                name: "Hajmeer Kwaja",
-                slug: "hajmeer-kwaja",
-                foodCentre: "Maxwell Food Centre",
-                cuisine: "Malay",
-                rating: 4.8,
-                status: "closed",
-                priceRange: "$3-10",
-                waitTime: "N/A",
-                image: "/img/stall2.jpg",
-                categories: ["Rice", "Noodles"]
-            },
-            {
-                id: 'stallLuckMeow',
-                name: "LuckMeow",
-                slug: "luckmeow",
-                foodCentre: "Maxwell Food Centre",
-                cuisine: "Indian",
-                rating: 4.1,
-                status: "open",
-                priceRange: "$2-10",
-                waitTime: "15 min",
-                image: "/img/stall3.jpg",
-                categories: ["Curry", "Rice", "Naan"]
-            },
-            {
-                id: 'stallRamenTaisho',
-                name: "Ramen Taisho",
-                slug: "ramen-taisho",
-                foodCentre: "Maxwell Food Centre",
-                cuisine: "Japanese",
-                rating: 4.2,
-                status: "open",
-                priceRange: "$7-15",
-                waitTime: "8 min",
-                image: "/img/stall4.jpg",
-                categories: ["Ramen", "Rice Bowls", "Appetizers"]
-            },
-            {
-                id: 'stallChinaStreetFritters',
-                name: "China Street Fritters",
-                slug: "china-street-fritters",
-                foodCentre: "Maxwell Food Centre",
-                cuisine: "Chinese",
-                rating: 4.5,
-                status: "open",
-                priceRange: "$2-8",
-                waitTime: "12 min",
-                image: "/img/stall5.jpg",
-                categories: ["Fritters", "Snacks", "Rice"]
-            },
-            {
-                id: 'stallBoldXBraised',
-                name: "Bold X Braised",
-                slug: "bold-x-braised",
-                foodCentre: "Maxwell Food Centre",
-                cuisine: "Taiwanese",
-                rating: 4.0,
-                status: "closed",
-                priceRange: "$6-16",
-                waitTime: "N/A",
-                image: "/img/stall6.jpg",
-                categories: ["Braised", "Rice", "Noodles"]
-            },
-            {
-                id: 'stallKoreanCuisine',
-                name: "Korean Cuisine",
-                slug: "korean-cuisine",
-                foodCentre: "Maxwell Food Centre",
-                cuisine: "Korean",
-                rating: 4.0,
-                status: "open",
-                priceRange: "$5-20",
-                waitTime: "10 min",
-                image: "/img/stall7.jpg",
-                categories: ["Braised", "Rice", "Noodles"]
-            },
-            {
-                id: 'stallNeapolitanStylePizza',
-                name: "Neapolitan Style Pizza",
-                slug: "neapolitan-style-pizza",
-                foodCentre: "Maxwell Food Centre",
-                cuisine: "Western",
-                rating: 4.0,
-                status: "open",
-                priceRange: "$10-20",
-                waitTime: "10 min",
-                image: "/img/stall8.jpg",
-                categories: ["Braised", "Rice", "Noodles"]
-            },
-            {
-                id: 'stallTianTianChickenRice',
-                name: "Tian Tian Chicken Rice",
-                slug: "tian-tian-chicken-rice",
-                foodCentre: "Maxwell Food Centre",
-                cuisine: "Chinese",
-                rating: 4.0,
-                status: "open",
-                priceRange: "$2-10",
-                waitTime: "2 min",
-                image: "/img/stall9.jpg",
-                categories: ["Braised", "Rice", "Noodles"]
-            },
-            {
-                id: 'stallHotplateBBQSeafood',
-                name: "Hotplate BBQ Seafood",
-                slug: "hotplate-bbq-seafood",
-                foodCentre: "Newton Food Centre",
-                cuisine: "Seafood",
-                rating: 4.6,
-                status: "open",
-                priceRange: "$10-25",
-                waitTime: "20 min",
-                image: "/img/stall10.jpg",
-                categories: ["Seafood", "BBQ", "Rice"]
-            },
-            {
-                id: 'stall22BestSatay',
-                name: "22 Best Satay",
-                slug: "22-best-satay",
-                foodCentre: "Newton Food Centre",
-                cuisine: "Malay",
-                rating: 4.4,
-                status: "open",
-                priceRange: "$8-18",
-                waitTime: "15 min",
-                image: "/img/stall11.jpg",
-                categories: ["Satay", "Rice", "BBQ"]
-            },
-            {
-                id: 'stallHengHengChickenRice',
-                name: "Heng Heng Chicken Rice",
-                slug: "heng-heng-chicken-rice",
-                foodCentre: "Newton Food Centre",
-                cuisine: "Western",
-                rating: 4.2,
-                status: "open",
-                priceRange: "$5-12",
-                waitTime: "10 min",
-                image: "/img/stall12.jpg",
-                categories: ["Fried Chicken", "Fries", "Wings"]
-            },
-            {
-                id: 'stallTeochewRiceAndPorridge',
-                name: "Teochew Rice And Porridge",
-                slug: "teochew-rice-and-porridge",
-                foodCentre: "Newton Food Centre",
-                cuisine: "Chinese",
-                rating: 4.3,
-                status: "open",
-                priceRange: "$4-10",
-                waitTime: "N/A",
-                image: "/img/stall13.jpg",
-                categories: ["Porridge", "Chinese Dishes"]
-            },
-            {
-                id: 'stallLinaFishballNoodles',
-                name: "Lina Fishball Noodles",
-                slug: "lina-fishball-noodles",
-                foodCentre: "Newton Food Centre",
-                cuisine: "Chinese",
-                rating: 4.0,
-                status: "closed",
-                priceRange: "$4-9",
-                waitTime: "3 min",
-                image: "/img/stall16.jpg",
-                categories: ["Braised", "Rice", "Noodles"]
-            },
-            {
-                id: 'stallAminahsPrata',
-                name: "Aminah's Prata",
-                slug: "aminahs-prata",
-                foodCentre: "Newton Food Centre",
-                cuisine: "Indian",
-                rating: 4.0,
-                status: "closed",
-                priceRange: "$7-20",
-                waitTime: "10 min",
-                image: "/img/stall17.jpg",
-                categories: ["Braised", "Rice", "Noodles"]
-            },
-            {
-                id: "stallDAuthenticNasiLemak",
-                name: "D Authentic Nasi Lemak",
-                slug: "d-authentic-nasi-lemak",
-                foodCentre: "Changi Village Food Centre",
-                cuisine: "Malay",
-                rating: 4.7,
-                status: "open",
-                priceRange: "$4-8",
-                waitTime: "8 min",
-                image: "/img/stall18.jpg",
-                categories: ["Nasi Lemak", "Rice"]
-            },
-            {
-                id: "stallAllianceSeafood",
-                name: "Alliance Seafood",
-                slug: "alliance-seafood",
-                foodCentre: "Changi Village Food Centre",
-                cuisine: "Seafood",
-                rating: 4.5,
-                status: "open",
-                priceRange: "$12-30",
-                waitTime: "25 min",
-                image: "/img/stall19.jpg",
-                categories: ["Seafood", "Chilli Crab", "Sambal"]
-            },
-            {
-                id: "stallBurgs",
-                name: "Burgs",
-                slug: "burgs",
-                foodCentre: "Changi Village Food Centre",
-                cuisine: "Western",
-                rating: 4.4,
-                status: "open",
-                priceRange: "$5-12",
-                waitTime: "12 min",
-                image: "/img/stall20.jpg",
-                categories: ["Malay Dishes", "Rice", "Noodles"]
-            },
-            {
-                id: "stallKokaWantonNoodles",
-                name: "Koka Wanton Noodles",
-                slug: "koka-wanton-noodles",
-                foodCentre: "Changi Village Food Centre",
-                cuisine: "Chinese",
-                rating: 4.1,
-                status: "open",
-                priceRange: "$4-7",
-                waitTime: "N/A",
-                image: "/img/stall21.jpg",
-                categories: ["Noodles", "Wanton"]
-            },
-            {
-                id: "stallJiakMee",
-                name: "Jiak Mee",
-                slug: "jiak-mee",
-                foodCentre: "Changi Village Food Centre",
-                cuisine: "Chinese",
-                rating: 4.1,
-                status: "open",
-                priceRange: "$4-7",
-                waitTime: "N/A",
-                image: "/img/stall22.jpg",
-                categories: ["Noodles", "Wanton"]
-            },
-            {
-                id: 'stallFortunePopiah',
-                name: "Fortune Popiah",
-                slug: "fortune-popiah",
-                foodCentre: "Changi Village Food Centre",
-                cuisine: "Chinese",
-                rating: 4.0,
-                status: "open",
-                priceRange: "$1-5",
-                waitTime: "2 min",
-                image: "/img/stall14.jpg",
-                categories: ["Braised", "Rice", "Noodles"]
-            },
-            {
-                id: 'stallAliffNasiLemak',
-                name: "Alif's Nasi Lemak",
-                slug: "alifs-nasi-lemak",
-                foodCentre: "Changi Village Food Centre",
-                cuisine: "Malay",
-                rating: 4.0,
-                status: "open",
-                priceRange: "$3-10",
-                waitTime: "3 min",
-                image: "/img/stall15.jpg",
-                categories: ["Braised", "Rice", "Noodles"]
-            },
-            {
-                id: 'stallMalaHotpot',
-                name: "Mala Hotpot",
-                slug: "mala-hotpot",
-                foodCentre: "Changi Village Food Centre",
-                cuisine: "Chinese",
-                rating: 4.0,
-                status: "closed",
-                priceRange: "$7-20",
-                waitTime: "10 min",
-                image: "/img/stall23.jpg",
-                categories: ["Braised", "Rice", "Noodles"]
-            },
-        ];
 
-        const MENU_ITEMS_DATA = [
-            { id: 'food-hajmeer-001', name: "Nasi Lemak", price: 5.50, category: "Rice", stallId: "stallHajmeerKwaja", image: "/img/food4.jpg", description: "Traditional coconut rice with fried chicken", available: true },
-            { id: 'food-hajmeer-002', name: "Mee Goreng", price: 6.00, category: "Noodles", stallId: "stallHajmeerKwaja", image: "/img/food5.jpg", description: "Spicy fried noodles", available: true },
-            { id: 'food-luckmeow-001', name: "Butter Chicken", price: 8.50, category: "Curry", stallId: "stallLuckMeow", image: "/img/food6.jpg", description: "Creamy butter chicken curry", available: true },
-            { id: 'food-luckmeow-002', name: "Chicken Biryani", price: 7.50, category: "Rice", stallId: "stallLuckMeow", image: "/img/food7.jpg", description: "Fragrant basmati rice with chicken", available: true },
-            { id: 'food-luckmeow-003', name: "Garlic Naan", price: 3.00, category: "Naan", stallId: "stallLuckMeow", image: "/img/food8.jpg", description: "Fresh garlic naan bread", available: true },
-            { id: 'food-ramen-001', name: "Tonkotsu Ramen", price: 12.00, category: "Ramen", stallId: "stallRamenTaisho", image: "/img/food9.jpg", description: "Rich pork bone broth ramen", available: true },
-            { id: 'food-ramen-002', name: "Chicken Teriyaki Bowl", price: 9.50, category: "Rice Bowls", stallId: "stallRamenTaisho", image: "/img/food10.jpg", description: "Grilled teriyaki chicken over rice", available: true },
-            { id: 'food-ramen-003', name: "Gyoza", price: 5.50, category: "Appetizers", stallId: "stallRamenTaisho", image: "/img/food1.jpg", description: "Pan-fried dumplings", available: true },
-            { id: 'food-china-001', name: "You Tiao", price: 2.50, category: "Fritters", stallId: "stallChinaStreetFritters", image: "/img/food2.jpg", description: "Crispy Chinese fried dough", available: true },
-            { id: 'food-china-002', name: "Prawn Fritters", price: 6.00, category: "Fritters", stallId: "stallChinaStreetFritters", image: "/img/food3.jpg", description: "Crispy prawn fritters", available: true },
-            { id: 'food-china-003', name: "Egg Fried Rice", price: 4.50, category: "Rice", stallId: "stallChinaStreetFritters", image: "/img/food4.jpg", description: "Classic egg fried rice", available: true },
-            { id: 'food-bold-001', name: "Braised Pork Rice", price: 8.00, category: "Braised", stallId: "stallBoldXBraised", image: "/img/food5.jpg", description: "Tender braised pork over rice", available: true },
-            { id: 'food-bold-002', name: "Beef Noodles", price: 9.50, category: "Noodles", stallId: "stallBoldXBraised", image: "/img/food6.jpg", description: "Rich beef broth noodles", available: true },
-            { id: 'food-changi-nl-001', name: "Nasi Lemak Set", price: 5.50, category: "Nasi Lemak", stallId: "stallDAuthenticNasiLemak", image: "/img/food4.jpg", description: "Coconut rice with fried chicken and sambal", available: true },
-            { id: 'food-changi-nl-002', name: "Nasi Lemak with Ikan Bilis", price: 4.50, category: "Nasi Lemak", stallId: "stallDAuthenticNasiLemak", image: "/img/food5.jpg", description: "Coconut rice with anchovies", available: true },
-            { id: 'food-changi-seafood-001', name: "Chilli Crab (Small)", price: 22.00, category: "Seafood", stallId: "stallAllianceSeafood", image: "/img/food6.jpg", description: "Fresh crab in sweet chilli sauce", available: true },
-            { id: 'food-changi-seafood-002', name: "Butter Prawns", price: 16.00, category: "Seafood", stallId: "stallAllianceSeafood", image: "/img/food7.jpg", description: "Crispy prawns in butter sauce", available: true },
-            { id: 'food-changi-malay-001', name: "Mee Goreng", price: 6.50, category: "Noodles", stallId: "stallBurgs", image: "/img/food8.jpg", description: "Spicy fried yellow noodles", available: true },
-            { id: 'food-changi-malay-002', name: "Nasi Goreng", price: 5.00, category: "Rice", stallId: "stallBurgs", image: "/img/food9.jpg", description: "Indonesian style fried rice", available: true }
-        ];
-
-        function log(message, type = 'info') {
-            const logEl = document.getElementById('log');
-            const item = document.createElement('div');
-            item.className = `log-item ${type}`;
-            item.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-            logEl.appendChild(item);
-            logEl.scrollTop = logEl.scrollHeight;
-        }
-
-        async function checkDocumentExists(collectionName, docId) {
-            try {
-                const docRef = docFn(db, collectionName, docId);
-                const docSnap = await getDocFn(docRef);
-                return docSnap.exists();
-            } catch (error) {
-                console.error('Error checking document:', error);
-                return false;
+            async function checkDocumentExists(collectionName, docId) {
+                try {
+                    const docRef = docFn(db, collectionName, docId);
+                    const docSnap = await getDocFn(docRef);
+                    return docSnap.exists();
+                } catch (error) {
+                    console.error('Error checking document:', error);
+                    return false;
+                }
             }
-        }
 
-        async function seedDatabase() {
-            const seedBtn = document.getElementById('seedBtn');
-            const resetBtn = document.getElementById('resetBtn');
-            const progress = document.getElementById('progress');
-            const progressFill = document.getElementById('progressFill');
-            const progressText = document.getElementById('progressText');
-            const log1 = document.getElementById('log');
-            const successMsg = document.getElementById('successMsg');
-            const errorMsg = document.getElementById('errorMsg');
+            async function seedDatabase() {
+                const seedBtn = document.getElementById('seedBtn');
+                const resetBtn = document.getElementById('resetBtn');
+                const progress = document.getElementById('progress');
+                const progressFill = document.getElementById('progressFill');
+                const progressText = document.getElementById('progressText');
+                const log1 = document.getElementById('log');
+                const successMsg = document.getElementById('successMsg');
+                const errorMsg = document.getElementById('errorMsg');
 
-            seedBtn.disabled = true;
-            progress.style.display = 'block';
-            log1.style.display = 'block';
-            successMsg.style.display = 'none';
-            errorMsg.style.display = 'none';
+                seedBtn.disabled = true;
+                progress.style.display = 'block';
+                log1.style.display = 'block';
+                successMsg.style.display = 'none';
+                errorMsg.style.display = 'none';
 
-            try {
-                // Wait for Firebase
-                log('⏳ Waiting for Firebase to initialize...', 'info');
-                await waitForFirebase();
-                log('✅ Firebase initialized', 'success');
+                try {
+                    // Wait for Firebase
+                    log('⏳ Waiting for Firebase to initialize...', 'info');
+                    await waitForFirebase();
+                    log('✅ Firebase initialized', 'success');
 
-                let added = 0;
-                let skipped = 0;
-                const total = STALLS_DATA.length + MENU_ITEMS_DATA.length;
+                    let added = 0;
+                    let skipped = 0;
+                    const total = STALLS_DATA.length + MENU_ITEMS_DATA.length;
 
-                // Add stalls
-                log('📤 Adding stalls...', 'info');
-                for (const stall of STALLS_DATA) {
-                    try {
-                        const { id, ...stallData } = stall;
-                        const exists = await checkDocumentExists('stalls', id);
-                        
-                        if (exists) {
-                            log(`⏭️ Skipped (exists): ${stall.name}`, 'info');
+                    // Add stalls
+                    log('📤 Adding stalls...', 'info');
+                    for (const stall of STALLS_DATA) {
+                        try {
+                            const { id, ...stallData } = stall;
+                            const exists = await checkDocumentExists('stalls', id);
+                            
+                            if (exists) {
+                                log(`⏭️ Skipped (exists): ${stall.name}`, 'info');
+                                skipped++;
+                            } else {
+                                const stallDataWithTimestamp = {
+                                    ...stallData,
+                                    createdAt: serverTimestampFn(),
+                                    updatedAt: serverTimestampFn()
+                                };
+                                const stallRef = docFn(db, 'stalls', id);
+                                await setDocFn(stallRef, stallDataWithTimestamp);
+                                log(`✅ Added: ${stall.name}`, 'success');
+                                added++;
+                            }
+                        } catch (error) {
+                            log(`❌ Error adding ${stall.name}: ${error.message}`, 'error');
+                            console.error('Stall error:', error);
                             skipped++;
-                        } else {
-                            const stallDataWithTimestamp = {
-                                ...stallData,
-                                createdAt: serverTimestampFn(),
-                                updatedAt: serverTimestampFn()
-                            };
-                            const stallRef = docFn(db, 'stalls', id);
-                            await setDocFn(stallRef, stallDataWithTimestamp);
-                            log(`✅ Added: ${stall.name}`, 'success');
-                            added++;
                         }
-                    } catch (error) {
-                        log(`❌ Error adding ${stall.name}: ${error.message}`, 'error');
-                        console.error('Stall error:', error);
-                        skipped++;
+
+                        const progress_pct = Math.round(((added + skipped) / total) * 100);
+                        progressFill.style.width = progress_pct + '%';
+                        progressText.textContent = progress_pct + '%';
                     }
 
-                    const progress_pct = Math.round(((added + skipped) / total) * 100);
-                    progressFill.style.width = progress_pct + '%';
-                    progressText.textContent = progress_pct + '%';
-                }
+                    // Add menu items
+                    log('📤 Adding menu items...', 'info');
+                    for (const item of MENU_ITEMS_DATA) {
+                        try {
+                            const { id, ...itemData } = item;
+                            const exists = await checkDocumentExists('menuItems', id);
 
-                // Add menu items
-                log('📤 Adding menu items...', 'info');
-                for (const item of MENU_ITEMS_DATA) {
-                    try {
-                        const { id, ...itemData } = item;
-                        const exists = await checkDocumentExists('menuItems', id);
-
-                        if (exists) {
-                            log(`⏭️ Skipped (exists): ${item.name}`, 'info');
+                            if (exists) {
+                                log(`⏭️ Skipped (exists): ${item.name}`, 'info');
+                                skipped++;
+                            } else {
+                                const itemDataWithTimestamp = {
+                                    ...itemData,
+                                    createdAt: serverTimestampFn(),
+                                    updatedAt: serverTimestampFn()
+                                };
+                                const itemRef = docFn(db, 'menuItems', id);
+                                await setDocFn(itemRef, itemDataWithTimestamp);
+                                log(`✅ Added: ${item.name}`, 'success');
+                                added++;
+                            }
+                        } catch (error) {
+                            log(`❌ Error adding ${item.name}: ${error.message}`, 'error');
+                            console.error('Menu item error:', error);
                             skipped++;
-                        } else {
-                            const itemDataWithTimestamp = {
-                                ...itemData,
-                                createdAt: serverTimestampFn(),
-                                updatedAt: serverTimestampFn()
-                            };
-                            const itemRef = docFn(db, 'menuItems', id);
-                            await setDocFn(itemRef, itemDataWithTimestamp);
-                            log(`✅ Added: ${item.name}`, 'success');
-                            added++;
                         }
-                    } catch (error) {
-                        log(`❌ Error adding ${item.name}: ${error.message}`, 'error');
-                        console.error('Menu item error:', error);
-                        skipped++;
+
+                        const progress_pct = Math.round(((added + skipped) / total) * 100);
+                        progressFill.style.width = progress_pct + '%';
+                        progressText.textContent = progress_pct + '%';
                     }
 
-                    const progress_pct = Math.round(((added + skipped) / total) * 100);
-                    progressFill.style.width = progress_pct + '%';
-                    progressText.textContent = progress_pct + '%';
+                    log(`✅ Complete! Added: ${added}, Skipped: ${skipped}`, 'success');
+                    successMsg.textContent = `✅ Seeding complete! Added ${added} items, skipped ${skipped} duplicates. All records include createdAt and updatedAt timestamps.`;
+                    successMsg.style.display = 'block';
+                    resetBtn.style.display = 'block';
+
+                } catch (error) {
+                    console.error('[v0] Seeding error:', error);
+                    log(`❌ Error: ${error.message}`, 'error');
+                    errorMsg.textContent = `❌ Error: ${error.message}`;
+                    errorMsg.style.display = 'block';
+                } finally {
+                    seedBtn.disabled = false;
                 }
-
-                log(`✅ Complete! Added: ${added}, Skipped: ${skipped}`, 'success');
-                successMsg.textContent = `✅ Seeding complete! Added ${added} items, skipped ${skipped} duplicates. All records include createdAt and updatedAt timestamps.`;
-                successMsg.style.display = 'block';
-                resetBtn.style.display = 'block';
-
-            } catch (error) {
-                console.error('[v0] Seeding error:', error);
-                log(`❌ Error: ${error.message}`, 'error');
-                errorMsg.textContent = `❌ Error: ${error.message}`;
-                errorMsg.style.display = 'block';
-            } finally {
-                seedBtn.disabled = false;
             }
-        }
 
-        async function clearDatabase() {
-            if (!confirm('⚠️ This will delete ALL stalls and menu items. Are you sure?')) return;
+            async function clearDatabase() {
+                if (!confirm('⚠️ This will delete ALL stalls and menu items. Are you sure?')) return;
 
-            const seedBtn = document.getElementById('seedBtn');
-            seedBtn.disabled = true;
+                const seedBtn = document.getElementById('seedBtn');
+                seedBtn.disabled = true;
 
-            try {
-                await waitForFirebase();
+                try {
+                    await waitForFirebase();
 
-                // Delete all stalls
-                for (const stall of STALLS_DATA) {
-                    const stallRef = docFn(db, 'stalls', stall.id);
-                    await deleteDocFn(stallRef);
+                    // Delete all stalls
+                    for (const stall of STALLS_DATA) {
+                        const stallRef = docFn(db, 'stalls', stall.id);
+                        await deleteDocFn(stallRef);
+                    }
+
+                    // Delete all menu items
+                    for (const item of MENU_ITEMS_DATA) {
+                        const itemRef = docFn(db, 'menuItems', item.id);
+                        await deleteDocFn(itemRef);
+                    }
+
+                    log('✅ All data cleared!', 'success');
+                    alert('✅ Database cleared!');
+                    location.reload();
+
+                } catch (error) {
+                    log(`❌ Error clearing: ${error.message}`, 'error');
+                    alert(`❌ Error: ${error.message}`);
+                } finally {
+                    seedBtn.disabled = false;
                 }
-
-                // Delete all menu items
-                for (const item of MENU_ITEMS_DATA) {
-                    const itemRef = docFn(db, 'menuItems', item.id);
-                    await deleteDocFn(itemRef);
-                }
-
-                log('✅ All data cleared!', 'success');
-                alert('✅ Database cleared!');
-                location.reload();
-
-            } catch (error) {
-                log(`❌ Error clearing: ${error.message}`, 'error');
-                alert(`❌ Error: ${error.message}`);
-            } finally {
-                seedBtn.disabled = false;
             }
-        }
 
-        // Attach event listeners when DOM is ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => {
+            // Update stat counts based on array lengths
+            document.getElementById('stallCount').textContent = STALLS_DATA.length;
+            document.getElementById('menuCount').textContent = MENU_ITEMS_DATA.length;
+
+            // Attach event listeners when DOM is ready
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => {
+                    document.getElementById('seedBtn').addEventListener('click', seedDatabase);
+                    document.getElementById('resetBtn').addEventListener('click', clearDatabase);
+                });
+            } else {
+                // DOM already loaded
                 document.getElementById('seedBtn').addEventListener('click', seedDatabase);
                 document.getElementById('resetBtn').addEventListener('click', clearDatabase);
-            });
-        } else {
-            // DOM already loaded
-            document.getElementById('seedBtn').addEventListener('click', seedDatabase);
-            document.getElementById('resetBtn').addEventListener('click', clearDatabase);
-        }
-    </script>
-</body>
-</html>
+            }
+        </script>
+    </body>
+    </html>

@@ -126,7 +126,7 @@
       border: 1px solid var(--clr-ink);
       border-radius: 6px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      max-height: 200px;
+      max-height: 300px;
       overflow-y: auto;
       z-index: 1000;
       display: none;
@@ -135,6 +135,31 @@
 
     .food-centre-select.open .food-centre-dropdown {
       display: block;
+    }
+
+    .dropdown-search-bar {
+      padding: 12px;
+      border-bottom: 1px solid rgba(38, 38, 38, 0.1);
+      position: sticky;
+      top: 0;
+      background: white;
+      border-radius: 6px 6px 0 0;
+      z-index: 10;
+    }
+
+    .dropdown-search-bar input {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid rgba(38, 38, 38, 0.2);
+      border-radius: 4px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+
+    .dropdown-search-bar input:focus {
+      outline: none;
+      border-color: #4285f4;
+      box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
     }
 
     .food-centre-option {
@@ -175,7 +200,6 @@
       color: var(--clr-ink);
     }
 
-    /* Add disabled state styling for search bar */
     .search-bar:disabled {
       background: #e9ecef;
       color: #6c757d;
@@ -209,7 +233,6 @@
       margin: 24px 0 16px;
     }
 
-    /* Grid Layout */
     #availableStalls, #closedStalls {
       display: grid;
       gap: 16px;
@@ -234,7 +257,6 @@
       }
     }
 
-    /* Stall Card */
     .stall-card {
       background: #fff;
       border: 1px solid rgba(38,38,38,0.12);
@@ -256,11 +278,9 @@
     #closedStalls .stall-card {
       opacity: 0.7;
       background: var(--clr-cloud);
-    }
-
-    #closedStalls .stall-card:hover {
-      opacity: 0.85;
-      border-color: var(--clr-red);
+      cursor: not-allowed;
+      pointer-events: none;
+      position: relative;
     }
 
     .stall-img-wrap {
@@ -324,7 +344,6 @@
 
     .stars { color: #FFC107; }
 
-    /* Mobile Adjustments */
     @media (max-width: 767px) {
       body { padding-bottom: 120px; }
       .main-content { padding: 0 16px; }
@@ -356,6 +375,14 @@
           </svg>
         </div>
         <div class="food-centre-dropdown" id="foodCentreDropdown" role="listbox">
+          <div class="dropdown-search-bar">
+            <input 
+              type="text" 
+              id="dropdownSearchInput" 
+              placeholder="Search food centre..."
+              autocomplete="off"
+            />
+          </div>
           <div class="food-centre-option" data-value="Maxwell Food Centre">Maxwell Food Centre</div>
           <div class="food-centre-option" data-value="Newton Food Centre">Newton Food Centre</div>
           <div class="food-centre-option" data-value="Changi Village Food Centre">Changi Village Food Centre</div>
@@ -368,6 +395,17 @@
       <button id="clearSearch" class="search-clear" type="button">&times;</button>
     </div>
 
+    <div id="emptyState" style="display: none;">
+      <div style="text-align: center; padding: 60px 20px; color: #666;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" style="opacity: 0.3; margin-bottom: 20px;" viewBox="0 0 16 16">
+          <path d="M8 16s6-5.686 6-10A6 6 0 1 0 2 6c0 4.314 6 10 6 10Zm0-8a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"/>
+        </svg>
+        <h3 style="font-size: 24px; font-weight: 600; margin-bottom: 12px; color: #333;">Select a Food Centre</h3>
+        <p style="font-size: 16px; margin-bottom: 8px; color: #666;">To view available stalls and start ordering, please select a food centre from the dropdown above.</p>
+        <p style="font-size: 14px; color: #999;">Available options: Maxwell Food Centre, Newton Food Centre, or Changi Village Food Centre</p>
+      </div>
+    </div>
+
     <div class="stall-list-title" id="availableStallsTitle">Available Stalls</div>
     <div id="availableStalls" aria-live="polite"></div>
 
@@ -375,7 +413,6 @@
     <div id="closedStalls" aria-live="polite"></div>
   </div>
 
-  <!-- Firebase + Stall Logic -->
   <script>
     async function waitForDb(timeout = 10000) {
       const start = Date.now();
@@ -401,23 +438,25 @@
       return `<span class="stars">${'★'.repeat(full)}</span>`;
     }
 
-    function showClosedStallPopup(name){ alert(name + ' is currently closed.'); }
+    function showClosedStallPopup(name){ 
+      alert(`${name} is currently closed. Please try again later or select another stall.`); 
+    }
 
     let stalls = [];
     let loaded = false;
-    let selectedFoodCentre = null; // Will be set during initialization
+    let selectedFoodCentre = null;
 
     function renderStalls(filter='') {
-      // If no food centre selected, show nothing
       if (!selectedFoodCentre || selectedFoodCentre.trim() === '') {
         document.getElementById('availableStallsTitle').style.display = 'none';
         document.getElementById('closedStallsTitle').style.display = 'none';
         document.getElementById('availableStalls').innerHTML = '';
         document.getElementById('closedStalls').innerHTML = '';
+        document.getElementById('emptyState').style.display = 'block';
         return;
       }
 
-      // Show titles when food centre is selected
+      document.getElementById('emptyState').style.display = 'none';
       document.getElementById('availableStallsTitle').style.display = 'block';
       document.getElementById('closedStallsTitle').style.display = 'block';
 
@@ -427,12 +466,10 @@
         return;
       }
       
-      // Filter by selected food centre first
       const foodCentreFiltered = stalls.filter(s => 
         (s.foodCentre || '').trim() === selectedFoodCentre
       );
       
-      // Then filter by search query
       const q = filter.trim().toLowerCase();
       const filtered = q
         ? foodCentreFiltered.filter(s => 
@@ -455,7 +492,7 @@
             <small>${statusDot(s.status.toLowerCase() === 'open')}</small>
             <small>Price: ${s.priceRange || 'N/A'}</small>
             <small>Ratings: ${stars(s.rating)}</small>
-            <div class="stall-meta">ETA: ${s.status === 'open' ? s.waitTime || 'N/A' : 'N/A'}</div>
+            <div class="stall-meta">Estimated Wait Time: ${s.status === 'open' ? s.waitTime || 'N/A' : 'N/A'}</div>
           </div>
         </div>`;
 
@@ -468,11 +505,21 @@
         : '<div class="text-muted">No closed stalls found.</div>';
 
       document.querySelectorAll('.stall-card').forEach(c => {
-        c.onclick = () => {
+        c.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
           const slug = c.dataset.slug;
           const s = stalls.find(x => x.slug === slug);
-          if (!s) return;
-          if (s.status.toLowerCase() === 'closed') return showClosedStallPopup(s.name);
+          if (!s) {
+            console.error('Stall not found:', slug);
+            return;
+          }
+          
+          if (s.status.toLowerCase() === 'closed') {
+            showClosedStallPopup(s.name);
+            return;
+          }
+          
           const url = new URL('stall.html', window.location.href);
           url.searchParams.set('slug', slug);
           sessionStorage.setItem('stallSlug', slug);
@@ -485,7 +532,6 @@
       try {
         await waitForDb();
         
-        // Verify window.db and other functions are available
         if (!window.db || !window.collection || !window.getDocs) {
           console.error('Firebase functions not available:', {
             db: typeof window.db,
@@ -517,7 +563,6 @@
         });
         
         loaded = true;
-        // Enable search bar once data is loaded
         const searchInput = document.getElementById('stallSearch');
         if (searchInput) {
           searchInput.disabled = false;
@@ -528,10 +573,8 @@
         console.error('Error details:', err.message, err.stack);
         loaded = true;
         stalls = [];
-        // Show error message to user
         document.getElementById('availableStalls').innerHTML = `<div class="text-muted">Error loading stalls: ${err.message}</div>`;
         document.getElementById('closedStalls').innerHTML = '';
-        // Still enable search bar even on error
         const searchInput = document.getElementById('stallSearch');
         if (searchInput) {
           searchInput.disabled = false;
@@ -539,15 +582,15 @@
       }
     }
 
-    // Food centre selection handler (searchable dropdown)
+    // Food centre selection handler
     (() => {
       const input = document.getElementById('foodCentreSelect');
       const wrapper = document.getElementById('foodCentreSelectWrapper');
       const dropdown = document.getElementById('foodCentreDropdown');
+      const dropdownSearch = document.getElementById('dropdownSearchInput');
       const options = dropdown.querySelectorAll('.food-centre-option');
       const foodCentres = ['Maxwell Food Centre', 'Newton Food Centre', 'Changi Village Food Centre'];
       
-      // Define helper functions first
       function updateSelectedOption(value) {
         options.forEach(opt => {
           opt.classList.remove('selected');
@@ -558,7 +601,7 @@
       }
       
       function filterOptions() {
-        const searchTerm = input.value.toLowerCase().trim();
+        const searchTerm = dropdownSearch.value.toLowerCase().trim();
         options.forEach(option => {
           const value = option.dataset.value.toLowerCase();
           if (value.includes(searchTerm) || searchTerm === '') {
@@ -569,37 +612,56 @@
         });
       }
       
-      const saved = sessionStorage.getItem('selectedFoodCentre');
-      if (saved && foodCentres.includes(saved)) {
-        // Keep this for now if you want to restore user's previous selection
-        // Otherwise, skip this block entirely
+      // Check if we're coming back from stall page (has navigation history)
+      const isReturningFromStall = performance.getEntriesByType('navigation')[0]?.type === 'back_forward';
+      const previouslySelected = sessionStorage.getItem('selectedFoodCentre');
+      
+      if (isReturningFromStall && previouslySelected && foodCentres.includes(previouslySelected)) {
+        // Restore selection when coming back from stall page
+        input.value = previouslySelected;
+        selectedFoodCentre = previouslySelected;
+        updateSelectedOption(previouslySelected);
+        document.getElementById('stallSearch').disabled = false;
+        // Hide empty state and show stalls
+        document.getElementById('emptyState').style.display = 'none';
+        document.getElementById('availableStallsTitle').style.display = 'block';
+        document.getElementById('closedStallsTitle').style.display = 'block';
+        // Trigger stall loading immediately (don't wait)
+        loadStalls();
+      } else {
+        // Fresh page load - clear everything
+        input.value = '';
+        input.placeholder = 'Please select a food centre';
+        selectedFoodCentre = null;
+        sessionStorage.removeItem('selectedFoodCentre');
+        document.getElementById('stallSearch').disabled = true;
+        document.getElementById('availableStallsTitle').style.display = 'none';
+        document.getElementById('closedStallsTitle').style.display = 'none';
+        document.getElementById('availableStalls').innerHTML = '';
+        document.getElementById('closedStalls').innerHTML = '';
+        document.getElementById('emptyState').style.display = 'block';
       }
       
-      input.value = '';
-      selectedFoodCentre = null;
-      sessionStorage.removeItem('selectedFoodCentre');
-      document.getElementById('availableStallsTitle').style.display = 'none';
-      document.getElementById('closedStallsTitle').style.display = 'none';
-      document.getElementById('availableStalls').innerHTML = '';
-      document.getElementById('closedStalls').innerHTML = '';
-      
-      // Toggle dropdown on input click/focus
       input.addEventListener('focus', () => {
         wrapper.classList.add('open');
+        dropdownSearch.focus();
         filterOptions();
       });
       
       input.addEventListener('click', () => {
         wrapper.classList.add('open');
+        dropdownSearch.focus();
         filterOptions();
       });
       
-      // Filter options as user types
       input.addEventListener('input', (e) => {
+        // Don't filter on main input anymore
+      });
+      
+      dropdownSearch.addEventListener('input', (e) => {
         filterOptions();
       });
       
-      // Handle option selection
       options.forEach(option => {
         option.addEventListener('click', () => {
           const value = option.dataset.value;
@@ -607,9 +669,9 @@
           selectedFoodCentre = value;
           sessionStorage.setItem('selectedFoodCentre', selectedFoodCentre);
           wrapper.classList.remove('open');
+          dropdownSearch.value = '';
           updateSelectedOption(value);
           document.getElementById('stallSearch').disabled = false;
-          // Load stalls if not already loaded, then render
           if (!loaded) {
             loadStalls();
           } else {
@@ -618,25 +680,23 @@
         });
       });
       
-      // Close dropdown when clicking outside
       document.addEventListener('click', (e) => {
         if (!wrapper.contains(e.target)) {
           wrapper.classList.remove('open');
-          // If input was cleared and there was a selection, restore it
+          dropdownSearch.value = '';
           if (!input.value.trim() && selectedFoodCentre) {
             input.value = selectedFoodCentre;
           }
-          // If input was cleared and no selection, keep it empty
           else if (!input.value.trim() && !selectedFoodCentre) {
             selectedFoodCentre = '';
             sessionStorage.removeItem('selectedFoodCentre');
             document.getElementById('stallSearch').disabled = true;
+            document.getElementById('emptyState').style.display = 'block';
             renderStalls('');
           }
         }
       });
       
-      // Handle keyboard navigation
       input.addEventListener('keydown', (e) => {
         if (e.key === 'ArrowDown') {
           e.preventDefault();
@@ -645,13 +705,18 @@
           if (visibleOptions.length > 0) {
             visibleOptions[0].focus();
           }
-        } else if (e.key === 'Enter') {
+        } else if (e.key === 'Escape') {
+          wrapper.classList.remove('open');
+          input.blur();
+        }
+      });
+      
+      dropdownSearch.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') {
           e.preventDefault();
           const visibleOptions = Array.from(options).filter(opt => !opt.classList.contains('hidden'));
-          if (visibleOptions.length === 1) {
-            visibleOptions[0].click();
-          } else if (visibleOptions.length > 0 && document.activeElement.classList.contains('food-centre-option')) {
-            document.activeElement.click();
+          if (visibleOptions.length > 0) {
+            visibleOptions[0].focus();
           }
         } else if (e.key === 'Escape') {
           wrapper.classList.remove('open');
@@ -659,13 +724,15 @@
         }
       });
       
-      // Make options focusable for keyboard navigation
       options.forEach(option => {
         option.setAttribute('tabindex', '0');
         option.addEventListener('keydown', (e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
             option.click();
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            dropdownSearch.focus();
           }
         });
       });

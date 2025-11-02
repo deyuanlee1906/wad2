@@ -45,8 +45,8 @@
 <body>
   <div class="container">
     <div class="header">
-      <button class="btn btn-link" onclick="history.back()"><i class="bi bi-arrow-left"></i> Back</button>
-      <h2 id="stallName">Loading...</h2>
+      <button class="btn btn-link" onclick="goBack()"><i class="bi bi-arrow-left"></i> Back</button>
+      <h2 id="stallName"></h2>
     </div>
 
     <div class="controls">
@@ -68,23 +68,27 @@
       <aside class="left-rail" id="categoryRail" aria-label="Menu categories"></aside>
 
       <main class="menu-col">
-        <div id="menuContainer" class="menu-list">Loading menu...</div>
+        <div id="menuContainer" class="menu-list"></div>
       </main>
     </div>
   </div>
 
   <script>
-    // Keep firebase logic intact
     async function waitForDb(){
+      if (typeof window.db !== 'undefined') {
+        return;
+      }
       const start = Date.now();
-      while(typeof window.db==='undefined'){ if(Date.now()-start>7000) break; await new Promise(r=>setTimeout(r,100)); }
+      while(typeof window.db==='undefined'){ 
+        if(Date.now()-start>7000) break; 
+        await new Promise(r=>setTimeout(r,50));
+      }
     }
 
-    // session/cart
     let selectedOption = 'Dine In';
     let selectedTime = '';
     let currentStall = null;
-    let menuItems = []; // array of menu objects with category property
+    let menuItems = [];
     let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 
     function setOption(opt){
@@ -102,7 +106,6 @@
       const sel = document.getElementById('timeSelect');
       sel.innerHTML = '';
       const now = new Date();
-      // round to next 15 min
       const remainder = (15 - (now.getMinutes() % 15)) % 15;
       now.setMinutes(now.getMinutes() + remainder);
       for(let i=0;i<24;i++){
@@ -111,7 +114,6 @@
         sel.innerHTML += `<option value="${opt.toISOString()}">${label}</option>`;
       }
       sel.addEventListener('change', ()=>{ selectedTime = sel.value; saveSession(); });
-      // default to first option (ASAP)
       selectedTime = sel.value || sel.options[0]?.value || '';
     }
 
@@ -120,34 +122,36 @@
       const slug = (new URL(location.href)).searchParams.get('slug') || sessionStorage.getItem('stallSlug') || '';
       if(!slug){ document.getElementById('menuContainer').innerHTML = '<div class="text-muted">No stall selected.</div>'; return; }
 
-      // query stall doc by slug
-      const stallsRef = window.collection(db,'stalls');
+      const stallsRef = window.collection(window.db,'stalls');
       const q = window.query(stallsRef, window.where('slug','==',slug));
-      const snap = await window.getDocs(q);
-      if(snap.empty){ document.getElementById('menuContainer').innerHTML = '<div class="text-muted">Stall not found.</div>'; return; }
-      const stallDoc = snap.docs[0];
+      const stallSnap = await window.getDocs(q);
+      
+      if(stallSnap.empty){ document.getElementById('menuContainer').innerHTML = '<div class="text-muted">Stall not found.</div>'; return; }
+      const stallDoc = stallSnap.docs[0];
       currentStall = { id: stallDoc.id, ...stallDoc.data() };
+      
       document.getElementById('stallName').textContent = currentStall.name || '';
       document.getElementById('stallMeta').textContent = `${currentStall.cuisine || ''} • ${currentStall.location || ''}`;
+      buildTimeOptions();
 
-      // load menuItems collection filtered by stallId
-      const menuRef = window.collection(db,'menuItems');
+      const menuRef = window.collection(window.db,'menuItems');
       const mq = window.query(menuRef, window.where('stallId','==',stallDoc.id));
       const msnap = await window.getDocs(mq);
       menuItems = msnap.docs.map(d=>({ id:d.id, ...d.data() })).sort((a,b)=> (a.category||'').localeCompare(b.category||''));
-      if(menuItems.length===0){ document.getElementById('menuContainer').innerHTML = '<div class="text-muted">No menu items</div>'; return; }
+      
+      if(menuItems.length===0){ 
+        document.getElementById('menuContainer').innerHTML = '<div class="text-muted">No menu items</div>'; 
+        return; 
+      }
 
       renderMenuAndCategories();
-      buildTimeOptions();
     }
 
-    // render categories + menu with scroll-spy behavior
     function renderMenuAndCategories(){
-      // categories unique order
       const categories = [...new Set(menuItems.map(m=>m.category || 'Others'))];
       const rail = document.getElementById('categoryRail');
       rail.innerHTML = categories.map((c,i)=>`<div class="category-pill ${i===0?'active':''}" data-cat="${c}" tabindex="0">${c}</div>`).join('');
-      // menu sections
+      
       const menuHtml = categories.map(cat=>{
         const items = menuItems.filter(m=> (m.category||'Others')===cat);
         return `<section class="menu-section" data-cat="${cat}">
@@ -171,7 +175,6 @@
       }).join('');
       document.getElementById('menuContainer').innerHTML = menuHtml;
 
-      // wire category click (scroll to section)
       document.querySelectorAll('.category-pill').forEach(p=>{
         p.onclick = ()=> {
           document.querySelectorAll('.category-pill').forEach(x=>x.classList.remove('active'));
@@ -182,13 +185,6 @@
         };
       });
 
-      // attach quantity button handlers
-      document.querySelectorAll('.menu-item').forEach(mi=>{
-        const id = mi.dataset.id;
-        mi.querySelectorAll('.btn-add, .btn-light, .qty-plus, .qty-minus').forEach(()=>{}); // noop just ensure elements exist
-      });
-
-      // IntersectionObserver for highlight
       const observer = new IntersectionObserver(entries=>{
         entries.forEach(en=>{
           if(en.isIntersecting){
@@ -201,7 +197,6 @@
       document.querySelectorAll('.menu-section').forEach(s=>observer.observe(s));
     }
 
-    // returns current qty controls HTML for item
     function renderQtyControls(itemId){
       const item = menuItems.find(x=>x.id===itemId);
       const cartItem = cart.find(c=>c.id===itemId);
@@ -237,7 +232,6 @@
 
     function persistCartAndRerender(){
       localStorage.setItem('cart', JSON.stringify(cart));
-      // re-render only qty controls for performance — simplified: re-render whole menu for correctness
       renderMenuAndCategories();
       updateCartUI();
     }
@@ -245,7 +239,6 @@
     function updateCartUI(){
       const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
       document.querySelectorAll('#cartTotal').forEach(el=>el.textContent = '$' + total.toFixed(2));
-      // checkout button will be placed in fixed bar
       const btn = document.getElementById('checkoutBtn');
       if(btn) btn.disabled = cart.length === 0;
     }
@@ -256,23 +249,27 @@
       localStorage.setItem('cart', JSON.stringify(cart));
     }
 
-    // expose functions to window so inline onclick can call them
+    function goBack() {
+      history.back();
+    }
+
     window.addToCart = addToCart;
     window.changeQty = changeQty;
     window.setOption = setOption;
+    window.goBack = goBack;
 
-    // checkout: save and navigate to checkout page
     function goToCheckout(){
       saveSession();
       window.location.href = '/pages/order/checkout.html';
     }
     window.goToCheckout = goToCheckout;
 
-    // init
-    (async ()=>{ buildTimeOptions(); await loadStallAndMenu(); updateCartUI(); })();
+    (async ()=>{
+      buildTimeOptions(); 
+      loadStallAndMenu().then(() => updateCartUI());
+    })();
   </script>
 
-  <!-- fixed cart area -->
   <div class="cart-fixed">
     <div class="d-flex justify-content-between align-items-center mb-2">
       <div><strong>Cart Total:</strong> <span id="cartTotal">$0.00</span></div>
@@ -284,7 +281,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 
-  <!-- Bottom Nav -->
   <div class="nav-bar">
     <a href="/" class="nav-logo"><i class="bi bi-shop"></i>ChopeLah</a>
     <div class="nav-items">
