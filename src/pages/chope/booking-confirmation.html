@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="/styles/main.css">
     <link rel="stylesheet" href="/styles/components.css">
+    <script src="seatDatabase.js"></script>
     <style>
         /* Custom Color Theme */
         :root {
@@ -16,6 +17,7 @@
             --secondary-color: #F2D9BB;
             --background-color: #F2F2F2;
             --text-color: #262626;
+            --danger-color: #dc3545;
         }
 
         body {
@@ -114,6 +116,23 @@
             color: white;
         }
 
+        .custom-btn-danger {
+            background-color: transparent;
+            border: 2px solid var(--danger-color);
+            color: var(--danger-color);
+            border-radius: 10px;
+            padding: 10px 30px;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .custom-btn-danger:hover {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
         .back-btn {
             position: absolute;
             top: 20px;
@@ -164,6 +183,7 @@
             
             <h1 class="confirmation-title">Booking Confirmed!</h1>
             
+            <!-- show the details of the booking (center, table, seats, time, duration, booking date) -->
             <div class="booking-details">
                 <div class="detail-item">
                     <span class="detail-label">Food Center:</span>
@@ -191,28 +211,101 @@
                 </div>
             </div>
             
+            <!-- add cancel, continue booking, and back to home button -->
             <div class="mt-4">
-                <a href="availableFoodCenter.html" class="btn custom-btn">
-                    <i class="bi bi-plus-circle me-2"></i>Continue Booking
-                </a>
-                <a href="chope.html" class="btn custom-btn-secondary">
-                    <i class="bi bi-house me-2"></i>Back to Home
-                </a>
+                <button class="btn custom-btn-danger mb-3" id="cancelBooking">
+                    <i class="bi bi-x-circle me-2"></i>Cancel Booking
+                </button>
+                <div>
+                    <a href="availableFoodCenter.html" class="btn custom-btn">
+                        <i class="bi bi-plus-circle me-2"></i>Continue Booking
+                    </a>
+                    <a href="chope.html" class="btn custom-btn-secondary">
+                        <i class="bi bi-house me-2"></i>Back to Home
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Booking Modal -->
+    <div class="modal fade" id="cancelModal" tabindex="-1" aria-labelledby="cancelModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header" style="background-color: var(--secondary-color); border-bottom: 2px solid var(--danger-color);">
+                    <h5 class="modal-title" id="cancelModalLabel">Cancel Booking</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body text-center py-4">
+                    <p class="mb-0" style="font-size: 1.1rem;">Are you sure you want to cancel this booking?</p>
+                </div>
+                <div class="modal-footer justify-content-center border-0 pt-0">
+                    <button type="button" class="btn btn-secondary px-4" style="min-width: 120px;" data-bs-dismiss="modal">No</button>
+                    <button type="button" class="btn custom-btn-danger px-4" style="min-width: 120px;" id="confirmCancel">Yes</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Get URL parameters
+            // Get URL parameters and sessionStorage fallback
             const params = new URLSearchParams(window.location.search);
-            
+
+            // Prefer booking_* snapshot first (authoritative), then URL params, then chope_* fallback, then defaults
+            const getSS = (k) => { try { return sessionStorage.getItem(k); } catch(e) { console.warn('sessionStorage.getItem failed', e); return null; } };
+
+            const booking = {
+                foodCenter: getSS('booking_foodCenter'),
+                table: getSS('booking_table'),
+                seat: getSS('booking_seat'),
+                time: getSS('booking_time'),
+                duration: getSS('booking_duration')
+            };
+
+            const chope = {
+                foodCenter: getSS('chope_foodCenter'),
+                table: getSS('chope_table'),
+                seat: getSS('chope_seat'),
+                time: getSS('chope_time'),
+                duration: getSS('chope_duration')
+            };
+
+            // Helper to pick field value and record source
+            const pick = (field, defaultVal) => {
+                if (booking[field]) return { value: booking[field], src: 'booking_*' };
+                if (params.get(field)) return { value: params.get(field), src: 'url' };
+                if (chope[field]) return { value: chope[field], src: 'chope_*' };
+                return { value: defaultVal, src: 'default' };
+            };
+
+            // will take the value or it no value, it will be "-"
+            const pickedFoodCenter = pick('foodCenter', '-');
+            const pickedTable = pick('table', '-');
+            const pickedSeat = pick('seat', '-');
+            const pickedTime = pick('time', '-');
+            const pickedDuration = pick('duration', '-');
+
+            console.log('[booking-confirmation] picked sources:', {
+                foodCenter: pickedFoodCenter.src,
+                table: pickedTable.src,
+                seat: pickedSeat.src,
+                time: pickedTime.src,
+                duration: pickedDuration.src
+            });
+
+            const foodCenter = pickedFoodCenter.value;
+            const table = pickedTable.value;
+            const seat = pickedSeat.value;
+            const time = pickedTime.value;
+            const duration = pickedDuration.value;
+
             // Populate the booking details
-            document.getElementById('foodCenter').textContent = params.get('foodCenter') || 'Maxwell Food Centre';
-            document.getElementById('table').textContent = params.get('table') || '-';
-            document.getElementById('seat').textContent = params.get('seat') || '-';
-            document.getElementById('time').textContent = params.get('time') || '12:00 PM';
-            document.getElementById('duration').textContent = params.get('duration') || '1 hour';
+            document.getElementById('foodCenter').textContent = foodCenter;
+            document.getElementById('table').textContent = table;
+            document.getElementById('seat').textContent = seat;
+            document.getElementById('time').textContent = time;
+            document.getElementById('duration').textContent = duration;
             
             // Set current date
             const now = new Date();
@@ -224,6 +317,61 @@
                 minute: '2-digit'
             };
             document.getElementById('bookingDate').textContent = now.toLocaleDateString('en-US', options);
+            // Clear booking snapshot keys so later bookings don't pick stale data
+            try {
+                sessionStorage.removeItem('booking_foodCenter');
+                sessionStorage.removeItem('booking_table');
+                sessionStorage.removeItem('booking_seat');
+                sessionStorage.removeItem('booking_time');
+                sessionStorage.removeItem('booking_duration');
+            } catch (e) {
+                // ignore
+            }
+
+            // Initialize cancellation modal
+            const cancelModal = new bootstrap.Modal(document.getElementById('cancelModal'));
+
+            // Handle cancel booking button click
+            document.getElementById('cancelBooking').addEventListener('click', function() {
+                cancelModal.show();
+            });
+
+            // Handle confirm cancellation
+            document.getElementById('confirmCancel').addEventListener('click', function() {
+                // Get the food center code from the name
+                let foodCenterCode = '';
+                if (foodCenter.toLowerCase().includes('maxwell')) {
+                    foodCenterCode = 'maxwell';
+                } else if (foodCenter.toLowerCase().includes('newton')) {
+                    foodCenterCode = 'newton';
+                } else if (foodCenter.toLowerCase().includes('changi')) {
+                    foodCenterCode = 'changiVillage';
+                }
+                
+                if (foodCenterCode && table && seat) {
+                    // First hide the modal
+                    cancelModal.hide();
+                    // Remove the seat booking from the database
+                    try {
+                        // The table and seat are strings, need to convert them to numbers for the database
+                        const tableNum = parseInt(table);
+                        const seatNum = parseInt(seat);
+                        const success = window.seatDatabase.releaseSeat(foodCenterCode, tableNum, seatNum);
+                        if (!success) {
+                            throw new Error('Failed to release seat');
+                        }
+                        alert('Booking cancelled successfully!');
+                        // Redirect back to available food centers
+                        window.location.href = 'availableFoodCenter.html';
+                    } catch (e) {
+                        console.error('Error cancelling booking:', e);
+                        alert('Failed to cancel booking. Please try again.');
+                    }
+                } else {
+                    cancelModal.hide();
+                    alert('Cannot cancel booking: missing booking details');
+                }
+            });
         });
     </script>
 

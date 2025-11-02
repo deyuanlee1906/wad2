@@ -8,7 +8,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="/styles/main.css">
     <link rel="stylesheet" href="/styles/components.css">
-
+    <script src="seatDatabase.js"></script>
+    <script src="bookingHistory.js"></script>
     <style>
         #map{
             height: 300px;
@@ -18,12 +19,76 @@
             box-shadow: 0 4px 12px rgba(217, 133, 102, 0.1);
         }
 
+        .booking-card {
+            background: white;
+            border-radius: 12px;
+            border: 2px solid var(--secondary-color);
+            padding: 1rem;
+        }
+
+        .booking-card .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(217, 133, 102, 0.2);
+        }
+
+        .booking-card .detail-item:last-child {
+            border-bottom: none;
+        }
+
+        .booking-card .detail-label {
+            font-weight: 600;
+            color: var(--text-color);
+            font-size: 0.9rem;
+        }
+
+        .booking-card .detail-value {
+            color: var(--primary-color);
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .booking-card .time-remaining {
+            font-size: 0.8rem;
+            color: #6c757d;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        #historyBtn:hover {
+            color: var(--text-color) !important;
+        }
     </style>
 
 </head>
 <body class="theme-gradient">
-    <div class="container-fluid my-4">
+    <div class="container-fluid my-4 position-relative">
         <h2 class="text-center mb-4">Seat Choping System</h2>
+        
+        <!-- History Button -->
+        <button id="historyBtn" class="btn position-absolute top-0 end-0 me-3" style="color: var(--primary-color);">
+            <i class="bi bi-clock-history fs-4"></i>
+        </button>
+
+        <!-- Booking History Modal which shows the active booking -->
+        <div class="modal fade" id="historyModal" tabindex="-1" aria-labelledby="historyModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-scrollable">
+                <div class="modal-content">
+                    <div class="modal-header" style="background-color: var(--secondary-color);">
+                        <h5 class="modal-title" id="historyModalLabel">Active Bookings</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <!-- active booking -->
+                    <div class="modal-body">
+                        <div id="activeBookings" class="d-flex flex-column gap-3">
+                            <!-- Active bookings will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="card p-4 mt-4">
             <div id="map" class="mb-4"></div>
@@ -31,22 +96,22 @@
             <div class="row justify-content-center g-3">
                 <!-- timeslot dropdown -->
                 <div class="col-12 col-md-6">
-                    <label for="timeslot" class="form-label">Select Timeslot</label>
-                    <select id="timeslot" class="form-select">
-                        <option selected>11:00 AM</option>
-                        <option>11:30 AM</option>
-                        <option>12:00 PM</option>
-                        <option>12:30 PM</option>
-                        <option>1:00 PM</option>
-                        <option>1:30 PM</option>
-                        <option>2:00 PM</option>
+                     Select Timeslot
+                    <select id="timeslot" class="form-select" required> <!-- require to select-->
+                        <option value="11:00 AM" selected>11:00 AM</option>
+                        <option value="11:30 AM">11:30 AM</option>
+                        <option value="12:00 PM">12:00 PM</option>
+                        <option value="12:30 PM">12:30 PM</option>
+                        <option value="1:00 PM">1:00 PM</option>
+                        <option value="1:30 PM">1:30 PM</option>
+                        <option value="2:00 PM">2:00 PM</option>
                     </select>
                 </div>
 
                 <!-- Duration dropdown -->
                 <div class="col-12 col-md-6">
-                    <label for="duration" class="form-label">Duration</label>
-                    <select id="duration" class="form-select">
+                     Duration
+                    <select id="duration" class="form-select" required>
                         <option value="30 mins" selected>30 mins</option>
                         <option value="1 hour">1 hr</option>
                     </select>
@@ -162,19 +227,33 @@
         });
 
         // add event listener to the check button
-        document.getElementById("checkBtn").addEventListener("click", () =>{
-            // store both value of user's choice
+        document.getElementById("checkBtn").addEventListener("click", () => {
             const time = document.getElementById("timeslot").value;
             const duration = document.getElementById("duration").value;
-            // pass them to the next page when click on checkBtn
-            window.location.href = `availableFoodCenter.html?time=${encodeURIComponent(time)}&duration=${encodeURIComponent(duration)}`;
+
+            // Save selection to sessionStorage so don't depend on query string behavior
+            try {
+                sessionStorage.setItem('chope_time', time);
+                sessionStorage.setItem('chope_duration', duration);
+            } catch (e) {
+                console.warn('Could not write to sessionStorage', e);
+            }
+
+            
+
+            // Build the URL and redirect (keep params as fallback) instead to set it directly
+            const url = 'availableFoodCenter.html?time=' + encodeURIComponent(time) + '&duration=' + encodeURIComponent(duration);
+            window.location.href = url;
         });
 
-        // load the map
-        window.onload = initMap;
+        // load the map and initialize booking history
+        window.onload = function() {
+            initMap();
+            window.bookingHistory.initialize();
+        };
     </script>
     <!-- google maps link and YOUR OWN API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_OWN_API&callback=initMap" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
 
 
     <!-------------------------Bootstrap------------------------- -->
