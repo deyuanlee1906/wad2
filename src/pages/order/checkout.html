@@ -1,830 +1,112 @@
+<!-- /pages/order/checkout.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Online Order - My Cart</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Checkout</title>
+
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
-  <link rel="stylesheet" href="/styles/main.css" />
-  <link rel="stylesheet" href="/styles/components.css">
+  <script src="https://js.stripe.com/v3/"></script>
   <script type="module" src="/scripts/firebaseauth.js"></script>
+
   <style>
-    :root {
-      /* Custom Color Theme */
-      --primary-color: #D98566;
-      --secondary-color: #F2C6B6;
-      --accent-color: #F2D9BB;
-      --background-color: #F2F2F2;
-      --text-color: #262626;
-      
-      /* Gradients using theme colors */
-      --primary-gradient: linear-gradient(135deg, #D98566 0%, #F2C6B6 100%);
-      --secondary-gradient: linear-gradient(135deg, #F2C6B6 0%, #F2D9BB 100%);
-      --accent-gradient: linear-gradient(135deg, #F2D9BB 0%, #F2F2F2 100%);
-      --success-gradient: linear-gradient(135deg, #D98566 0%, #F2C6B6 100%);
-      --warning-gradient: linear-gradient(135deg, #F2C6B6 0%, #F2D9BB 100%);
-      
-      /* Glass Morphism with theme colors */
-      --glass-bg: rgba(242, 242, 242, 0.8);
-      --glass-border: rgba(217, 133, 102, 0.2);
-      --glass-shadow: 0 8px 32px 0 rgba(38, 38, 38, 0.15);
-      
-      /* Typography */
-      --text-primary: #262626;
-      --text-secondary: #D98566;
-      --text-muted: #8B7355;
-      --text-light: #B8A082;
-      
-      /* Legacy Colors updated to theme */
-      --clr-cloud: #F2F2F2;
-      --clr-ink: #262626;
-      --clr-sand: #F2D9BB;
-      --clr-clay: #D98566;
-      --clr-success: #D98566;
-      --clr-warning: #F2C6B6;
-      --clr-danger: #D98566;
-      
-      /* Shadows with theme colors */
-      --shadow-sm: 0 1px 3px rgba(38, 38, 38, 0.12), 0 1px 2px rgba(38, 38, 38, 0.24);
-      --shadow-md: 0 3px 6px rgba(38, 38, 38, 0.16), 0 3px 6px rgba(38, 38, 38, 0.23);
-      --shadow-lg: 0 10px 20px rgba(38, 38, 38, 0.19), 0 6px 6px rgba(38, 38, 38, 0.23);
-      --shadow-xl: 0 14px 28px rgba(38, 38, 38, 0.25), 0 10px 10px rgba(38, 38, 38, 0.22);
-      
-      /* Border Radius */
-      --border-radius: 12px;
-      --border-radius-lg: 16px;
-      --border-radius-xl: 24px;
-      
-      /* Transitions */
-      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      --transition-bounce: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-    }
-
-    body {
-      color: var(--text-primary);
-      min-height: 100vh;
-      margin: 0;
-      background: linear-gradient(135deg, #F2D9BB 0%, #F2C6B6 50%, #D98566 100%);
-      background-attachment: fixed;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
-      overflow-x: hidden;
-      position: relative;
-      padding: 0 0 100px 0;
-    }
-
-    body::before {
-      content: '';
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: 
-        radial-gradient(circle at 20% 80%, rgba(217, 133, 102, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(242, 198, 182, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 40% 40%, rgba(242, 217, 187, 0.2) 0%, transparent 50%);
-      pointer-events: none;
-      z-index: -1;
-    }
-
-    .main-container {
-      max-width: 100%;
-      margin: 0;
-      padding: 20px;
-      box-sizing: border-box;
-    }
-
-    .cart-food-card { 
-      background: var(--glass-bg);
-      backdrop-filter: blur(15px);
-      border: 1px solid var(--glass-border); 
-      border-radius: var(--border-radius-lg); 
-      padding: 20px; 
-      margin-bottom: 16px; 
-      box-shadow: var(--shadow-md);
-      transition: var(--transition-bounce);
-      position: relative;
-    }
-
-    .cart-food-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-      border-radius: var(--border-radius-lg);
-      pointer-events: none;
-    }
-
-    .cart-food-card:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-      border-color: var(--primary-color);
-    }
-    
-    .cart-icons { 
-      font-size: 1.1em; 
-      cursor: pointer; 
-      margin-right: 7px; 
-    }
-    
-    .cart-icons .bi { 
-      vertical-align: middle; 
-    }
-    
-    .fixed-bottom-bar { 
-      position: fixed; 
-      left: 0; 
-      right: 0; 
-      bottom: 0; 
-      z-index: 10; 
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px);
-      border-top: 1px solid var(--glass-border);
-      box-shadow: var(--glass-shadow);
-    }
-    
-    .cart-bottom-bar { 
-      display: flex; 
-      gap: 16px;
-      padding: 20px 24px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    
-    .cart-bottom-bar button { 
-      flex: 1; 
-      border: none; 
-      padding: 16px 24px;
-      font-weight: 600;
-      border-radius: var(--border-radius-lg);
-      font-size: 1rem;
-      transition: var(--transition-bounce);
-      box-shadow: var(--shadow-md);
-    }
-
-    .cart-bottom-bar .btn-outline-primary {
-      background: var(--glass-bg);
-      backdrop-filter: blur(10px);
-      border: 2px solid var(--glass-border);
-      color: var(--text-primary);
-    }
-
-    .cart-bottom-bar .btn-outline-primary:hover {
-      background: var(--secondary-gradient);
-      border-color: var(--primary-color);
-      color: white;
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    .cart-bottom-bar .btn-success {
-      background: var(--success-gradient);
-      color: white;
-    }
-
-    .cart-bottom-bar .btn-success:hover {
-      transform: translateY(-2px);
-      box-shadow: var(--shadow-lg);
-    }
-
-    /* Page Title Styling */
-    .page-title {
-      color: var(--text-primary);
-      font-weight: 700;
-      font-size: 2rem;
-      margin-bottom: 24px;
-      text-align: center;
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-shadow: 0 4px 8px rgba(0,0,0,0.1);
-    }
-
-    .total-display {
-      background: var(--glass-bg);
-      backdrop-filter: blur(15px);
-      border: 1px solid var(--glass-border);
-      border-radius: var(--border-radius-lg);
-      padding: 20px;
-      margin: 24px 0;
-      text-align: center;
-      box-shadow: var(--shadow-md);
-      position: relative;
-    }
-
-    .total-display::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
-      border-radius: var(--border-radius-lg);
-      pointer-events: none;
-    }
-
-    .total-display b {
-      font-size: 1.5rem;
-      color: var(--text-primary);
-      font-weight: 700;
-    }
-    
-    .cart-table {
-      background: var(--glass-bg);
-      backdrop-filter: blur(15px);
-      border-radius: var(--border-radius-lg);
-      border: 1px solid var(--glass-border);
-      box-shadow: var(--shadow-md);
-      overflow: hidden;
-    }
-
-    .cart-table th, .cart-table td { 
-      font-size: 14px; 
-      padding: 16px 20px; 
-      border-color: var(--glass-border);
-    }
-
-    .cart-table th {
-      background: var(--primary-gradient);
-      color: white;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      font-size: 12px;
-    }
-
-    .cart-table tbody tr {
-      background: rgba(255, 255, 255, 0.1);
-      transition: var(--transition);
-    }
-
-    .cart-table tbody tr:hover {
-      background: rgba(255, 255, 255, 0.2);
-    }
-    
-    .food-controls {
-      display: flex; 
-      align-items: center; 
-      gap: 12px;
-      background: var(--glass-bg);
-      backdrop-filter: blur(10px);
-      border-radius: var(--border-radius-xl);
-      padding: 8px;
-      width: 160px;
-      height: 48px;
-      border: 1px solid var(--glass-border);
-      box-shadow: var(--shadow-md);
-      margin: 0 auto;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-    
-    .food-controls .btn { 
-      padding: 8px 12px; 
-      font-size: 1rem; 
-      border-radius: var(--border-radius);
-      min-width: 36px; 
-      height: 36px; 
-      display: flex; 
-      align-items: center; 
-      justify-content: center;
-      flex-shrink: 0;
-      background: var(--glass-bg);
-      backdrop-filter: blur(10px);
-      color: var(--text-primary);
-      transition: var(--transition-bounce);
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--glass-border);
-    }
-
-    .food-controls .btn:hover {
-      background: var(--primary-gradient);
-      color: white;
-      transform: scale(1.05);
-      box-shadow: var(--shadow-lg);
-    }
-    
-    .food-controls .qty-display { 
-      width: 40px; 
-      text-align: center; 
-      font-weight: 600; 
-      color: var(--text-primary);
-      padding: 8px 4px; 
-      font-size: 1rem; 
-      flex-shrink: 0;
-      display: flex; 
-      align-items: center; 
-      justify-content: center;
-      min-height: 32px;
-      background: var(--glass-bg);
-      backdrop-filter: blur(10px);
-      border-radius: var(--border-radius-lg);
-      border: 1px solid var(--glass-border);
-      box-shadow: var(--shadow-sm);
-    }
-    
-
-    /* Desktop Layout */
-    @media (min-width: 1200px) {
-      .main-container {
-        padding: 40px;
-      }
-      
-      .page-title {
-        font-size: 2.5rem;
-        margin-bottom: 32px;
-      }
-      
-      .cart-food-card {
-        padding: 24px;
-        margin-bottom: 20px;
-      }
-      
-      .cart-table th, .cart-table td {
-        font-size: 16px;
-        padding: 20px 24px;
-      }
-      
-      .food-controls {
-        width: 180px;
-        height: 56px;
-        gap: 16px;
-      }
-      
-      .food-controls .btn {
-        min-width: 40px;
-        height: 40px;
-        padding: 10px 14px;
-        font-size: 1.1rem;
-      }
-      
-      .food-controls .qty-display {
-        width: 48px;
-        font-size: 1.1rem;
-        min-height: 36px;
-      }
-      
-      .cart-bottom-bar {
-        padding: 24px 40px;
-        gap: 20px;
-      }
-      
-      .cart-bottom-bar button {
-        padding: 18px 28px;
-        font-size: 1.1rem;
-      }
-      
-
-      .total-display {
-        padding: 24px;
-        margin: 32px 0;
-      }
-
-      .total-display b {
-        font-size: 1.75rem;
-      }
-    }
-
-    /* Tablet Layout */
-    @media (min-width: 768px) and (max-width: 1199px) {
-      .main-container {
-        padding: 28px;
-      }
-      
-      .page-title {
-        font-size: 2.25rem;
-        margin-bottom: 28px;
-      }
-      
-      .cart-food-card {
-        padding: 18px;
-        margin-bottom: 16px;
-      }
-      
-      .cart-table th, .cart-table td {
-        font-size: 15px;
-        padding: 16px 20px;
-      }
-      
-      .food-controls {
-        width: 160px;
-        height: 48px;
-        gap: 12px;
-      }
-      
-      .food-controls .btn {
-        min-width: 36px;
-        height: 36px;
-        padding: 8px 12px;
-        font-size: 1rem;
-      }
-      
-      .food-controls .qty-display {
-        width: 40px;
-        font-size: 1rem;
-        min-height: 32px;
-      }
-      
-      .cart-bottom-bar {
-        padding: 20px 28px;
-        gap: 16px;
-      }
-      
-      .cart-bottom-bar button {
-        padding: 16px 24px;
-        font-size: 1rem;
-      }
-
-
-      .total-display {
-        padding: 20px;
-        margin: 28px 0;
-      }
-
-      .total-display b {
-        font-size: 1.5rem;
-      }
-    }
-
-    /* Mobile Layout */
-    @media (max-width: 767px) {
-      .main-container {
-        padding: 16px;
-      }
-      
-      .cart-food-card {
-        padding: 10px 12px;
-        margin-bottom: 10px;
-      }
-      
-      .cart-table th, .cart-table td {
-        font-size: 12px;
-        padding: 6px 8px;
-      }
-      
-      .food-controls {
-        width: 70px;
-        height: 28px;
-      }
-      
-      .food-controls .btn {
-        min-width: 16px;
-        height: 16px;
-        padding: 1px 3px;
-        font-size: 0.65em;
-      }
-      
-      .food-controls .qty-display {
-        font-size: 0.65em;
-        width: 14px;
-        height: 16px;
-      }
-      
-      .cart-bottom-bar {
-        padding: 12px 16px;
-        gap: 10px;
-      }
-      
-      .cart-bottom-bar button {
-        padding: 10px 14px;
-        font-size: 0.9em;
-      }
-      
-    }
-
-    /* iPhone SE Specific (375px width) */
-    @media (max-width: 375px) {
-      .main-container {
-        padding: 12px;
-      }
-      
-      .cart-food-card {
-        padding: 8px 10px;
-        margin-bottom: 8px;
-      }
-      
-      .cart-table th, .cart-table td {
-        font-size: 11px;
-        padding: 4px 6px;
-      }
-      
-      .food-controls {
-        width: 65px;
-        height: 26px;
-      }
-      
-      .food-controls .btn {
-        min-width: 14px;
-        height: 14px;
-        padding: 1px 2px;
-        font-size: 0.6em;
-      }
-      
-      .food-controls .qty-display {
-        font-size: 0.6em;
-        width: 12px;
-        height: 14px;
-      }
-      
-      .cart-bottom-bar {
-        padding: 10px 12px;
-        gap: 8px;
-      }
-      
-      .cart-bottom-bar button {
-        padding: 8px 12px;
-        font-size: 0.85em;
-      }
-      
-    }
-
-    /* Extra Small Screens */
-    @media (max-width: 320px) {
-      .main-container {
-        padding: 8px;
-      }
-      
-      .cart-food-card {
-        padding: 6px 8px;
-        margin-bottom: 6px;
-      }
-      
-      .cart-table th, .cart-table td {
-        font-size: 10px;
-        padding: 3px 4px;
-      }
-      
-      .food-controls {
-        width: 60px;
-        height: 24px;
-      }
-      
-      .food-controls .btn {
-        min-width: 12px;
-        height: 12px;
-        font-size: 0.55em;
-      }
-      
-      .food-controls .qty-display {
-        font-size: 0.55em;
-        width: 10px;
-        height: 12px;
-      }
-      
-      .cart-bottom-bar {
-        padding: 8px 10px;
-        gap: 6px;
-      }
-      
-      .cart-bottom-bar button {
-        padding: 6px 10px;
-        font-size: 0.8em;
-      }
-    }
+    body{background:#f8f9fa;margin:0;padding-top:70px;padding-bottom:110px}
+    @media (max-width:768px){ body{padding-top:0;padding-bottom:110px} }
+    .container{max-width:900px;padding:18px;margin:0 auto}
+    .cart-item{background:#fff;padding:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.05);display:flex;gap:12px;align-items:center}
+    .cart-item img{width:70px;height:60px;object-fit:cover;border-radius:8px}
+    .nav-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:space-around;padding:10px;height:70px;z-index:999}
   </style>
 </head>
 <body>
-  <div class="main-container">
-    <h5 class="page-title mb-3">My Cart</h5>
-    <!-- Cart summary info table -->
-    <table class="cart-table table table-bordered mb-3">
-      <thead class="table-light">
-        <tr>
-          <th>Food Centre</th>
-          <th>Stall</th>
-          <th>Option</th>
-          <th>Date &amp; Time</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td id="cartFoodCentre"></td>
-          <td id="cartStall"></td>
-          <td id="cartOption"></td>
-          <td id="cartDateTime"></td>
-        </tr>
-      </tbody>
-    </table>
-    <!-- Food items in cart -->
-    <div id="cartFoods">
-      <!-- Render food item cards here -->
+  <div class="container">
+    <h3>Checkout</h3>
+    <div id="cartList" class="mb-3"></div>
+
+    <div class="mb-3">
+      <label class="form-label">Name</label>
+      <input id="customerName" class="form-control" placeholder="Your name (optional)">
     </div>
-    <div class="total-display">
-      <b>Total: <span id="cartTotal">$0.00</span></b>
+
+    <div class="mb-3">
+      <label class="form-label">Phone</label>
+      <input id="customerPhone" class="form-control" placeholder="Phone (optional)">
+    </div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div><strong>Total:</strong> <span id="grandTotal">$0.00</span></div>
+      <div><button id="payBtn" class="btn btn-primary" disabled>Pay with Card (Stripe)</button></div>
     </div>
   </div>
-
-  <!-- Bottom bar -->
-  <div class="fixed-bottom-bar cart-bottom-bar">
-    <button class="btn btn-outline-primary" onclick="orderMore()">Order More</button>
-    <button class="btn btn-success" onclick="goToPayment()">Pay</button>
-  </div>
-
-
-  <!-- Navigation bar removed to match menu/home/stall pages (no bottom nav on checkout) -->
 
   <script>
-    // Food catalog to match menu.html data
-    let foodsPerCategory = [
-      [ { name: "ABC Soup", price: 4, img: "/img/food1.jpg", id: "cr", category: "Soup" },
-        { name: "Carrot Soup", price: 5, img: "/img/food2.jpg", id: "rd", category: "Soup" },
-        { name: "Peanut Soup", price: 7, img: "/img/food3.jpg", id: "sf", category: "Soup" } ],
-      [ { name: "Laksa", price: 4.5, img: "/img/food4.jpg", id: "lk", category: "Noodles" },
-        { name: "Char Kway Teow", price: 5.5, img: "/img/food5.jpg", id: "ckt", category: "Noodles" },
-        { name: "Hokkien Mee", price: 6, img: "/img/food6.jpg", id: "hm", category: "Noodles" } ],
-      [ { name: "Egg Fried Rice", price: 4, img: "/img/food7.jpg", id: "nl", category: "Rice" },
-        { name: "Bacon Fried Rice", price: 6.5, img: "/img/food8.jpg", id: "ren", category: "Rice" } ],
-      [ { name: "Nuggets", price: 3.5, img: "/img/food9.jpg", id: "rp", category: "Sides" },
-        { name: "Fried Spring Rolls", price: 7, img: "/img/food10.jpg", id: "bir", category: "Sides" } ]
-    ];
-
-    /*****************************************************************
-     * Utility: load saved cart and order info from localStorage
-     * Robust: accepts multiple cart formats used by menu pages and
-     * normalises to an array of {id,name,price,qty} for the checkout.
-     *****************************************************************/
-    function loadSavedCart() {
-      try {
-        const cartData = localStorage.getItem('cart');
-        if (cartData) {
-          const parsed = JSON.parse(cartData);
-          if (Array.isArray(parsed)) {
-            console.log('Found cart array:', parsed);
-            return parsed.filter(i => i.qty > 0);
-          } else {
-            console.warn('Cart data is not in expected array format:', parsed);
-            return [];
-          }
-        } else {
-          console.log('No cart data found in localStorage');
-          return [];
-        }
-      } catch (e) { 
-        console.warn('loadSavedCart error', e); 
-        return [];
-      }
-    }
-
-    function loadSavedOrderInfo() {
-      // Try multiple keys used across pages; keep robust.
-      const selectedOption = localStorage.getItem('selectedOption') || localStorage.getItem('option') || 'Dine In';
-      // selectedTime may be stored as "HH:MM" or "ASAP" depending on stall page
-      const selectedTime = localStorage.getItem('selectedTime') || localStorage.getItem('selectedDateTime') || '';
-
-      // date should be based on current date (today)
-      function formatToday() {
-        const d = new Date();
-        const day = String(d.getDate()).padStart(2, '0');
-        const monthNames = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-        const month = monthNames[d.getMonth()];
-        const year = d.getFullYear();
-        return `${day} ${month} ${year}`;
-      }
-
-      let dateTimeStr = '';
-      if (selectedOption && selectedOption.toLowerCase() === 'asap') {
-        // per requirement: when ASAP selected do not show time (we will hide cell later)
-        dateTimeStr = 'ASAP';
-      } else {
-        // preferred timing: show today's date and the selected time (if present)
-        const timePart = selectedTime && selectedTime.toLowerCase() !== 'asap' ? selectedTime : '';
-        dateTimeStr = timePart ? `${formatToday()} ${timePart}` : `${formatToday()}`;
-      }
-
-      const info = {
-        foodCentre: localStorage.getItem('selectedFoodCentre') || localStorage.getItem('foodCentre') || 'Hawker A',
-        stall: localStorage.getItem('selectedStall') || localStorage.getItem('stall') || 'Stall A',
-        option: selectedOption,
-        dateTime: dateTimeStr
-      };
-      return info;
-    }
-    
-    // state
-    let cartFoods = loadSavedCart();
-    const cartInfo = loadSavedOrderInfo();
-    
-    // render summary row
-    document.getElementById('cartFoodCentre').textContent = cartInfo.foodCentre;
-    document.getElementById('cartStall').textContent = cartInfo.stall;
-    document.getElementById('cartOption').textContent = cartInfo.option;
-    // If user picked "ASAP" hide date/time cell (consistent with order page behaviour)
-    const cartDateEl = document.getElementById('cartDateTime');
-    if (cartInfo.dateTime && String(cartInfo.dateTime).toLowerCase() === 'asap') {
-      cartDateEl.textContent = ''; // keep blank for ASAP per requirement
-    } else {
-      cartDateEl.textContent = cartInfo.dateTime;
-    }
-
-    /*****************************************************************
-     * Cart rendering and manipulation
-     *****************************************************************/
-    function renderCartFoods() {
-      let html = "";
-      if (!cartFoods.length) {
-        html = '<div class="text-center text-muted py-4">Your cart is empty.</div>';
-      } else {
-        cartFoods.forEach((food, i) => {
-          html += `
-            <div class="cart-food-card d-flex justify-content-between align-items-start">
-              <div class="flex-grow-1">
-                <b>${food.name}</b><br>
-                <div class="small text-muted">Total: <b>$${(food.price*food.qty).toFixed(2)}</b></div>
-              </div>
-              <div class="d-flex flex-column align-items-end">
-                <div class="mb-2">
-                  <span class="fw-bold">$${food.price.toFixed(2)}</span>
-                </div>
-                <div class="food-controls">
-                  ${food.qty === 1
-                    ? `<button type="button" class="btn btn-outline-secondary" onclick="decreaseQty('${food.id}')" aria-label="Remove one">-</button>
-                       <span class="qty-display">${food.qty}</span>
-                       <button type="button" class="btn btn-outline-primary" onclick="increaseQty('${food.id}')" aria-label="Add one more">+</button>`
-                    : `<button type="button" class="btn btn-outline-secondary" onclick="decreaseQty('${food.id}')" aria-label="Remove one">-</button>
-                       <span class="qty-display">${food.qty}</span>
-                       <button type="button" class="btn btn-outline-primary" onclick="increaseQty('${food.id}')" aria-label="Add one more">+</button>`
-                  }
-                </div>
-              </div>
+    // load cart from localStorage
+    let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    function renderCart(){
+      const list = document.getElementById('cartList');
+      if(!cart.length){ list.innerHTML = '<div class="text-muted">Cart is empty.</div>'; document.getElementById('payBtn').disabled = true; updateTotal(); return;}
+      list.innerHTML = cart.map(it=>`
+        <div class="cart-item mb-2">
+          <img src="${it.image||'/img/placeholder.svg'}" alt="${it.name}">
+          <div style="flex:1">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div><strong>${it.name}</strong><div class="text-muted small">qty: ${it.qty}</div></div>
+              <div class="fw-semibold">$${(it.price*it.qty).toFixed(2)}</div>
             </div>
-          `;
-        });
-      }
-      document.getElementById('cartFoods').innerHTML = html;
+          </div>
+        </div>
+      `).join('');
       updateTotal();
-      persistCart();
+      document.getElementById('payBtn').disabled = false;
+    }
+    function updateTotal(){
+      const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
+      document.getElementById('grandTotal').textContent = '$'+total.toFixed(2);
     }
 
-    function increaseQty(foodId) {
-      const item = cartFoods.find(f => f.id === foodId);
-      if (item) {
-        item.qty += 1;
-        renderCartFoods();
-      }
-    }
+    renderCart();
 
-    function decreaseQty(foodId) {
-      const item = cartFoods.find(f => f.id === foodId);
-      if (item) {
-        item.qty -= 1;
-        if (item.qty <= 0) {
-          const index = cartFoods.indexOf(item);
-          cartFoods.splice(index, 1);
-        }
-        renderCartFoods();
-      }
-    }
-
-    function updateTotal() {
-      let total = 0;
-      cartFoods.forEach(f => total += (f.price || 0) * (f.qty || 0));
-      document.getElementById('cartTotal').textContent = '$' + total.toFixed(2);
-    }
-
-    function persistCart() {
-      try {
-        localStorage.setItem('cart', JSON.stringify(cartFoods));
-      } catch(e) { console.warn('failed saving cart', e); }
-    }
-
-
-    /*****************************************************************
-     * Navigation helpers
-     *****************************************************************/
-    function orderMore() {
-      // Return to menu page to add more items.
-      // checkout.html lives in the "order" folder; the menu is order/menu.html
-      window.location.href = "menu.html";
-    }
-    
-    /*****************************************************************
-     * Payment flow
-     *****************************************************************/
-    function goToPayment() {
-      if (!cartFoods.length) {
-        alert('Your cart is empty.');
-        return;
-      }
-      // Redirect to payment page
-      window.location.href = 'payment.html';
-    }
-
-
-    /*****************************************************************
-     * Initial render
-     *****************************************************************/
-    // initial render + debug
-    console.debug('Loaded cartFoods:', cartFoods);
-    console.debug('Cart info:', cartInfo);
-    renderCartFoods();
+    // When user clicks pay -> call server to create Stripe Checkout Session
+    document.getElementById('payBtn').addEventListener('click', async ()=>{
+      const customerName = document.getElementById('customerName').value || '';
+      const customerPhone = document.getElementById('customerPhone').value || '';
+      const payload = { cart, customerName, customerPhone };
+      // call your backend endpoint
+      const res = await fetch('/create-checkout-session', {
+        method:'POST',
+        headers:{ 'Content-Type':'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if(!res.ok){ const txt = await res.text(); alert('Payment init failed: ' + txt); return; }
+      const data = await res.json();
+      // data should contain { sessionId }
+      const stripe = Stripe(data.publishableKey || 'pk_test_...'); // optionally server can return publishableKey
+      stripe.redirectToCheckout({ sessionId: data.sessionId }).then(function(result){
+        if(result.error) alert(result.error.message);
+      });
+    });
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- Bottom Nav -->
+  <div class="nav-bar">
+    <a href="/" class="nav-logo"><i class="bi bi-shop"></i>ChopeLah</a>
+    <div class="nav-items">
+      <button class="active" onclick="location.href='/pages/order/online-order-home.html'"><i class="bi bi-cart3"></i><span>Order</span></button>
+      <button onclick="location.href='/pages/community/community.html'"><i class="bi bi-people"></i><span>Community</span></button>
+      <button onclick="location.href='/pages/chope/chope.html'"><i class="bi bi-bookmark"></i><span>Chope</span></button>
+      <button onclick="location.href='/pages/crowd/crowd-view.html'"><i class="bi bi-eye"></i><span>Crowd View</span></button>
+    </div>
+    <div class="nav-right">
+      <button class="notification-btn" onclick="alert('No new notifications')">
+        <i class="bi bi-bell"></i>
+        <span class="notification-badge">3</span>
+      </button>
+      <button onclick="location.href='/pages/profile/profile.html'"><i class="bi bi-person"></i><span>Profile</span></button>
+    </div>
+  </div>
 </body>
 </html>
