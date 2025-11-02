@@ -9,62 +9,286 @@
   <link rel="stylesheet" href="/styles/main.css">
   <link rel="stylesheet" href="/styles/components.css">
   <style>
-    .card { max-width: 640px; margin: 0 auto; }
-    .avatar-lg { width: 112px; height: 112px; border-radius: 50%; border: 3px solid var(--clr-clay); background: linear-gradient(135deg, var(--clr-clay), var(--clr-blush)); color: var(--clr-cloud); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 42px; }
-    .hidden { display: none; }
+    /* Edit Profile Container */
+    .edit-profile-container {
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 20px 16px 80px 16px;
+      background-color: #fafafa;
+      min-height: 100vh;
+    }
+
+    .edit-profile-header {
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .edit-profile-header h3 {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 20px;
+    }
+
+    .profile-preview {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e0e0e0;
+      margin-bottom: 24px;
+    }
+
+    .avatar-lg {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6c757d, #adb5bd);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 32px;
+      flex-shrink: 0;
+    }
+
+    .profile-info-preview {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .profile-info-preview .username {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .profile-info-preview .email {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .form-section {
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .form-section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #d0d0d0;
+      border-radius: 6px;
+      font-size: 14px;
+      background-color: #ffffff;
+      color: #1a1a1a;
+      transition: all 0.2s ease;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #C9784F;
+      box-shadow: 0 0 0 3px rgba(201, 120, 79, 0.1);
+    }
+
+    .form-text {
+      font-size: 13px;
+      color: #666;
+      margin-top: 6px;
+      display: block;
+    }
+
+    .text-danger {
+      color: #dc3545;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+      background-color: #C9784F;
+      color: #ffffff;
+    }
+
+    .btn-primary:hover {
+      background-color: #b36a43;
+    }
+
+    .btn-outline-secondary {
+      background-color: transparent;
+      border: 1px solid #d0d0d0;
+      color: #666;
+    }
+
+    .btn-outline-secondary:hover {
+      background-color: #f5f5f5;
+      color: #1a1a1a;
+    }
+
+    .btn-outline-danger {
+      background-color: transparent;
+      border: 1px solid #dc3545;
+      color: #dc3545;
+    }
+
+    .btn-outline-danger:hover {
+      background-color: #dc3545;
+      color: #ffffff;
+    }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 6px;
+      font-size: 14px;
+      background-color: #e7f3ff;
+      border: 1px solid #b3d9ff;
+      color: #004085;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .edit-profile-container {
+        padding: 12px 12px 80px 12px;
+      }
+
+      .edit-profile-header,
+      .form-section {
+        padding: 16px;
+      }
+
+      .profile-preview {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+      }
+
+      .avatar-lg {
+        width: 72px;
+        height: 72px;
+        font-size: 28px;
+      }
+    }
   </style>
   <script type="module" src="/scripts/firebaseauth.js"></script>
 </head>
 <body>
-  <div class="container py-4">
-    <h3 class="mb-3">Edit Profile</h3>
-    <div class="card p-3">
-      <div class="d-flex align-items-center gap-3 mb-3">
+  <div class="edit-profile-container">
+    <!-- Header with Profile Preview -->
+    <div class="edit-profile-header">
+      <h3>Edit Profile</h3>
+      
+      <div class="profile-preview">
         <div id="avatarPreview" class="avatar-lg">U</div>
-        <div class="flex-grow-1">
-          <div id="currentUsername" class="fw-bold">@username</div>
-          <div id="currentEmail" class="text-secondary">email</div>
+        <div class="profile-info-preview">
+          <div id="currentUsername" class="username">@username</div>
+          <div id="currentEmail" class="email">Loading...</div>
         </div>
-        <div>
-          <button id="logoutBtn" class="btn btn-outline-secondary">Logout</button>
-        </div>
+        <button id="logoutBtn" class="btn btn-outline-danger">
+          <i class="bi bi-box-arrow-right"></i> Logout
+        </button>
       </div>
 
-      <div class="mb-3">
-        <label class="form-label">Profile Photo</label>
+      <!-- Photo Upload -->
+      <div class="form-group">
         <input id="photoInput" type="file" accept="image/*" class="form-control">
-        <div class="form-text">JPEG/PNG recommended. Upload replaces your current photo.</div>
-        <div id="photoError" class="text-danger mt-1 hidden"></div>
+        <span class="form-text">Upload a new profile photo (JPEG/PNG recommended)</span>
+        <div id="photoError" class="text-danger hidden"></div>
       </div>
+    </div>
 
-      <hr>
-
-      <div class="mb-3">
-        <label for="usernameInput" class="form-label">Username</label>
-        <input id="usernameInput" type="text" class="form-control" placeholder="new username">
-        <div id="usernameHelp" class="form-text">Must be unique. a–z, 0–9, underscores recommended.</div>
-        <div id="usernameError" class="text-danger mt-1 hidden"></div>
-        <button id="saveUsernameBtn" class="btn btn-primary mt-2">Save Username</button>
+    <!-- Username Section -->
+    <div class="form-section">
+      <div class="form-section-title">
+        <i class="bi bi-at"></i> Username
       </div>
-
-      <div class="mb-3">
-        <label for="emailInput" class="form-label">Email</label>
-        <input id="emailInput" type="email" class="form-control" placeholder="new email">
-        <div id="emailError" class="text-danger mt-1 hidden"></div>
-        <button id="saveEmailBtn" class="btn btn-primary mt-2">Save Email</button>
+      <div class="form-group">
+        <input id="usernameInput" type="text" class="form-control" placeholder="Enter new username">
+        <span class="form-text">Must be unique. Use lowercase letters, numbers, and underscores (3-20 characters)</span>
+        <div id="usernameError" class="text-danger hidden"></div>
       </div>
+      <button id="saveUsernameBtn" class="btn btn-primary">
+        <i class="bi bi-check-lg"></i> Save Username
+      </button>
+    </div>
 
-      <div class="mb-3">
-        <label for="passwordInput" class="form-label">New Password</label>
-        <input id="passwordInput" type="password" class="form-control" placeholder="new password">
-        <div class="form-text">Min 8 chars, upper, lower, number, special.</div>
-        <div id="passwordError" class="text-danger mt-1 hidden"></div>
-        <button id="savePasswordBtn" class="btn btn-primary mt-2">Save Password</button>
+    <!-- Email Section -->
+    <div class="form-section">
+      <div class="form-section-title">
+        <i class="bi bi-envelope"></i> Email Address
       </div>
+      <div class="form-group">
+        <input id="emailInput" type="email" class="form-control" placeholder="Enter new email">
+        <div id="emailError" class="text-danger hidden"></div>
+      </div>
+      <button id="saveEmailBtn" class="btn btn-primary">
+        <i class="bi bi-check-lg"></i> Save Email
+      </button>
+    </div>
 
-      <div class="alert alert-info mb-0">
-        For email/password changes, you may be asked to reauthenticate if your session is old.
+    <!-- Password Section -->
+    <div class="form-section">
+      <div class="form-section-title">
+        <i class="bi bi-lock"></i> Password
       </div>
+      <div class="form-group">
+        <input id="passwordInput" type="password" class="form-control" placeholder="Enter new password">
+        <span class="form-text">Minimum 8 characters with uppercase, lowercase, number, and special character</span>
+        <div id="passwordError" class="text-danger hidden"></div>
+      </div>
+      <button id="savePasswordBtn" class="btn btn-primary">
+        <i class="bi bi-check-lg"></i> Save Password
+      </button>
+    </div>
+
+    <!-- Info Alert -->
+    <div class="alert">
+      <i class="bi bi-info-circle"></i> 
+      For security, you may need to re-enter your password when changing email or password.
     </div>
   </div>
 

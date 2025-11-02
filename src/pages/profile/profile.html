@@ -9,53 +9,319 @@
   <link rel="stylesheet" href="/styles/main.css">
   <link rel="stylesheet" href="/styles/components.css">
   <style>
-    .profile-header { background-color: var(--clr-sand); border-bottom: 2px solid var(--clr-clay); }
-    .profile-avatar { width: 96px; height: 96px; border-radius: 50%; border: 3px solid var(--clr-clay); background: linear-gradient(135deg, var(--clr-clay), var(--clr-blush)); color: var(--clr-cloud); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 32px; }
-    .profile-username { font-size: 1.25rem; font-weight: 700; color: var(--clr-ink); }
-    .profile-actions .btn { border-radius: 20px !important; }
-    .tabs { display: flex; gap: 12px; justify-content: center; border-bottom: 2px solid var(--clr-blush); background: var(--clr-cloud); position: sticky; top: 70px; z-index: 10; padding: 8px 0; }
-    @media (max-width: 768px) {
-      .tabs { top: 0; }
+    /* Profile Container */
+    .profile-container {
+      max-width: 935px;
+      margin: 0 auto;
+      padding: 20px 16px 80px 16px;
+      background-color: #fafafa;
+      min-height: 100vh;
     }
-    .tab-btn { background: none !important; border: none !important; padding: 12px 16px !important; font-weight: 600 !important; color: var(--clr-ink) !important; border-bottom: 3px solid transparent !important; margin: 0 !important; width: auto !important; box-shadow: none !important; border-radius: 0 !important; }
-    .tab-btn.active { color: var(--clr-clay) !important; border-color: var(--clr-clay) !important; background-color: var(--clr-blush) !important; }
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 12px; }
-    .grid-item { width: 100%; aspect-ratio: 1 / 1; background: var(--clr-blush); border: 2px solid var(--clr-clay); border-radius: 10px; overflow: hidden; }
-    .grid-item img { width: 100%; height: 100%; object-fit: cover; }
-    .grid-item.add-tile { display: flex; align-items: center; justify-content: center; background: #e9ecef; color: #6c757d; font-size: 42px; border-style: dashed; cursor: pointer; }
+
+    /* Profile Header */
+    .profile-header {
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 16px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .profile-info {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .profile-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6c757d, #adb5bd);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 32px;
+      flex-shrink: 0;
+    }
+
+    .profile-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .profile-username {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .profile-name {
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 12px;
+    }
+
+    .profile-actions button {
+      padding: 8px 24px;
+      font-size: 14px;
+      font-weight: 500;
+      border-radius: 6px;
+    }
+
+    /* Tabs */
+    .profile-tabs {
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      display: flex;
+      justify-content: center;
+      margin-bottom: 16px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .tab-btn {
+      flex: 1;
+      background: none !important;
+      border: none !important;
+      padding: 16px 12px !important;
+      font-weight: 500 !important;
+      font-size: 14px !important;
+      color: #666 !important;
+      border-bottom: 3px solid transparent !important;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin: 0 !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      width: auto !important;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .tab-btn:hover {
+      background-color: #f5f5f5 !important;
+      color: #1a1a1a !important;
+    }
+
+    .tab-btn.active {
+      color: #C9784F !important;
+      border-bottom-color: #C9784F !important;
+      background-color: transparent !important;
+    }
+
+    .tab-btn i {
+      font-size: 18px;
+    }
+
+    /* Grid */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 4px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .grid-item {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      background: linear-gradient(135deg, #F2C6B6, #F2D9BB);
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+      position: relative;
+    }
+
+    .grid-item:hover {
+      transform: scale(0.98);
+    }
+
+    .grid-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .grid-item.add-tile {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f5f5f5;
+      border: 2px dashed #d0d0d0;
+      color: #999;
+      font-size: 48px;
+      font-weight: 300;
+      transition: all 0.2s ease;
+    }
+
+    .grid-item.add-tile:hover {
+      background: #e9ecef;
+      border-color: #C9784F;
+      color: #C9784F;
+      transform: scale(1);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #999;
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .profile-container {
+        padding: 12px 12px 80px 12px;
+      }
+
+      .profile-header {
+        padding: 16px;
+      }
+
+      .profile-info {
+        gap: 16px;
+      }
+
+      .profile-avatar {
+        width: 64px;
+        height: 64px;
+        font-size: 24px;
+      }
+
+      .profile-username {
+        font-size: 18px;
+      }
+
+      .profile-name {
+        font-size: 13px;
+      }
+
+      .profile-actions button {
+        padding: 6px 16px;
+        font-size: 13px;
+      }
+
+      .tab-btn {
+        padding: 12px 8px !important;
+        font-size: 13px !important;
+      }
+
+      .tab-btn i {
+        font-size: 16px;
+      }
+
+      .profile-grid {
+        gap: 2px;
+        padding: 2px;
+      }
+
+      .grid-item.add-tile {
+        font-size: 36px;
+      }
+    }
+
+    /* Small Mobile */
+    @media (max-width: 480px) {
+      .profile-info {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: center;
+      }
+
+      .profile-avatar {
+        align-self: center;
+      }
+
+      .profile-details {
+        width: 100%;
+        text-align: center;
+      }
+
+      .profile-actions {
+        width: 100%;
+      }
+
+      .profile-actions button {
+        width: 100%;
+      }
+
+      .tab-btn span {
+        display: none;
+      }
+
+      .tab-btn {
+        flex-direction: column;
+        gap: 4px;
+      }
+    }
   </style>
   <script type="module" src="/scripts/firebaseauth.js"></script>
 </head>
 <body>
-  <div class="container py-3">
-    <div class="profile-header rounded-4 p-3 mb-3">
-      <div class="d-flex align-items-center gap-3">
+  <div class="profile-container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="profile-info">
         <div id="profileAvatar" class="profile-avatar">U</div>
-        <div class="flex-grow-1">
+        <div class="profile-details">
           <div id="profileUsername" class="profile-username">@username</div>
-          <div class="text-secondary" id="profileName"></div>
-        </div>
-        <div class="profile-actions d-flex gap-2">
-          <button id="editProfileBtn" class="btn btn-outline-secondary">Edit Profile</button>
+          <div id="profileName" class="profile-name">Loading...</div>
+          <div class="profile-actions">
+            <button id="editProfileBtn" class="btn btn-outline-secondary">
+              <i class="bi bi-pencil"></i> Edit Profile
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="tabs mb-2">
-      <button class="tab-btn active" data-tab="posts"><i class="bi bi-grid-3x3-gap"></i> Posts</button>
-      <button class="tab-btn" data-tab="liked"><i class="bi bi-heart"></i> Liked</button>
-      <button class="tab-btn" data-tab="shared"><i class="bi bi-share"></i> Shared</button>
+    <!-- Tabs -->
+    <div class="profile-tabs">
+      <button class="tab-btn active" data-tab="posts">
+        <i class="bi bi-grid-3x3-gap"></i>
+        <span>Posts</span>
+      </button>
+      <button class="tab-btn" data-tab="liked">
+        <i class="bi bi-heart"></i>
+        <span>Liked</span>
+      </button>
+      <button class="tab-btn" data-tab="shared">
+        <i class="bi bi-share"></i>
+        <span>Shared</span>
+      </button>
     </div>
 
+    <!-- Tab Content -->
     <div id="tabContent">
       <div class="tab-panel" data-tab="posts">
-        <div class="grid" id="postsGrid"></div>
+        <div class="profile-grid" id="postsGrid"></div>
       </div>
       <div class="tab-panel d-none" data-tab="liked">
-        <div class="grid" id="likedGrid"></div>
+        <div class="profile-grid" id="likedGrid"></div>
       </div>
       <div class="tab-panel d-none" data-tab="shared">
-        <div class="grid" id="sharedGrid"></div>
+        <div class="profile-grid" id="sharedGrid"></div>
       </div>
     </div>
   </div>
@@ -159,7 +425,7 @@
       grid.innerHTML = '';
       for (let i = 0; i < count; i++) {
         const item = document.createElement('div');
-        item.className = 'grid-item image-placeholder';
+        item.className = 'grid-item';
         grid.appendChild(item);
       }
     }
@@ -179,14 +445,24 @@
     function renderGridItems(targetId, items) {
       const grid = document.getElementById(targetId);
       if (!grid) return;
+      const panel = grid.parentElement;
+      
+      // Remove any existing empty state
+      const existingEmpty = panel.querySelector('.empty-state');
+      if (existingEmpty) existingEmpty.remove();
+      
       grid.innerHTML = '';
+      
       if (!items || items.length === 0) {
         const empty = document.createElement('div');
-        empty.className = 'w-100 text-center text-secondary p-3';
-        empty.textContent = 'No items yet.';
-        grid.parentElement.appendChild(empty);
+        empty.className = 'empty-state';
+        empty.innerHTML = '<i class="bi bi-grid-3x3-gap"></i><div>No items yet</div>';
+        panel.appendChild(empty);
+        grid.style.display = 'none';
         return;
       }
+      
+      grid.style.display = 'grid';
       items.forEach(item => {
         const cell = document.createElement('div');
         cell.className = 'grid-item';
@@ -196,14 +472,12 @@
           img.src = item.mediaUrl;
           img.alt = 'post';
           cell.appendChild(img);
-        } else {
-          cell.classList.add('image-placeholder');
         }
         // Deep-link to community post view and open comments
         cell.addEventListener('click', () => {
           const pid = item.id || '';
           if (!pid) return;
-          window.location.href = `community.html?postId=${encodeURIComponent(pid)}&open=comments`;
+          window.location.href = '/pages/community/community.html?postId=${encodeURIComponent(pid)}&open=comments';
         });
         grid.appendChild(cell);
       });
@@ -225,7 +499,15 @@
     function renderPostsWithAddTile(items) {
       const grid = document.getElementById('postsGrid');
       if (!grid) return;
+      const panel = grid.parentElement;
+      
+      // Remove any existing empty state
+      const existingEmpty = panel.querySelector('.empty-state');
+      if (existingEmpty) existingEmpty.remove();
+      
       grid.innerHTML = '';
+      grid.style.display = 'grid';
+      
       const addTile = document.createElement('div');
       addTile.className = 'grid-item add-tile';
       addTile.innerHTML = '+';
@@ -263,6 +545,7 @@
         }
       });
       grid.appendChild(addTile);
+      
       if (items && items.length) {
         items.forEach(item => {
           const cell = document.createElement('div');
@@ -272,13 +555,11 @@
             img.src = item.mediaUrl;
             img.alt = 'post';
             cell.appendChild(img);
-          } else {
-            cell.classList.add('image-placeholder');
           }
           cell.addEventListener('click', () => {
             const pid = item.id || '';
             if (!pid) return;
-            window.location.href = `community.html?postId=${encodeURIComponent(pid)}&open=comments`;
+            window.location.href = `/pages/community/community.html?postId=${encodeURIComponent(pid)}&open=comments`;
           });
           grid.appendChild(cell);
         });
@@ -308,7 +589,15 @@
         if (posts.length === 0) {
           // Fallback: show placeholders for the number of likes if posts not yet available
           const grid = document.getElementById('likedGrid');
-          if (grid) { grid.innerHTML=''; postIds.forEach(()=>{ const d=document.createElement('div'); d.className='grid-item image-placeholder'; grid.appendChild(d); }); }
+          if (grid) { 
+            grid.innerHTML=''; 
+            grid.style.display = 'grid';
+            postIds.forEach(()=>{ 
+              const d=document.createElement('div'); 
+              d.className='grid-item'; 
+              grid.appendChild(d); 
+            }); 
+          }
         } else {
           renderGridItems('likedGrid', posts);
         }
