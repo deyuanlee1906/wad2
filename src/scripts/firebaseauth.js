@@ -1,12 +1,8 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
-import { getFirestore, setDoc, doc, getDoc, collection, query, where, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-// === GOOGLE LOGIN ===
-import { GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
-import { FacebookAuthProvider } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+import { getFirestore, setDoc, doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+import { GoogleAuthProvider, signInWithPopup, FacebookAuthProvider } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 
 // Your web app's Firebase configuration (must be defined before using getAuth/getFirestore)
 const firebaseConfig = {
@@ -25,7 +21,9 @@ const auth = getAuth(app);
 try { auth.useDeviceLanguage && auth.useDeviceLanguage(); } catch (_) {}
 const db = getFirestore(app);
 
-// Export Firebase functions globally for use in other scripts
+// ========================================
+// EXPORT FIREBASE GLOBALS IMMEDIATELY
+// ========================================
 window.db = db;
 window.doc = doc;
 window.setDoc = setDoc;
@@ -35,6 +33,235 @@ window.query = query;
 window.where = where;
 window.getDocs = getDocs;
 window.updateDoc = updateDoc;
+window.deleteDoc = deleteDoc;
+window.serverTimestamp = serverTimestamp;
+window.addDoc = addDoc;
+
+console.log("✅ Firebase initialized successfully - all functions exported to window");
+
+/**
+ * Insert a single document into a collection
+ * @param {string} collectionName - Name of the collection
+ * @param {string} docId - Document ID (optional, will auto-generate if not provided)
+ * @param {object} data - Data to insert
+ * @param {boolean} merge - Whether to merge with existing data (default: false)
+ * @returns {Promise<string>} Document ID
+ */
+export async function insertDocument(collectionName, docId, data, merge = false) {
+  try {
+    if (docId) {
+      // Use setDoc with specific document ID
+      const docRef = doc(db, collectionName, docId);
+      await setDoc(docRef, {
+        ...data,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }, { merge });
+      console.log(`✓ Inserted document ${docId} into ${collectionName}`);
+      return docId;
+    } else {
+      // Use addDoc to auto-generate document ID
+      const colRef = collection(db, collectionName);
+      const docRef = await addDoc(colRef, {
+        ...data,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      });
+      console.log(`✓ Inserted document ${docRef.id} into ${collectionName}`);
+      return docRef.id;
+    }
+  } catch (error) {
+    console.error(`✗ Error inserting into ${collectionName}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Insert multiple documents into a collection
+ * @param {string} collectionName - Name of the collection
+ * @param {Array<{id?: string, data: object}>} documents - Array of documents to insert
+ * @param {boolean} merge - Whether to merge with existing data (default: false)
+ * @returns {Promise<string[]>} Array of document IDs
+ */
+export async function insertMultipleDocuments(collectionName, documents, merge = false) {
+  try {
+    const docIds = [];
+    for (const doc of documents) {
+      const docId = await insertDocument(collectionName, doc.id, doc.data, merge);
+      docIds.push(docId);
+    }
+    console.log(`✓ Inserted ${docIds.length} documents into ${collectionName}`);
+    return docIds;
+  } catch (error) {
+    console.error(`✗ Error inserting multiple documents into ${collectionName}:`, error);
+    throw error;
+  }
+}
+
+/**
+ * Insert a stall into the 'stalls' collection
+ * @param {object} stallData - Stall data
+ * @returns {Promise<string>} Document ID
+ */
+export async function insertStall(stallData) {
+  const defaultStall = {
+    name: '',
+    slug: stallData.name?.toLowerCase().replace(/\s+/g, '-') || '',
+    cuisine: '',
+    status: 'open',
+    priceRange: '',
+    rating: 0,
+    waitTime: '',
+    image: '',
+    foodCentre: '',
+    description: ''
+  };
+  
+  return await insertDocument('stalls', stallData.id || stallData.slug, {
+    ...defaultStall,
+    ...stallData
+  }, true);
+}
+
+/**
+ * Insert a menu item into the 'menuItems' collection
+ * @param {string} stallId - The ID of the stall this menu item belongs to
+ * @param {object} menuItemData - Menu item data
+ * @returns {Promise<string>} Document ID
+ */
+export async function insertMenuItem(stallId, menuItemData) {
+  const defaultMenuItem = {
+    name: '',
+    description: '',
+    price: 0,
+    category: '',
+    image: '',
+    available: true,
+    stallId: stallId
+  };
+  
+  return await insertDocument('menuItems', menuItemData.id, {
+    ...defaultMenuItem,
+    ...menuItemData
+  }, true);
+}
+
+/**
+ * Insert a post into the 'posts' collection
+ * @param {string} userId - The ID of the user creating the post
+ * @param {object} postData - Post data
+ * @returns {Promise<string>} Document ID
+ */
+export async function insertPost(userId, postData) {
+  const defaultPost = {
+    authorId: userId,
+    authorName: '',
+    caption: '',
+    mediaUrl: null,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp()
+  };
+  
+  return await insertDocument('posts', null, {
+    ...defaultPost,
+    ...postData
+  });
+}
+
+/**
+ * Insert a reservation into the 'reservations' collection
+ * @param {object} reservationData - Reservation data
+ * @returns {Promise<string>} Document ID
+ */
+export async function insertReservation(reservationData) {
+  const defaultReservation = {
+    userId: '',
+    foodCentre: '',
+    tableNumber: 0,
+    seatNumber: 0,
+    reservationTime: serverTimestamp(),
+    duration: 60, // minutes
+    status: 'pending',
+    createdAt: serverTimestamp()
+  };
+  
+  return await insertDocument('reservations', null, {
+    ...defaultReservation,
+    ...reservationData
+  });
+}
+
+/**
+ * Insert an order into the 'orders' collection
+ * @param {object} orderData - Order data
+ * @returns {Promise<string>} Document ID
+ */
+export async function insertOrder(orderData) {
+  const defaultOrder = {
+    userId: '',
+    stallId: '',
+    items: [],
+    totalAmount: 0,
+    status: 'pending',
+    paymentStatus: 'unpaid',
+    orderTime: serverTimestamp(),
+    createdAt: serverTimestamp()
+  };
+  
+  return await insertDocument('orders', null, {
+    ...defaultOrder,
+    ...orderData
+  });
+}
+
+/**
+ * Insert a review into the 'reviews' collection
+ * @param {object} reviewData - Review data
+ * @returns {Promise<string>} Document ID
+ */
+export async function insertReview(reviewData) {
+  const defaultReview = {
+    userId: '',
+    stallId: '',
+    rating: 0,
+    comment: '',
+    createdAt: serverTimestamp()
+  };
+  
+  return await insertDocument('reviews', null, {
+    ...defaultReview,
+    ...reviewData
+  });
+}
+
+// Export db instance for direct access if needed
+export { db, doc, setDoc, collection, addDoc, serverTimestamp };
+
+// Make functions available globally if used in non-module scripts
+if (typeof window !== 'undefined') {
+  window.firebaseDataUtils = {
+    insertDocument,
+    insertMultipleDocuments,
+    insertStall,
+    insertMenuItem,
+    insertPost,
+    insertReservation,
+    insertOrder,
+    insertReview,
+    db
+  };
+}
+
+function showMessage(message, divID){
+    var messageDiv = document.getElementById(divID);
+    if (!messageDiv) return;
+    messageDiv.style.display = "block";
+    messageDiv.innerHTML=message;
+    messageDiv.style.opacity=1;
+    setTimeout(function(){
+        messageDiv.style.opacity=0;
+    },10000);
+}
 
 // Defer DOM queries and event bindings until content is loaded
 document.addEventListener('DOMContentLoaded', () => {
@@ -172,17 +399,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  function showMessage(message, divID){
-      var messageDiv = document.getElementById(divID);
-      messageDiv.style.display = "block";
-      messageDiv.innerHTML=message;
-      messageDiv.style.opacity=1;
-      setTimeout(function(){
-          messageDiv.style.opacity=0;
-      },10000);
-  }
-
-  // Email/password auth handlers (consolidated into single DOMContentLoaded)
+  // Email/password auth handlers
   const signUp = document.getElementById('submitSignUp');
     if (signUp) {
         signUp.addEventListener('click', (event)=>{
@@ -233,7 +450,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             };
 
-            // Pre-check if desired username is taken; if yes, show clear error and stop
             // Clear previous inline errors
             const uEl = document.getElementById('usernameHelp'); if (uEl) { uEl.style.display='none'; uEl.innerHTML=''; }
             const eEl = document.getElementById('rEmailHelp'); if (eEl) { eEl.style.display='none'; eEl.innerHTML=''; }
@@ -275,7 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             })
             .catch((error)=>{
-                if (error && error.message === 'username-taken') return; // already shown
+                if (error && error.message === 'username-taken') return;
                 const errorCode=error.code;
                 if(errorCode==='auth/email-already-in-use'){
                     const el = document.getElementById('rEmailHelp');
@@ -304,14 +520,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const password=document.getElementById('password').value;
             const resolveEmailFromUsername = async (value) => {
                 const normalized = (value || '').trim().toLowerCase();
-                if (normalized.includes('@')) return normalized; // already email
+                if (normalized.includes('@')) return normalized;
                 const unameRef = doc(db, 'usernames', normalized);
                 const snap = await getDoc(unameRef);
                 if (snap.exists()) {
                     const data = snap.data();
                     return data.email;
                 }
-                return normalized; // fallback: try as email
+                return normalized;
             };
 
             resolveEmailFromUsername(emailOrUsername)
@@ -341,7 +557,6 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             let emailOrUsername = (document.getElementById('email')?.value || '').trim();
             if (!emailOrUsername) {
-                // ask user for an email/username if the field is empty
                 emailOrUsername = window.prompt('Enter your email or username to reset password:') || '';
                 emailOrUsername = emailOrUsername.trim();
             }

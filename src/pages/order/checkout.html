@@ -1,112 +1,246 @@
-<!-- /pages/order/checkout.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Checkout</title>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
-  <script src="https://js.stripe.com/v3/"></script>
-  <script type="module" src="/scripts/firebaseauth.js"></script>
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 
   <style>
-    body{background:#f8f9fa;margin:0;padding-top:70px;padding-bottom:110px}
-    @media (max-width:768px){ body{padding-top:0;padding-bottom:110px} }
-    .container{max-width:900px;padding:18px;margin:0 auto}
-    .cart-item{background:#fff;padding:12px;border-radius:10px;border:1px solid rgba(0,0,0,0.05);display:flex;gap:12px;align-items:center}
-    .cart-item img{width:70px;height:60px;object-fit:cover;border-radius:8px}
-    .nav-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ddd;display:flex;justify-content:space-around;padding:10px;height:70px;z-index:999}
+    :root {
+      --primary-color: #D98566;
+      --secondary-color: #F2C6B6;
+    }
+
+    body {
+  background: #fafafa;
+      min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 90px;
+  font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+}
+
+.checkout-container {
+  width: 95%;
+  max-width: 700px;
+  margin: 80px auto 20px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  padding: 25px;
+      box-sizing: border-box;
+    }
+
+.page-title {
+      font-weight: 600;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+      text-align: center;
+}
+
+.cart-item {
+      display: flex; 
+  flex-wrap: wrap; /* allow items to wrap on small screens */
+  justify-content: space-between;
+      align-items: center; 
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  gap: 8px; /* spacing for small screens */
+}
+
+.cart-item .details {
+  flex: 1 1 150px; /* allow shrinking and wrapping */
+}
+
+.qty-controls {
+      display: flex; 
+      align-items: center; 
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.qty-controls button {
+  background: var(--secondary-color);
+      border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  line-height: 0;
+}
+
+.qty-controls span {
+  margin: 0 6px;
+  font-weight: 500;
+}
+
+.total {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 15px;
+  text-align: right;
+  word-wrap: break-word;
+}
+
+.btn-pay {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  width: 100%;
+  padding: 12px;
+  font-size: 1.1rem;
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+.btn-pay:hover {
+  background: #b8704d;
+}
+
+.remove-btn {
+  color: #dc3545;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+.nav-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.95);
+  border-top: 1px solid #ddd;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 0;
+  height: 70px;
+  z-index: 999;
+}
+
+.nav-bar button {
+  background: none;
+  border: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #666;
+  cursor: pointer;
+  flex: 1;
+}
+
+.nav-bar button i {
+  font-size: 1.5rem;
+  margin-bottom: 2px;
+}
+
+/* Small screens */
+@media (max-width: 375px) {
+  .checkout-container {
+    width: 100%;
+    margin-top: 60px;
+    padding: 15px;
+    border-radius: 12px;
+      }
+      
+      .page-title {
+    font-size: 1.25rem;
+  }
+
+  .cart-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .qty-controls {
+    margin-top: 5px;
+  }
+
+  .total {
+        font-size: 1rem;
+    text-align: right;
+      }
+      
+  .btn-pay {
+        font-size: 1rem;
+    padding: 10px;
+      }
+    }
   </style>
 </head>
+
 <body>
-  <div class="container">
-    <h3>Checkout</h3>
-    <div id="cartList" class="mb-3"></div>
+  <div class="checkout-container">
+    <div class="page-title">Review & Confirm Order</div>
+    <div id="cartItems"></div>
+    <div class="total" id="cartTotal">Total: $0.00</div>
 
-    <div class="mb-3">
-      <label class="form-label">Name</label>
-      <input id="customerName" class="form-control" placeholder="Your name (optional)">
-    </div>
-
-    <div class="mb-3">
-      <label class="form-label">Phone</label>
-      <input id="customerPhone" class="form-control" placeholder="Phone (optional)">
-    </div>
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <div><strong>Total:</strong> <span id="grandTotal">$0.00</span></div>
-      <div><button id="payBtn" class="btn btn-primary" disabled>Pay with Card (Stripe)</button></div>
-    </div>
+    <button class="btn-pay" id="payNowBtn">
+      <i class="bi bi-credit-card"></i> Pay Now
+    </button>
   </div>
 
   <script>
-    // load cart from localStorage
     let cart = JSON.parse(localStorage.getItem('cart') || '[]');
-    function renderCart(){
-      const list = document.getElementById('cartList');
-      if(!cart.length){ list.innerHTML = '<div class="text-muted">Cart is empty.</div>'; document.getElementById('payBtn').disabled = true; updateTotal(); return;}
-      list.innerHTML = cart.map(it=>`
-        <div class="cart-item mb-2">
-          <img src="${it.image||'/img/placeholder.svg'}" alt="${it.name}">
-          <div style="flex:1">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <div><strong>${it.name}</strong><div class="text-muted small">qty: ${it.qty}</div></div>
-              <div class="fw-semibold">$${(it.price*it.qty).toFixed(2)}</div>
+
+    const renderCart = () => {
+      const cartItemsDiv = document.getElementById('cartItems');
+      const cartTotalDiv = document.getElementById('cartTotal');
+
+      if (cart.length === 0) {
+        cartItemsDiv.innerHTML = `<p class="text-muted text-center">Your cart is empty.</p>`;
+        cartTotalDiv.textContent = 'Total: $0.00';
+        document.getElementById('payNowBtn').disabled = true;
+        return;
+      }
+
+      let total = 0;
+      cartItemsDiv.innerHTML = cart.map((item, index) => {
+        const subtotal = item.price * item.qty;
+        total += subtotal;
+        return `
+          <div class="cart-item">
+            <div class="details">
+              <h6>${item.name}</h6>
+              <small class="text-muted">$${item.price.toFixed(2)} each</small>
             </div>
-          </div>
-        </div>
-      `).join('');
-      updateTotal();
-      document.getElementById('payBtn').disabled = false;
+            <div class="qty-controls">
+              <button onclick="changeQty(${index}, -1)">−</button>
+              <span>${item.qty}</span>
+              <button onclick="changeQty(${index}, 1)">+</button>
+            </div>
+            <div class="text-end ms-3">$${subtotal.toFixed(2)}</div>
+            <i class="bi bi-x-circle remove-btn ms-2" onclick="removeItem(${index})"></i>
+          </div>`;
+      }).join('');
+
+      cartTotalDiv.textContent = `Total: $${total.toFixed(2)}`;
+      localStorage.setItem('cart', JSON.stringify(cart));
+    };
+
+    function changeQty(index, delta) {
+      cart[index].qty += delta;
+      if (cart[index].qty <= 0) {
+        cart.splice(index, 1);
+      }
+      renderCart();
     }
-    function updateTotal(){
-      const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
-      document.getElementById('grandTotal').textContent = '$'+total.toFixed(2);
+
+    function removeItem(index) {
+      cart.splice(index, 1);
+      renderCart();
     }
+
+    document.getElementById('payNowBtn').addEventListener('click', () => {
+      // Navigate to payment page to select payment method
+      window.location.href = 'payment.html';
+    });
 
     renderCart();
-
-    // When user clicks pay -> call server to create Stripe Checkout Session
-    document.getElementById('payBtn').addEventListener('click', async ()=>{
-      const customerName = document.getElementById('customerName').value || '';
-      const customerPhone = document.getElementById('customerPhone').value || '';
-      const payload = { cart, customerName, customerPhone };
-      // call your backend endpoint
-      const res = await fetch('/create-checkout-session', {
-        method:'POST',
-        headers:{ 'Content-Type':'application/json' },
-        body: JSON.stringify(payload)
-      });
-      if(!res.ok){ const txt = await res.text(); alert('Payment init failed: ' + txt); return; }
-      const data = await res.json();
-      // data should contain { sessionId }
-      const stripe = Stripe(data.publishableKey || 'pk_test_...'); // optionally server can return publishableKey
-      stripe.redirectToCheckout({ sessionId: data.sessionId }).then(function(result){
-        if(result.error) alert(result.error.message);
-      });
-    });
   </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
-  <!-- Bottom Nav -->
-  <div class="nav-bar">
-    <a href="/" class="nav-logo"><i class="bi bi-shop"></i>ChopeLah</a>
-    <div class="nav-items">
-      <button class="active" onclick="location.href='/pages/order/online-order-home.html'"><i class="bi bi-cart3"></i><span>Order</span></button>
-      <button onclick="location.href='/pages/community/community.html'"><i class="bi bi-people"></i><span>Community</span></button>
-      <button onclick="location.href='/pages/chope/chope.html'"><i class="bi bi-bookmark"></i><span>Chope</span></button>
-      <button onclick="location.href='/pages/crowd/crowd-view.html'"><i class="bi bi-eye"></i><span>Crowd View</span></button>
-    </div>
-    <div class="nav-right">
-      <button class="notification-btn" onclick="alert('No new notifications')">
-        <i class="bi bi-bell"></i>
-        <span class="notification-badge">3</span>
-      </button>
-      <button onclick="location.href='/pages/profile/profile.html'"><i class="bi bi-person"></i><span>Profile</span></button>
-    </div>
-  </div>
 </body>
 </html>

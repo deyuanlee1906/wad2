@@ -55,9 +55,111 @@
     .location-header {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 12px;
       font-weight: 700;
       margin: 16px 0 8px;
+      flex-wrap: wrap;
+    }
+
+    .food-centre-select {
+      position: relative;
+      flex: 1;
+      min-width: 200px;
+      max-width: 400px;
+    }
+
+    .food-centre-input-wrapper {
+      position: relative;
+    }
+
+    .food-centre-input {
+      width: 100%;
+      padding: 10px 36px 10px 12px;
+      border: 1px solid var(--clr-ink);
+      border-radius: 6px;
+      background: white;
+      color: var(--clr-ink);
+      font-size: 16px;
+      font-weight: 600;
+      cursor: text;
+      transition: all 0.2s;
+      box-sizing: border-box;
+    }
+
+    .food-centre-input::placeholder {
+      color: rgba(34, 34, 34, 0.5);
+      font-weight: 500;
+    }
+
+    .food-centre-input:hover {
+      border-color: #4285f4;
+      box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+    }
+
+    .food-centre-input:focus {
+      outline: none;
+      border-color: #4285f4;
+      box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+    }
+
+    .food-centre-dropdown-icon {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none;
+      width: 12px;
+      height: 12px;
+      transition: transform 0.2s;
+    }
+
+    .food-centre-select.open .food-centre-dropdown-icon {
+      transform: translateY(-50%) rotate(180deg);
+    }
+
+    .food-centre-dropdown {
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: white;
+      border: 1px solid var(--clr-ink);
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+      margin-top: 4px;
+    }
+
+    .food-centre-select.open .food-centre-dropdown {
+      display: block;
+    }
+
+    .food-centre-option {
+      padding: 12px;
+      cursor: pointer;
+      transition: background-color 0.15s;
+      border-bottom: 1px solid rgba(38, 38, 38, 0.1);
+      font-weight: 500;
+    }
+
+    .food-centre-option:last-child {
+      border-bottom: none;
+    }
+
+    .food-centre-option:hover {
+      background-color: rgba(66, 133, 244, 0.1);
+    }
+
+    .food-centre-option.selected {
+      background-color: rgba(66, 133, 244, 0.15);
+      font-weight: 600;
+    }
+
+    .food-centre-option.hidden {
+      display: none;
     }
 
     .search-wrap {
@@ -71,6 +173,18 @@
       padding-right: 36px;
       background: transparent;
       color: var(--clr-ink);
+    }
+
+    /* Add disabled state styling for search bar */
+    .search-bar:disabled {
+      background: #e9ecef;
+      color: #6c757d;
+      border-bottom-color: #d3d3d3;
+      cursor: not-allowed;
+    }
+
+    .search-bar:disabled::placeholder {
+      color: #999;
     }
 
     .search-clear {
@@ -227,29 +341,53 @@
       <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#000" class="me-1" viewBox="0 0 16 16">
         <path d="M8 16s6-5.686 6-10A6 6 0 1 0 2 6c0 4.314 6 10 6 10Zm0-8a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"/>
       </svg>
-      <span id="foodCentreLocation">Maxwell Food Centre</span>
+      <div class="food-centre-select" id="foodCentreSelectWrapper">
+        <div class="food-centre-input-wrapper">
+          <input 
+            type="text" 
+            id="foodCentreSelect" 
+            class="food-centre-input" 
+            placeholder="Please select a food centre"
+            autocomplete="off"
+            aria-label="Select Food Centre"
+          />
+          <svg class="food-centre-dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+            <path fill="#222" d="M6 9L1 4h10z"/>
+          </svg>
+        </div>
+        <div class="food-centre-dropdown" id="foodCentreDropdown" role="listbox">
+          <div class="food-centre-option" data-value="Maxwell Food Centre">Maxwell Food Centre</div>
+          <div class="food-centre-option" data-value="Newton Food Centre">Newton Food Centre</div>
+          <div class="food-centre-option" data-value="Changi Village Food Centre">Changi Village Food Centre</div>
+        </div>
+      </div>
     </div>
 
     <div class="search-wrap">
-      <input type="text" id="stallSearch" class="form-control search-bar" placeholder="Search for a stall/food">
+      <input type="text" id="stallSearch" class="form-control search-bar" placeholder="Search for a stall/food" disabled>
       <button id="clearSearch" class="search-clear" type="button">&times;</button>
     </div>
 
-    <div class="stall-list-title">Available Stalls</div>
+    <div class="stall-list-title" id="availableStallsTitle">Available Stalls</div>
     <div id="availableStalls" aria-live="polite"></div>
 
-    <div class="stall-list-title mt-4">Closed Stalls</div>
+    <div class="stall-list-title mt-4" id="closedStallsTitle">Closed Stalls</div>
     <div id="closedStalls" aria-live="polite"></div>
   </div>
 
   <!-- Firebase + Stall Logic -->
   <script>
-    async function waitForDb(timeout = 5000) {
+    async function waitForDb(timeout = 10000) {
       const start = Date.now();
       while (typeof window.db === 'undefined') {
-        if (Date.now() - start > timeout) throw new Error('Firestore not available');
+        if (Date.now() - start > timeout) {
+          console.error('Timeout waiting for window.db');
+          console.error('Available window properties:', Object.keys(window).filter(k => k.includes('db') || k.includes('firebase')));
+          throw new Error('Firestore not available. Please check if firebaseauth.js loaded correctly.');
+        }
         await new Promise(r => setTimeout(r, 100));
       }
+      console.log('window.db is available');
     }
 
     const toSlug = s => String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'');
@@ -267,16 +405,41 @@
 
     let stalls = [];
     let loaded = false;
+    let selectedFoodCentre = null; // Will be set during initialization
 
     function renderStalls(filter='') {
-      if (!loaded) {
-        document.getElementById('availableStalls').innerHTML = '<div class="text-muted">Loading stalls...</div>';
+      // If no food centre selected, show nothing
+      if (!selectedFoodCentre || selectedFoodCentre.trim() === '') {
+        document.getElementById('availableStallsTitle').style.display = 'none';
+        document.getElementById('closedStallsTitle').style.display = 'none';
+        document.getElementById('availableStalls').innerHTML = '';
+        document.getElementById('closedStalls').innerHTML = '';
         return;
       }
+
+      // Show titles when food centre is selected
+      document.getElementById('availableStallsTitle').style.display = 'block';
+      document.getElementById('closedStallsTitle').style.display = 'block';
+
+      if (!loaded) {
+        document.getElementById('availableStalls').innerHTML = '<div class="text-muted">Loading stalls...</div>';
+        document.getElementById('closedStalls').innerHTML = '';
+        return;
+      }
+      
+      // Filter by selected food centre first
+      const foodCentreFiltered = stalls.filter(s => 
+        (s.foodCentre || '').trim() === selectedFoodCentre
+      );
+      
+      // Then filter by search query
       const q = filter.trim().toLowerCase();
       const filtered = q
-        ? stalls.filter(s => s.name.toLowerCase().includes(q) || s.cuisine.toLowerCase().includes(q))
-        : stalls;
+        ? foodCentreFiltered.filter(s => 
+            s.name.toLowerCase().includes(q) || 
+            s.cuisine.toLowerCase().includes(q)
+          )
+        : foodCentreFiltered;
 
       const available = filtered.filter(s => s.status.toLowerCase() === 'open');
       const closed = filtered.filter(s => s.status.toLowerCase() === 'closed');
@@ -310,7 +473,7 @@
           const s = stalls.find(x => x.slug === slug);
           if (!s) return;
           if (s.status.toLowerCase() === 'closed') return showClosedStallPopup(s.name);
-          const url = new URL('selection.html', window.location.href);
+          const url = new URL('stall.html', window.location.href);
           url.searchParams.set('slug', slug);
           sessionStorage.setItem('stallSlug', slug);
           window.location.href = url;
@@ -321,9 +484,22 @@
     async function loadStalls() {
       try {
         await waitForDb();
-        const { collection, getDocs } = window;
-        const stallsRef = collection(db, 'stalls');
-        const snap = await getDocs(stallsRef);
+        
+        // Verify window.db and other functions are available
+        if (!window.db || !window.collection || !window.getDocs) {
+          console.error('Firebase functions not available:', {
+            db: typeof window.db,
+            collection: typeof window.collection,
+            getDocs: typeof window.getDocs
+          });
+          throw new Error('Firebase functions not available');
+        }
+        
+        const stallsRef = window.collection(window.db, 'stalls');
+        const snap = await window.getDocs(stallsRef);
+        
+        console.log(`Loaded ${snap.docs.length} stalls from Firebase`);
+        
         stalls = snap.docs.map(d => {
           const data = d.data();
           return {
@@ -331,6 +507,7 @@
             slug: data.slug || toSlug(data.name || d.id),
             name: data.name || '',
             cuisine: data.cuisine || '',
+            foodCentre: data.foodCentre || '',
             status: data.status || 'closed',
             priceRange: data.priceRange || '',
             rating: data.rating || 0,
@@ -338,24 +515,174 @@
             image: data.image || ''
           };
         });
+        
         loaded = true;
+        // Enable search bar once data is loaded
+        const searchInput = document.getElementById('stallSearch');
+        if (searchInput) {
+          searchInput.disabled = false;
+        }
         renderStalls();
       } catch (err) {
-        console.error('Error loading stalls', err);
+        console.error('Error loading stalls:', err);
+        console.error('Error details:', err.message, err.stack);
         loaded = true;
         stalls = [];
-        renderStalls();
+        // Show error message to user
+        document.getElementById('availableStalls').innerHTML = `<div class="text-muted">Error loading stalls: ${err.message}</div>`;
+        document.getElementById('closedStalls').innerHTML = '';
+        // Still enable search bar even on error
+        const searchInput = document.getElementById('stallSearch');
+        if (searchInput) {
+          searchInput.disabled = false;
+        }
       }
     }
+
+    // Food centre selection handler (searchable dropdown)
+    (() => {
+      const input = document.getElementById('foodCentreSelect');
+      const wrapper = document.getElementById('foodCentreSelectWrapper');
+      const dropdown = document.getElementById('foodCentreDropdown');
+      const options = dropdown.querySelectorAll('.food-centre-option');
+      const foodCentres = ['Maxwell Food Centre', 'Newton Food Centre', 'Changi Village Food Centre'];
+      
+      // Define helper functions first
+      function updateSelectedOption(value) {
+        options.forEach(opt => {
+          opt.classList.remove('selected');
+          if (opt.dataset.value === value) {
+            opt.classList.add('selected');
+          }
+        });
+      }
+      
+      function filterOptions() {
+        const searchTerm = input.value.toLowerCase().trim();
+        options.forEach(option => {
+          const value = option.dataset.value.toLowerCase();
+          if (value.includes(searchTerm) || searchTerm === '') {
+            option.classList.remove('hidden');
+          } else {
+            option.classList.add('hidden');
+          }
+        });
+      }
+      
+      const saved = sessionStorage.getItem('selectedFoodCentre');
+      if (saved && foodCentres.includes(saved)) {
+        // Keep this for now if you want to restore user's previous selection
+        // Otherwise, skip this block entirely
+      }
+      
+      input.value = '';
+      selectedFoodCentre = null;
+      sessionStorage.removeItem('selectedFoodCentre');
+      document.getElementById('availableStallsTitle').style.display = 'none';
+      document.getElementById('closedStallsTitle').style.display = 'none';
+      document.getElementById('availableStalls').innerHTML = '';
+      document.getElementById('closedStalls').innerHTML = '';
+      
+      // Toggle dropdown on input click/focus
+      input.addEventListener('focus', () => {
+        wrapper.classList.add('open');
+        filterOptions();
+      });
+      
+      input.addEventListener('click', () => {
+        wrapper.classList.add('open');
+        filterOptions();
+      });
+      
+      // Filter options as user types
+      input.addEventListener('input', (e) => {
+        filterOptions();
+      });
+      
+      // Handle option selection
+      options.forEach(option => {
+        option.addEventListener('click', () => {
+          const value = option.dataset.value;
+          input.value = value;
+          selectedFoodCentre = value;
+          sessionStorage.setItem('selectedFoodCentre', selectedFoodCentre);
+          wrapper.classList.remove('open');
+          updateSelectedOption(value);
+          document.getElementById('stallSearch').disabled = false;
+          // Load stalls if not already loaded, then render
+          if (!loaded) {
+            loadStalls();
+          } else {
+            renderStalls(document.getElementById('stallSearch').value);
+          }
+        });
+      });
+      
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!wrapper.contains(e.target)) {
+          wrapper.classList.remove('open');
+          // If input was cleared and there was a selection, restore it
+          if (!input.value.trim() && selectedFoodCentre) {
+            input.value = selectedFoodCentre;
+          }
+          // If input was cleared and no selection, keep it empty
+          else if (!input.value.trim() && !selectedFoodCentre) {
+            selectedFoodCentre = '';
+            sessionStorage.removeItem('selectedFoodCentre');
+            document.getElementById('stallSearch').disabled = true;
+            renderStalls('');
+          }
+        }
+      });
+      
+      // Handle keyboard navigation
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          wrapper.classList.add('open');
+          const visibleOptions = Array.from(options).filter(opt => !opt.classList.contains('hidden'));
+          if (visibleOptions.length > 0) {
+            visibleOptions[0].focus();
+          }
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          const visibleOptions = Array.from(options).filter(opt => !opt.classList.contains('hidden'));
+          if (visibleOptions.length === 1) {
+            visibleOptions[0].click();
+          } else if (visibleOptions.length > 0 && document.activeElement.classList.contains('food-centre-option')) {
+            document.activeElement.click();
+          }
+        } else if (e.key === 'Escape') {
+          wrapper.classList.remove('open');
+          input.blur();
+        }
+      });
+      
+      // Make options focusable for keyboard navigation
+      options.forEach(option => {
+        option.setAttribute('tabindex', '0');
+        option.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            option.click();
+          }
+        });
+      });
+    })();
 
     // Search handling
     (() => {
       const input = document.getElementById('stallSearch');
       const clear = document.getElementById('clearSearch');
+      
+      input.disabled = true;
+      
       input.addEventListener('input', () => {
         renderStalls(input.value);
         clear.style.visibility = input.value ? 'visible' : 'hidden';
       });
+      
       clear.addEventListener('click', () => {
         input.value = '';
         renderStalls('');
@@ -364,8 +691,6 @@
       });
       clear.style.visibility = 'hidden';
     })();
-
-    loadStalls();
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>

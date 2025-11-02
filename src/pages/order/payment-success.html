@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Successful</title>
+
+  <!-- Bootstrap + Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary-color: #D98566;
+      --secondary-color: #F2C6B6;
+      --bg: #F2F2F2;
+      --text: #262626;
+    }
+
+    body {
+      background: linear-gradient(135deg, #F2D9BB 0%, #F2C6B6 50%, #D98566 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding-bottom: 100px;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .success-card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      padding: 30px 25px;
+      text-align: center;
+      max-width: 420px;
+      width: 90%;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .success-card i {
+      font-size: 4rem;
+      color: #28a745;
+      margin-bottom: 15px;
+    }
+
+    .success-card h3 {
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .order-summary {
+      text-align: left;
+      margin-top: 20px;
+      border-top: 1px solid #eee;
+      padding-top: 15px;
+      font-size: 0.95rem;
+    }
+
+    .btn-home, .btn-details {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      margin-top: 15px;
+      font-size: 1rem;
+      width: 100%;
+    }
+
+    .btn-home:hover, .btn-details:hover {
+      background: #b8704d;
+    }
+
+    .nav-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.95);
+      border-top: 1px solid #ddd;
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      height: 70px;
+      z-index: 999;
+    }
+
+    .nav-bar button {
+      background: none;
+      border: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: 0.75rem;
+      color: #666;
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .nav-bar button i {
+      font-size: 1.5rem;
+      margin-bottom: 2px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 375px) {
+      .success-card {
+        padding: 20px 15px;
+      }
+      .success-card i {
+        font-size: 3rem;
+      }
+      .btn-home, .btn-details {
+        font-size: 0.9rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="success-card">
+    <i class="bi bi-check-circle-fill"></i>
+    <h3>Payment Successful!</h3>
+    <p class="text-muted">Your order has been confirmed 🎉</p>
+
+    <div class="order-summary" id="orderSummary">
+      <!-- Order details will load here -->
+    </div>
+
+    <button class="btn-details" data-bs-toggle="modal" data-bs-target="#detailsModal">
+      <i class="bi bi-receipt"></i> View Order Details
+    </button>
+
+    <button class="btn-home" onclick="window.location.href='/pages/order/online-order-home.html'">
+      <i class="bi bi-house-door"></i> Back to Home
+    </button>
+  </div>
+
+  <!-- Order Details Modal -->
+  <div class="modal fade" id="detailsModal" tabindex="-1" aria-labelledby="detailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="detailsModalLabel"><i class="bi bi-basket"></i> Order Details</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="detailsBody">
+          <p class="text-muted">No items found.</p>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const order = JSON.parse(localStorage.getItem('latestOrder') || '{}');
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      if (!order.orderId) {
+        document.getElementById('orderSummary').innerHTML = '<p class="text-muted">No order found.</p>';
+        return;
+      }
+
+      // Main order info
+      document.getElementById('orderSummary').innerHTML = `
+        <p><strong>Order ID:</strong> ${order.orderId}</p>
+        <p><strong>Stall:</strong> ${order.stallName}</p>
+        <p><strong>Order Type:</strong> ${order.type}</p>
+        <p><strong>Pickup Time:</strong> ${order.time}</p>
+        <p><strong>Total Paid:</strong> $${order.amount.toFixed(2)}</p>
+      `;
+
+      // Fill modal with detailed items
+      if (cart.length > 0) {
+        const itemsHtml = cart.map(item => `
+          <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+            <div>
+              <strong>${item.name}</strong><br>
+              <small class="text-muted">Qty: ${item.qty}</small>
+            </div>
+            <div>$${(item.price * item.qty).toFixed(2)}</div>
+          </div>
+        `).join('');
+        document.getElementById('detailsBody').innerHTML = itemsHtml +
+          `<div class="d-flex justify-content-between mt-3">
+            <strong>Total</strong>
+            <strong>$${order.amount.toFixed(2)}</strong>
+          </div>`;
+      } else {
+        document.getElementById('detailsBody').innerHTML = '<p class="text-muted">No items in this order.</p>';
+      }
+
+      // clear cart after success
+      localStorage.removeItem('cart');
+    });
+  </script>
+</body>
+</html>
