@@ -467,10 +467,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     const docRef=doc(db, "users", user.uid);
                     setDoc(docRef, userData)
                     .then(()=>{
+                        // Store user ID in localStorage for session management
+                        localStorage.setItem('loggedInUserId', user.uid);
+                        console.log('User signed up successfully, redirecting to chope page...');
                         window.location.href='/pages/chope/chope.html';
                     })
                     .catch((error)=>{
                         console.error("error writing document", error);
+                        showMessage('Account created but failed to save user data. Please try logging in.', 'signUpMessage');
                     });
                 });
             })

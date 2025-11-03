@@ -52,15 +52,43 @@ app.post('*', (req, res, next) => {
   res.sendFile(path.join(__dirname, '../src/index.html'));
 });
 
-// Catch-all for SPA routing - ONLY matches if static middleware didn't find a file
+// Catch-all for SPA routing
+// Note: express.static above will have already served any existing files
+// This only runs if express.static didn't find the file (called next())
 app.get('*', (req, res) => {
-  // If it's a request for a static file that wasn't found, return 404
+  // Check if this is a request for a file with an extension
   const staticExtensions = ['.js', '.css', '.jpg', '.jpeg', '.png', '.gif', '.svg', '.ico', '.json'];
   if (staticExtensions.some(ext => req.path.endsWith(ext))) {
+    // Static file was requested but not found - return 404
     return res.status(404).send('File not found');
   }
   
-  // Otherwise, it's an SPA route - serve index.html
+  // For HTML files, try to serve them directly (fallback if static middleware missed them)
+  // For other routes without extensions, serve index.html for SPA routing
+  const fs = require('fs');
+  const requestedPath = path.join(__dirname, '../src', req.path);
+  
+  // If the path exists and is a file, serve it
+  if (fs.existsSync(requestedPath)) {
+    const stats = fs.statSync(requestedPath);
+    if (stats.isFile()) {
+      return res.sendFile(requestedPath);
+    }
+    // If it's a directory, try index.html in that directory
+    if (stats.isDirectory()) {
+      const indexInDir = path.join(requestedPath, 'index.html');
+      if (fs.existsSync(indexInDir)) {
+        return res.sendFile(indexInDir);
+      }
+    }
+  }
+  
+  // If path ends with .html but file doesn't exist, return 404
+  if (req.path.endsWith('.html')) {
+    return res.status(404).send('File not found');
+  }
+  
+  // Otherwise, it's an SPA route without extension - serve index.html
   res.sendFile(path.join(__dirname, '../src/index.html'));
 });
 
