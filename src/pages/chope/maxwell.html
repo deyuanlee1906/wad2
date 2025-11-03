@@ -319,9 +319,16 @@
             padding: 25px;
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             margin-bottom: 20px;
-            max-width: 800px;
+            width: 100%;
             margin-left: auto;
             margin-right: auto;
+             height: auto;
+        }
+
+        #floorPlan {
+            width: 100%;
+            height: auto;
+            display: block;
         }
         
         .seat {
@@ -382,22 +389,47 @@
             border-color: var(--text-color);
         }
 
-        /* Responsive Design */
-        @media (min-width: 768px) {
+        /* Responsive Design (@media) */
+        /* Desktop styles */
+        @media (min-width: 992px) {
             .floor-plan-container {
                 max-width: 900px;
             }
         }
 
-        @media (max-width: 767px) {
+        /* Tablet and mobile styles */
+        @media (max-width: 991px) {
             .floor-plan-container {
                 padding: 15px;
-                margin: 0 10px 20px 10px;
+                margin: 0 0 20px 0;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch; /* make the comtainer scrollable */
             }
             
             .legend-box {
                 width: 10px;
                 height: 10px;
+            }
+
+            #floorPlan {
+                min-width: 800px;
+                transform: scale(0.85); /* scale the element to 85% (zoom in) */
+                transform-origin: center; /* when scalling, it will shrink/grow from its center */
+            }
+        }
+
+        /* Mobile specific styles */
+        @media (max-width: 575px) {
+            .floor-plan-container {
+                padding: 10px;
+                max-height: 400px;
+            }
+
+            #floorPlan {
+                transform: scale(0.55); /* scale the element to 60% (zoom in) */
+                min-width: 1200px;
+                transform-origin: center;
+                margin: -50px -100px; /* Adjust positioning to center the zoomed out content */
             }
         }
     </style>
@@ -512,6 +544,41 @@
         
         // Refresh seat status every 30 seconds
         setInterval(loadSeatStatus, 30000);
+
+        
+        // Adjust seat sizes based on screen size
+        function adjustSeatSizes() {
+            // get the seats and the seat number
+            const seats = document.querySelectorAll('.seat');
+            const seatNumbers = document.querySelectorAll('.seat-number');
+            
+            if (window.innerWidth <= 575) { // Mobile
+                seats.forEach(seat => {
+                    seat.setAttribute('r', '9'); // set the raduis to 9 (for the svg grafics up there)
+                });
+                seatNumbers.forEach(num => {
+                    num.style.fontSize = '9px';
+                });
+            } else if (window.innerWidth <= 991) { // Tablet
+                seats.forEach(seat => {
+                    seat.setAttribute('r', '8');
+                });
+                seatNumbers.forEach(num => {
+                    num.style.fontSize = '8px';
+                });
+            } else { // Desktop - original size
+                seats.forEach(seat => {
+                    seat.setAttribute('r', '8');
+                });
+                seatNumbers.forEach(num => {
+                    num.style.fontSize = '8px';
+                });
+            }
+        }
+
+        // Run on load and resize
+        window.addEventListener('load', adjustSeatSizes);
+        window.addEventListener('resize', adjustSeatSizes);
     </script>
 
     <!-------------------------Bootstrap------------------------- -->
