@@ -11,25 +11,61 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     .dropdown {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;              /* spacing between label and select */
-  width: 100%;
-}
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+    }
 
-.dropdown label {
-  font-weight: 600;
-  color: #262626;
-}
+    .dropdown label {
+      font-weight: 600;
+      color: #262626;
+    }
 
-.dropdown select {
-  width: 100%;
-  padding: 10px;
-  border: 2px solid #F2C6B6;
-  border-radius: 8px;
-  background-color: #F2F2F2;
-  color: #262626;
-}
+    .dropdown select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #F2C6B6;
+      border-radius: 8px;
+      background-color: #F2F2F2;
+      color: #262626;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    .dropdown select:hover {
+      border-color: #D98566;
+      background-color: #ffffff;
+    }
+
+    .dropdown select:focus {
+      border-color: #C9784F;
+      background-color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(201, 120, 79, 0.1);
+    }
+
+    .hawker-info-box {
+      margin: 15px 0;
+      padding: 15px;
+      background-color: #F2D9BB;
+      border: 2px solid #F2C6B6;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+    }
+
+    .hawker-info-box:hover {
+      border-color: #D98566;
+      box-shadow: 0 2px 8px rgba(217, 133, 102, 0.1);
+    }
+
+    .hawker-info-box strong {
+      color: #1a1a1a;
+    }
+
+    .hawker-info-box div {
+      color: #262626;
+    }
   </style>
 </head>
 <body>
@@ -75,14 +111,14 @@
         </select>
         </div>
         
-        <div style="margin: 15px 0; padding: 15px; background-color: #F2D9BB; border-radius: 10px;">
+        <div class="hawker-info-box">
           <div style="margin-bottom: 8px;">
             <strong>📍 <span id="hawker-name">Maxwell Food Centre</span></strong>
           </div>
-          <div style="margin-bottom: 8px; color: #262626;">
+          <div style="margin-bottom: 8px;">
             <span id="hawker-address">1 Kadayanallur St, Singapore 069184</span>
           </div>
-          <div style="color: #262626;">
+          <div>
             <span id="hawker-hours">6:00AM - 10:00PM</span>
           </div>
         </div>
@@ -134,9 +170,15 @@
         address: "1 Kadayanallur St, Singapore 069184",
         hours: "6:00AM - 10:00PM",
         stalls: {
-          tian_tian: [5, 15, 25, 45, 35, 40, 20, 3], // Tian Tian Hainanese Chicken Rice
-          zhen_zhen: [3, 12, 30, 50, 25, 35, 15, 2], // Zhen Zhen Porridge
-          maxwell_fuzhou: [2, 8, 20, 35, 30, 25, 10, 1] // Maxwell Fuzhou Oyster Cake
+          "peanuts-soup": [3, 8, 15, 25, 20, 18, 10, 2], // Peanuts Soup
+          "hajmeer-kwaja": [2, 6, 12, 22, 18, 15, 8, 1], // Hajmeer Kwaja
+          "luckmeow": [5, 12, 20, 35, 28, 30, 15, 3], // LuckMeow
+          "ramen-taisho": [4, 10, 18, 30, 25, 28, 12, 2], // Ramen Taisho
+          "china-street-fritters": [3, 8, 15, 28, 22, 20, 10, 2], // China Street Fritters
+          "bold-x-braised": [4, 9, 16, 32, 26, 25, 12, 2], // Bold X Braised
+          "korean-cuisine": [5, 11, 19, 35, 28, 32, 15, 3], // Korean Cuisine
+          "neapolitan-style-pizza": [6, 12, 22, 40, 32, 35, 18, 4], // Neapolitan Style Pizza
+          "tian-tian-chicken-rice": [8, 20, 35, 55, 45, 50, 25, 5] // Tian Tian Chicken Rice
         }
       },
       newton: {
@@ -144,9 +186,12 @@
         address: "500 Clemenceau Ave N, Singapore 229495",
         hours: "5:00AM - 11:00PM",
         stalls: {
-          satay: [8, 20, 35, 60, 45, 55, 30, 5], // Newton Satay
-          stingray: [4, 15, 25, 40, 35, 30, 18, 3], // BBQ Stingray
-          oyster_omelette: [6, 18, 30, 45, 40, 35, 22, 4] // Oyster Omelette
+          "hotplate-bbq-seafood": [6, 15, 28, 50, 40, 45, 22, 4], // Hotplate BBQ Seafood
+          "22-best-satay": [8, 18, 32, 55, 45, 50, 25, 5], // 22 Best Satay
+          "heng-heng-chicken-rice": [5, 12, 22, 40, 32, 35, 18, 3], // Heng Heng Chicken Rice
+          "teochew-rice-and-porridge": [4, 10, 18, 35, 28, 30, 15, 2], // Teochew Rice And Porridge
+          "lina-fishball-noodles": [3, 8, 15, 28, 22, 25, 12, 2], // Lina Fishball Noodles
+          "aminahs-prata": [5, 12, 20, 38, 30, 32, 16, 3] // Aminah's Prata
         }
       },
       changi: {
@@ -154,9 +199,14 @@
         address: "2 Changi Village Rd, Singapore 500002",
         hours: "6:30AM - 9:00PM",
         stalls: {
-          nasi_lemak: [3, 10, 20, 35, 25, 30, 15, 2], // Changi Village Nasi Lemak
-          char_kway_teow: [2, 8, 18, 30, 20, 25, 12, 1], // Changi Village Char Kway Teow
-          laksa: [4, 12, 22, 40, 30, 35, 18, 3] // Changi Village Laksa
+          "d-authentic-nasi-lemak": [4, 12, 25, 45, 35, 40, 20, 3], // D Authentic Nasi Lemak
+          "alliance-seafood": [6, 15, 28, 50, 40, 45, 22, 4], // Alliance Seafood
+          "burgs": [4, 10, 18, 32, 26, 28, 14, 2], // Burgs
+          "koka-wanton-noodles": [3, 8, 15, 28, 22, 25, 12, 2], // Koka Wanton Noodles
+          "jiak-mee": [3, 8, 15, 28, 22, 25, 12, 2], // Jiak Mee
+          "fortune-popiah": [2, 5, 10, 20, 15, 18, 8, 1], // Fortune Popiah
+          "alifs-nasi-lemak": [4, 10, 20, 35, 28, 30, 15, 2], // Alif's Nasi Lemak
+          "mala-hotpot": [5, 12, 22, 40, 32, 35, 18, 3] // Mala Hotpot
         }
       }
     };
@@ -225,19 +275,33 @@
       // Add hawker-specific stalls
       const stallNames = {
         maxwell: {
-          tian_tian: "Tian Tian Hainanese Chicken Rice",
-          zhen_zhen: "Zhen Zhen Porridge", 
-          maxwell_fuzhou: "Maxwell Fuzhou Oyster Cake"
+          "peanuts-soup": "Peanuts Soup",
+          "hajmeer-kwaja": "Hajmeer Kwaja",
+          "luckmeow": "LuckMeow",
+          "ramen-taisho": "Ramen Taisho",
+          "china-street-fritters": "China Street Fritters",
+          "bold-x-braised": "Bold X Braised",
+          "korean-cuisine": "Korean Cuisine",
+          "neapolitan-style-pizza": "Neapolitan Style Pizza",
+          "tian-tian-chicken-rice": "Tian Tian Chicken Rice"
         },
         newton: {
-          satay: "Newton Satay",
-          stingray: "BBQ Stingray",
-          oyster_omelette: "Oyster Omelette"
+          "hotplate-bbq-seafood": "Hotplate BBQ Seafood",
+          "22-best-satay": "22 Best Satay",
+          "heng-heng-chicken-rice": "Heng Heng Chicken Rice",
+          "teochew-rice-and-porridge": "Teochew Rice And Porridge",
+          "lina-fishball-noodles": "Lina Fishball Noodles",
+          "aminahs-prata": "Aminah's Prata"
         },
         changi: {
-          nasi_lemak: "Changi Village Nasi Lemak",
-          char_kway_teow: "Changi Village Char Kway Teow",
-          laksa: "Changi Village Laksa"
+          "d-authentic-nasi-lemak": "D Authentic Nasi Lemak",
+          "alliance-seafood": "Alliance Seafood",
+          "burgs": "Burgs",
+          "koka-wanton-noodles": "Koka Wanton Noodles",
+          "jiak-mee": "Jiak Mee",
+          "fortune-popiah": "Fortune Popiah",
+          "alifs-nasi-lemak": "Alif's Nasi Lemak",
+          "mala-hotpot": "Mala Hotpot"
         }
       };
       
@@ -254,33 +318,61 @@
       // Realistic stall hours based on typical hawker stall operating patterns
       const stallHours = {
         // Maxwell Food Centre stalls
-        tian_tian: "7:00AM - 2:00PM (Closed Mon)",
-        zhen_zhen: "5:30AM - 2:00PM (Daily)",
-        maxwell_fuzhou: "7:00AM - 3:00PM (Daily)",
+        "peanuts-soup": "6:00AM - 2:00PM (Daily)",
+        "hajmeer-kwaja": "5:30AM - 2:00PM (Daily)",
+        "luckmeow": "7:00AM - 3:00PM (Daily)",
+        "ramen-taisho": "11:00AM - 9:00PM (Daily)",
+        "china-street-fritters": "6:00AM - 2:00PM (Daily)",
+        "bold-x-braised": "11:00AM - 8:00PM (Daily)",
+        "korean-cuisine": "11:00AM - 9:00PM (Daily)",
+        "neapolitan-style-pizza": "12:00PM - 10:00PM (Daily)",
+        "tian-tian-chicken-rice": "7:00AM - 2:00PM (Closed Mon)",
         
         // Newton Food Centre stalls  
-        satay: "5:00PM - 11:00PM (Daily)",
-        stingray: "5:00PM - 11:00PM (Daily)",
-        oyster_omelette: "5:00PM - 11:00PM (Daily)",
+        "hotplate-bbq-seafood": "5:00PM - 11:00PM (Daily)",
+        "22-best-satay": "5:00PM - 11:00PM (Daily)",
+        "heng-heng-chicken-rice": "10:00AM - 8:00PM (Daily)",
+        "teochew-rice-and-porridge": "6:00AM - 2:00PM (Daily)",
+        "lina-fishball-noodles": "7:00AM - 3:00PM (Daily)",
+        "aminahs-prata": "7:00AM - 10:00PM (Daily)",
         
         // Changi Village Food Centre stalls
-        nasi_lemak: "6:00AM - 2:00PM (Daily)",
-        char_kway_teow: "6:00AM - 2:00PM (Closed Mon)",
-        laksa: "6:00AM - 2:00PM (Daily)"
+        "d-authentic-nasi-lemak": "6:00AM - 2:00PM (Daily)",
+        "alliance-seafood": "5:00PM - 11:00PM (Daily)",
+        "burgs": "11:00AM - 9:00PM (Daily)",
+        "koka-wanton-noodles": "7:00AM - 3:00PM (Daily)",
+        "jiak-mee": "7:00AM - 3:00PM (Daily)",
+        "fortune-popiah": "6:00AM - 2:00PM (Daily)",
+        "alifs-nasi-lemak": "6:00AM - 2:00PM (Daily)",
+        "mala-hotpot": "11:00AM - 9:00PM (Daily)"
       };
       
-      // Find the stall key based on stall name
+      // Find the stall key based on stall name (reverse lookup)
       const stallKey = Object.keys(stallHours).find(key => {
         const stallNames = {
-          tian_tian: "Tian Tian Hainanese Chicken Rice",
-          zhen_zhen: "Zhen Zhen Porridge",
-          maxwell_fuzhou: "Maxwell Fuzhou Oyster Cake",
-          satay: "Newton Satay",
-          stingray: "BBQ Stingray", 
-          oyster_omelette: "Oyster Omelette",
-          nasi_lemak: "Changi Village Nasi Lemak",
-          char_kway_teow: "Changi Village Char Kway Teow",
-          laksa: "Changi Village Laksa"
+          "peanuts-soup": "Peanuts Soup",
+          "hajmeer-kwaja": "Hajmeer Kwaja",
+          "luckmeow": "LuckMeow",
+          "ramen-taisho": "Ramen Taisho",
+          "china-street-fritters": "China Street Fritters",
+          "bold-x-braised": "Bold X Braised",
+          "korean-cuisine": "Korean Cuisine",
+          "neapolitan-style-pizza": "Neapolitan Style Pizza",
+          "tian-tian-chicken-rice": "Tian Tian Chicken Rice",
+          "hotplate-bbq-seafood": "Hotplate BBQ Seafood",
+          "22-best-satay": "22 Best Satay",
+          "heng-heng-chicken-rice": "Heng Heng Chicken Rice",
+          "teochew-rice-and-porridge": "Teochew Rice And Porridge",
+          "lina-fishball-noodles": "Lina Fishball Noodles",
+          "aminahs-prata": "Aminah's Prata",
+          "d-authentic-nasi-lemak": "D Authentic Nasi Lemak",
+          "alliance-seafood": "Alliance Seafood",
+          "burgs": "Burgs",
+          "koka-wanton-noodles": "Koka Wanton Noodles",
+          "jiak-mee": "Jiak Mee",
+          "fortune-popiah": "Fortune Popiah",
+          "alifs-nasi-lemak": "Alif's Nasi Lemak",
+          "mala-hotpot": "Mala Hotpot"
         };
         return stallNames[key] === stallName;
       });
@@ -288,6 +380,9 @@
       const hours = stallKey ? stallHours[stallKey] : "Hours not available";
       document.getElementById('hawker-hours').innerHTML = `<strong>Stall Hours:</strong> ${hours}`;
     }
+
+    // Initialize stall options on page load
+    updateStallOptions(currentHawker);
 
     const ctx = document.getElementById("crowdChart");
     const chart = new Chart(ctx, {
@@ -298,7 +393,7 @@
           {
             label: "Crowd Level",
             data: computeAllStallsSum(),
-            backgroundColor: "#D98566",
+            backgroundColor: "#C9784F",
             borderRadius: 6,
           },
         ],
@@ -346,19 +441,33 @@
         const hawker = hawkerData[currentHawker];
         const stallNames = {
           maxwell: {
-            tian_tian: "Tian Tian Hainanese Chicken Rice",
-            zhen_zhen: "Zhen Zhen Porridge", 
-            maxwell_fuzhou: "Maxwell Fuzhou Oyster Cake"
+            "peanuts-soup": "Peanuts Soup",
+            "hajmeer-kwaja": "Hajmeer Kwaja",
+            "luckmeow": "LuckMeow",
+            "ramen-taisho": "Ramen Taisho",
+            "china-street-fritters": "China Street Fritters",
+            "bold-x-braised": "Bold X Braised",
+            "korean-cuisine": "Korean Cuisine",
+            "neapolitan-style-pizza": "Neapolitan Style Pizza",
+            "tian-tian-chicken-rice": "Tian Tian Chicken Rice"
           },
           newton: {
-            satay: "Newton Satay",
-            stingray: "BBQ Stingray",
-            oyster_omelette: "Oyster Omelette"
+            "hotplate-bbq-seafood": "Hotplate BBQ Seafood",
+            "22-best-satay": "22 Best Satay",
+            "heng-heng-chicken-rice": "Heng Heng Chicken Rice",
+            "teochew-rice-and-porridge": "Teochew Rice And Porridge",
+            "lina-fishball-noodles": "Lina Fishball Noodles",
+            "aminahs-prata": "Aminah's Prata"
           },
           changi: {
-            nasi_lemak: "Changi Village Nasi Lemak",
-            char_kway_teow: "Changi Village Char Kway Teow",
-            laksa: "Changi Village Laksa"
+            "d-authentic-nasi-lemak": "D Authentic Nasi Lemak",
+            "alliance-seafood": "Alliance Seafood",
+            "burgs": "Burgs",
+            "koka-wanton-noodles": "Koka Wanton Noodles",
+            "jiak-mee": "Jiak Mee",
+            "fortune-popiah": "Fortune Popiah",
+            "alifs-nasi-lemak": "Alif's Nasi Lemak",
+            "mala-hotpot": "Mala Hotpot"
           }
         };
         
