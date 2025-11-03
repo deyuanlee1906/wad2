@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complete Your Profile - ChopeLah</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <link rel="stylesheet" href="/styles/onboarding.css">
+  <script type="module" src="/scripts/firebaseauth.js"></script>
+</head>
+<body class="onboarding-page">
+  <div class="onboarding-container">
+    <div class="logo">🍜</div>
+    <h1>Complete your profile</h1>
+    <p>Tell us a bit about yourself (optional)</p>
+
+    <div class="progress-bar">
+      <div class="progress-step active"></div>
+      <div class="progress-step active"></div>
+    </div>
+
+    <div class="avatar-preview" id="avatarPreview">U</div>
+
+    <div class="input-group">
+      <label for="firstNameInput">First Name</label>
+      <input type="text" id="firstNameInput" placeholder="John" />
+    </div>
+
+    <div class="input-group">
+      <label for="lastNameInput">Last Name</label>
+      <input type="text" id="lastNameInput" placeholder="Doe" />
+    </div>
+
+    <div class="input-group">
+      <label for="bioInput">Bio</label>
+      <textarea id="bioInput" placeholder="Tell us about yourself..."></textarea>
+      <div class="helper-text">Share your food interests or favorite hawker centers!</div>
+    </div>
+
+    <button class="continue-btn" id="continueBtn">Complete Setup</button>
+    <button class="skip-btn" id="skipBtn">Skip and explore ChopeLah</button>
+  </div>
+
+  <script type="module">
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+    const auth = getAuth();
+    const db = getFirestore();
+
+    const firstNameInput = document.getElementById('firstNameInput');
+    const lastNameInput = document.getElementById('lastNameInput');
+    const bioInput = document.getElementById('bioInput');
+    const avatarPreview = document.getElementById('avatarPreview');
+    const continueBtn = document.getElementById('continueBtn');
+    const skipBtn = document.getElementById('skipBtn');
+
+    let currentUser = null;
+
+    // Wait for user to be authenticated
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = '/index.html';
+        return;
+      }
+      currentUser = user;
+
+      // Load existing user data
+      try {
+        const userDoc = await getDoc(doc(db, 'users', user.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          
+          // Pre-fill if data exists
+          if (data.firstName) firstNameInput.value = data.firstName;
+          if (data.lastName) lastNameInput.value = data.lastName;
+          if (data.name) {
+            const parts = data.name.split(' ');
+            if (!data.firstName && parts[0]) firstNameInput.value = parts[0];
+            if (!data.lastName && parts[1]) lastNameInput.value = parts[1];
+          }
+          if (data.bio) bioInput.value = data.bio;
+          
+          // Update avatar
+          const username = data.username || 'User';
+          avatarPreview.textContent = username.charAt(0).toUpperCase();
+        }
+      } catch (e) {
+        console.error('Failed to load user data', e);
+      }
+    });
+
+    // Update avatar preview when name changes
+    firstNameInput.addEventListener('input', updateAvatar);
+    lastNameInput.addEventListener('input', updateAvatar);
+
+    function updateAvatar() {
+      const firstName = firstNameInput.value.trim();
+      const lastName = lastNameInput.value.trim();
+      
+      if (firstName) {
+        avatarPreview.textContent = firstName.charAt(0).toUpperCase();
+      } else if (lastName) {
+        avatarPreview.textContent = lastName.charAt(0).toUpperCase();
+      }
+    }
+
+    // Continue button
+    continueBtn.addEventListener('click', async () => {
+      if (!currentUser) return;
+
+      try {
+        continueBtn.disabled = true;
+        continueBtn.textContent = 'Saving...';
+
+        const firstName = firstNameInput.value.trim();
+        const lastName = lastNameInput.value.trim();
+        const bio = bioInput.value.trim();
+
+        // Build full name
+        const name = [firstName, lastName].filter(Boolean).join(' ');
+
+        // Update user document
+        await setDoc(doc(db, 'users', currentUser.uid), {
+          firstName: firstName || null,
+          lastName: lastName || null,
+          name: name || null,
+          bio: bio || null
+        }, { merge: true });
+
+        // Complete! Go to app
+        window.location.href = '/pages/chope/chope.html';
+      } catch (e) {
+        console.error('Save profile failed', e);
+        alert('Could not save profile. Please try again.');
+        continueBtn.disabled = false;
+        continueBtn.textContent = 'Complete Setup';
+      }
+    });
+
+    // Skip button
+    skipBtn.addEventListener('click', () => {
+      window.location.href = '/pages/chope/chope.html';
+    });
+
+    // Allow Enter key to continue
+    document.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') {
+        continueBtn.click();
+      }
+    });
+  </script>
+</body>
+</html>
+

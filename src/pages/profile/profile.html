@@ -63,7 +63,20 @@
     .profile-name {
       font-size: 14px;
       color: #666;
+      margin-bottom: 8px;
+    }
+
+    .profile-bio {
+      font-size: 14px;
+      color: #1a1a1a;
+      line-height: 1.5;
       margin-bottom: 12px;
+      max-width: 500px;
+      word-wrap: break-word;
+    }
+
+    .profile-bio:empty {
+      display: none;
     }
 
     .profile-actions button {
@@ -189,6 +202,73 @@
       opacity: 0.5;
     }
 
+    /* Following List Styles */
+    .following-list {
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    }
+
+    .following-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px;
+      border-bottom: 1px solid #e0e0e0;
+      transition: background-color 0.2s ease;
+    }
+
+    .following-item:last-child {
+      border-bottom: none;
+    }
+
+    .following-item:hover {
+      background-color: #f8f9fa;
+    }
+
+    .following-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .following-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #C9784F, #F2C6B6);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .following-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .following-name {
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 2px;
+    }
+
+    .following-username {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .following-actions button {
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 6px;
+    }
+
     /* Mobile Responsive */
     @media (max-width: 768px) {
       .profile-container {
@@ -287,6 +367,7 @@
         <div class="profile-details">
           <div id="profileUsername" class="profile-username">@username</div>
           <div id="profileName" class="profile-name">Loading...</div>
+          <div id="profileBio" class="profile-bio"></div>
           <div class="profile-actions">
             <button id="editProfileBtn" class="btn btn-outline-secondary">
               <i class="bi bi-pencil"></i> Edit Profile
@@ -306,9 +387,13 @@
         <i class="bi bi-heart"></i>
         <span>Liked</span>
       </button>
-      <button class="tab-btn" data-tab="shared">
-        <i class="bi bi-share"></i>
-        <span>Shared</span>
+      <button class="tab-btn" data-tab="saved">
+        <i class="bi bi-bookmark"></i>
+        <span>Saved</span>
+      </button>
+      <button class="tab-btn" data-tab="following">
+        <i class="bi bi-people"></i>
+        <span>Following</span>
       </button>
     </div>
 
@@ -320,8 +405,11 @@
       <div class="tab-panel d-none" data-tab="liked">
         <div class="profile-grid" id="likedGrid"></div>
       </div>
-      <div class="tab-panel d-none" data-tab="shared">
-        <div class="profile-grid" id="sharedGrid"></div>
+      <div class="tab-panel d-none" data-tab="saved">
+        <div class="profile-grid" id="savedGrid"></div>
+      </div>
+      <div class="tab-panel d-none" data-tab="following">
+        <div class="following-list" id="followingList"></div>
       </div>
     </div>
   </div>
@@ -360,18 +448,17 @@
 
   <script type="module">
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, collection, query, where, orderBy, limit, getDocs, documentId, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-storage.js";
+    import { getFirestore, doc, getDoc, collection, query, where, orderBy, limit, getDocs, documentId, addDoc, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
     const auth = getAuth();
     const db = getFirestore();
 
     const profileUsernameEl = document.getElementById('profileUsername');
     const profileNameEl = document.getElementById('profileName');
+    const profileBioEl = document.getElementById('profileBio');
     const profileAvatarEl = document.getElementById('profileAvatar');
     const editBtn = document.getElementById('editProfileBtn');
-    const storage = getStorage();
-    let currentUserProfile = { username: '', displayName: '', photoURL: '' };
+    let currentUserProfile = { username: '', displayName: '', photoURL: '', bio: '' };
     if (editBtn) {
       editBtn.addEventListener('click', () => { window.location.href = 'edit-profile.html'; });
     }
@@ -390,11 +477,23 @@
         const data = snap.exists() ? snap.data() : {};
         const username = data.username || (data.email ? data.email.split('@')[0] : 'user');
         const displayName = data.name || [data.firstName, data.lastName].filter(Boolean).join(' ') || '';
+        const bio = data.bio || '';
+        
         profileUsernameEl.textContent = `@${username}`;
         profileNameEl.textContent = displayName;
+        
+        // Display bio if it exists
+        if (bio && bio.trim()) {
+          profileBioEl.textContent = bio;
+          profileBioEl.style.display = 'block';
+        } else {
+          profileBioEl.textContent = '';
+          profileBioEl.style.display = 'none';
+        }
+        
         // Always use default grey avatar (no external photos)
         setAvatarFromNameOrPhoto(displayName || username, '');
-        currentUserProfile = { username, displayName, photoURL: '' };
+        currentUserProfile = { username, displayName, photoURL: '', bio };
       } catch (e) {
         console.error('Failed to load user profile', e);
       }
@@ -432,13 +531,14 @@
 
     addPlaceholders('postsGrid');
     addPlaceholders('likedGrid');
-    addPlaceholders('sharedGrid');
+    addPlaceholders('savedGrid');
 
     async function loadAllGrids(uid) {
       await Promise.all([
         loadUserPosts(uid),
         loadUserLiked(uid),
-        loadUserShared(uid)
+        loadUserSaved(uid),
+        loadUserFollowing(uid)
       ]);
     }
 
@@ -514,31 +614,23 @@
       addTile.title = 'Create new post';
       addTile.addEventListener('click', async () => {
         try {
-          const input = document.createElement('input');
-          input.type = 'file';
-          input.accept = 'image/*';
-          input.click();
-          input.onchange = async (e) => {
-            const file = e.target.files && e.target.files[0];
-            if (!file) return;
-            const caption = window.prompt('Write a caption for your post:') || '';
-            const user = getAuth().currentUser;
-            if (!user) { alert('Please sign in to post.'); return; }
-            const storagePath = `user_uploads/${user.uid}/posts/post_${Date.now()}`;
-            const storageRef = ref(storage, storagePath);
-            await uploadBytes(storageRef, file);
-            const mediaUrl = await getDownloadURL(storageRef);
-            const authorName = currentUserProfile.displayName || currentUserProfile.username || 'User';
-            await addDoc(collection(db, 'posts'), {
-              authorId: user.uid,
-              authorName,
-              caption,
-              mediaUrl,
-              createdAt: serverTimestamp()
-            });
-            await loadUserPosts(user.uid);
-            alert('Post published!');
-          };
+          const caption = window.prompt('Write a caption for your post (text-only, no image):') || '';
+          if (!caption.trim()) {
+            alert('Please enter some text for your post.');
+            return;
+          }
+          const user = getAuth().currentUser;
+          if (!user) { alert('Please sign in to post.'); return; }
+          const authorName = currentUserProfile.displayName || currentUserProfile.username || 'User';
+          await addDoc(collection(db, 'posts'), {
+            authorId: user.uid,
+            authorName,
+            caption,
+            mediaUrl: null, // No image upload - text-only posts
+            createdAt: serverTimestamp()
+          });
+          await loadUserPosts(user.uid);
+          alert('Post published!');
         } catch (err) {
           console.error('Create post failed', err);
           alert('Could not create post. Try again.');
@@ -606,16 +698,111 @@
       }
     }
 
-    async function loadUserShared(uid) {
+    async function loadUserSaved(uid) {
       try {
-        const sharesRef = collection(db, 'users', uid, 'shares');
-        const snap = await getDocs(sharesRef);
+        const bookmarksRef = collection(db, 'users', uid, 'bookmarks');
+        const snap = await getDocs(bookmarksRef);
         const postIds = snap.docs.map(d => d.id);
-        if (postIds.length === 0) { renderGridItems('sharedGrid', []); return; }
+        if (postIds.length === 0) { renderGridItems('savedGrid', []); return; }
         const posts = await batchGetPostsByIds(postIds);
-        renderGridItems('sharedGrid', posts);
+        if (posts.length === 0) {
+          // Fallback: show placeholders if posts not yet available
+          const grid = document.getElementById('savedGrid');
+          if (grid) { 
+            grid.innerHTML=''; 
+            grid.style.display = 'grid';
+            postIds.forEach(()=>{ 
+              const d=document.createElement('div'); 
+              d.className='grid-item'; 
+              grid.appendChild(d); 
+            }); 
+          }
+        } else {
+          renderGridItems('savedGrid', posts);
+        }
       } catch (e) {
-        console.error('loadUserShared error', e);
+        console.error('loadUserSaved error', e);
+      }
+    }
+
+    async function loadUserFollowing(uid) {
+      try {
+        const followsRef = collection(db, 'users', uid, 'follows');
+        const snap = await getDocs(followsRef);
+        
+        const followingList = document.getElementById('followingList');
+        const panel = followingList.parentElement;
+        
+        // Remove any existing empty state
+        const existingEmpty = panel.querySelector('.empty-state');
+        if (existingEmpty) existingEmpty.remove();
+        
+        followingList.innerHTML = '';
+        
+        if (snap.empty) {
+          const empty = document.createElement('div');
+          empty.className = 'empty-state';
+          empty.innerHTML = '<i class="bi bi-people"></i><div>Not following anyone yet</div>';
+          panel.appendChild(empty);
+          followingList.style.display = 'none';
+          return;
+        }
+        
+        followingList.style.display = 'block';
+        
+        // Render each followed user
+        snap.docs.forEach(docSnap => {
+          const data = docSnap.data();
+          const authorName = data.authorName || docSnap.id;
+          
+          const item = document.createElement('div');
+          item.className = 'following-item';
+          
+          const initial = authorName.charAt(0).toUpperCase();
+          
+          item.innerHTML = `
+            <div class="following-info">
+              <div class="following-avatar">${initial}</div>
+              <div class="following-details">
+                <div class="following-name">${authorName}</div>
+                <div class="following-username">Community Member</div>
+              </div>
+            </div>
+            <div class="following-actions">
+              <button class="btn btn-outline-secondary btn-sm unfollow-btn" data-author="${authorName}">
+                <i class="bi bi-person-dash"></i> Unfollow
+              </button>
+            </div>
+          `;
+          
+          // Add unfollow functionality
+          const unfollowBtn = item.querySelector('.unfollow-btn');
+          unfollowBtn.addEventListener('click', async () => {
+            try {
+              const currentUser = getAuth().currentUser;
+              if (!currentUser) return;
+              
+              await deleteDoc(doc(db, 'users', currentUser.uid, 'follows', authorName));
+              item.remove();
+              
+              // Check if list is now empty
+              if (followingList.children.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'empty-state';
+                empty.innerHTML = '<i class="bi bi-people"></i><div>Not following anyone yet</div>';
+                panel.appendChild(empty);
+                followingList.style.display = 'none';
+              }
+            } catch (e) {
+              console.error('Unfollow failed', e);
+              alert('Could not unfollow user. Please try again.');
+            }
+          });
+          
+          followingList.appendChild(item);
+        });
+      } catch (e) {
+        console.error('loadUserFollowing error', e);
       }
     }
   </script>

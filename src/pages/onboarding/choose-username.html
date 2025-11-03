@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choose Your Username - ChopeLah</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="/styles/main.css">
+  <link rel="stylesheet" href="/styles/components.css">
+  <link rel="stylesheet" href="/styles/onboarding.css">
+  <script type="module" src="/scripts/firebaseauth.js"></script>
+</head>
+<body class="onboarding-page">
+  <div class="onboarding-container">
+    <div class="logo">🍜</div>
+    <h1>Choose your username</h1>
+    <p>Pick a unique username for your ChopeLah profile</p>
+
+    <div class="progress-bar">
+      <div class="progress-step active"></div>
+      <div class="progress-step"></div>
+    </div>
+
+    <div class="input-wrapper" id="usernameWrapper">
+      <input 
+        type="text" 
+        id="usernameInput" 
+        placeholder="@username" 
+        autocomplete="off"
+        maxlength="20"
+      />
+      <i class="fas fa-check-circle check-icon"></i>
+      <div class="helper-text">3-20 characters: lowercase letters, numbers, and underscores only</div>
+      <div class="error-text" id="errorText">Username is already taken</div>
+    </div>
+
+    <button class="continue-btn" id="continueBtn" disabled>Continue</button>
+    <button class="skip-btn" id="skipBtn">Skip for now</button>
+  </div>
+
+  <script type="module">
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+    const auth = getAuth();
+    const db = getFirestore();
+
+    const usernameInput = document.getElementById('usernameInput');
+    const usernameWrapper = document.getElementById('usernameWrapper');
+    const errorText = document.getElementById('errorText');
+    const continueBtn = document.getElementById('continueBtn');
+    const skipBtn = document.getElementById('skipBtn');
+
+    let currentUser = null;
+    let checkTimeout = null;
+
+    // Wait for user to be authenticated
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        // Not logged in - redirect to login
+        window.location.href = '/index.html';
+        return;
+      }
+      currentUser = user;
+
+      // Check if user already has a username (shouldn't be here)
+      const userDoc = await getDoc(doc(db, 'users', user.uid));
+      if (userDoc.exists() && userDoc.data().username) {
+        // Already has username - skip to next step or app
+        window.location.href = '/pages/onboarding/complete-profile.html';
+      }
+    });
+
+    // Real-time username validation
+    usernameInput.addEventListener('input', () => {
+      const username = usernameInput.value.trim().toLowerCase();
+      
+      // Clear previous timeout
+      if (checkTimeout) clearTimeout(checkTimeout);
+
+      // Reset states
+      usernameWrapper.classList.remove('valid', 'invalid');
+      continueBtn.disabled = true;
+
+      // Basic validation
+      if (!username) {
+        return;
+      }
+
+      // Check format
+      const isValidFormat = /^[a-z0-9_]{3,20}$/.test(username);
+      if (!isValidFormat) {
+        usernameWrapper.classList.add('invalid');
+        errorText.textContent = '3-20 characters: lowercase letters, numbers, and underscores only';
+        return;
+      }
+
+      // Check availability after 500ms delay (debounce)
+      checkTimeout = setTimeout(async () => {
+        try {
+          const usernameDoc = await getDoc(doc(db, 'usernames', username));
+          
+          if (usernameDoc.exists()) {
+            // Check if it's the current user's username
+            const data = usernameDoc.data();
+            if (data.uid === currentUser?.uid) {
+              // It's their own username
+              usernameWrapper.classList.add('valid');
+              continueBtn.disabled = false;
+            } else {
+              // Taken by someone else
+              usernameWrapper.classList.add('invalid');
+              errorText.textContent = 'Username is already taken';
+            }
+          } else {
+            // Available!
+            usernameWrapper.classList.add('valid');
+            continueBtn.disabled = false;
+          }
+        } catch (e) {
+          console.error('Username check failed', e);
+        }
+      }, 500);
+    });
+
+    // Continue button
+    continueBtn.addEventListener('click', async () => {
+      if (!currentUser) return;
+
+      const username = usernameInput.value.trim().toLowerCase();
+      
+      try {
+        continueBtn.disabled = true;
+        continueBtn.textContent = 'Saving...';
+
+        // Reserve username
+        await setDoc(doc(db, 'usernames', username), {
+          uid: currentUser.uid,
+          email: currentUser.email
+        });
+
+        // Update user document
+        await setDoc(doc(db, 'users', currentUser.uid), {
+          username: username
+        }, { merge: true });
+
+        // Go to next step
+        window.location.href = '/pages/onboarding/complete-profile.html';
+      } catch (e) {
+        console.error('Save username failed', e);
+        alert('Could not save username. Please try again.');
+        continueBtn.disabled = false;
+        continueBtn.textContent = 'Continue';
+      }
+    });
+
+    // Skip button - generate random username
+    skipBtn.addEventListener('click', async () => {
+      if (!currentUser) return;
+
+      try {
+        skipBtn.disabled = true;
+        skipBtn.textContent = 'Generating...';
+
+        // Generate random username
+        const baseUsername = (currentUser.email || '').split('@')[0].toLowerCase() || 'user';
+        let username = baseUsername;
+        let attempt = 0;
+
+        // Find available username
+        while (true) {
+          const usernameDoc = await getDoc(doc(db, 'usernames', username));
+          if (!usernameDoc.exists()) break;
+          
+          const data = usernameDoc.data();
+          if (data && data.uid === currentUser.uid) break;
+          
+          attempt += 1;
+          username = `${baseUsername}${attempt}`;
+        }
+
+        // Reserve username
+        await setDoc(doc(db, 'usernames', username), {
+          uid: currentUser.uid,
+          email: currentUser.email
+        });
+
+        // Update user document
+        await setDoc(doc(db, 'users', currentUser.uid), {
+          username: username
+        }, { merge: true });
+
+        // Go to next step
+        window.location.href = '/pages/onboarding/complete-profile.html';
+      } catch (e) {
+        console.error('Skip failed', e);
+        alert('Could not generate username. Please try again.');
+        skipBtn.disabled = false;
+        skipBtn.textContent = 'Skip for now';
+      }
+    });
+
+    // Allow Enter key to continue
+    usernameInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter' && !continueBtn.disabled) {
+        continueBtn.click();
+      }
+    });
+  </script>
+</body>
+</html>
+

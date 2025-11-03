@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Seed Sample Posts to Firestore</title>
+  <script type="module" src="/scripts/firebaseauth.js"></script>
+</head>
+<body>
+  <h1>Seed Sample Posts to Firestore</h1>
+  <button id="seedBtn" style="padding: 12px 24px; font-size: 16px; cursor: pointer;">
+    Seed Sample Posts to Firestore
+  </button>
+  <div id="status" style="margin-top: 20px; font-family: monospace;"></div>
+
+  <script type="module">
+    import { getFirestore, doc, setDoc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    
+    const db = getFirestore();
+    const statusDiv = document.getElementById('status');
+    const seedBtn = document.getElementById('seedBtn');
+
+    // Sample threads from main.js
+    const threads = [
+      // Newton Food Centre
+      {
+        id: "nfc-1",
+        title: "Newton Review #1",
+        author: "Marcus",
+        content: "Stingray at Newton was smoky, tender and perfectly spicy. The sambal had a nice kick without overpowering the fish.",
+        mediaUrl: "/img/newton.jpg",
+      },
+      {
+        id: "nfc-2",
+        title: "Newton Review #2",
+        author: "Claire",
+        content: "BBQ chicken wings were crisp outside, juicy inside. Lime and chili dip made it addictive.",
+        mediaUrl: "/img/newton.jpg",
+      },
+      {
+        id: "nfc-3",
+        title: "Newton Review #3",
+        author: "Aaron",
+        content: "Satay was fragrant with a good char. Peanut sauce was slightly sweet but super creamy.",
+        mediaUrl: "/img/newton.jpg",
+      },
+      {
+        id: "nfc-4",
+        title: "Newton Review #4",
+        author: "Ivy",
+        content: "Sugarcane juice was fresh and not too sweet. Perfect after a spicy meal.",
+        mediaUrl: "/img/newton.jpg",
+      },
+      // Changi Village Food Centre
+      {
+        id: "cvfc-1",
+        title: "Changi Village Review #1",
+        author: "Wen",
+        content: "Nasi lemak had fragrant rice and crispy chicken wing. Sambal leaned sweet with a gentle heat.",
+        mediaUrl: "/img/changi_village.jpg",
+      },
+      {
+        id: "cvfc-2",
+        title: "Changi Village Review #2",
+        author: "Zack",
+        content: "Chicken chop hor fun was smoky with silky gravy. The char on the chicken was excellent.",
+        mediaUrl: "/img/changi_village.jpg",
+      },
+      {
+        id: "cvfc-3",
+        title: "Changi Village Review #3",
+        author: "Dylan",
+        content: "Goreng pisang had a thin, crisp batter and soft banana inside. Not oily at all.",
+        mediaUrl: "/img/changi_village.jpg",
+      },
+      {
+        id: "cvfc-4",
+        title: "Changi Village Review #4",
+        author: "Marcus",
+        content: "Mee rebus gravy was thick and slightly sweet, with a nice kick from the chili. Portion was generous.",
+        mediaUrl: "/img/changi_village.jpg",
+      },
+      // Maxwell Food Centre
+      {
+        id: "mfc-1",
+        title: "Maxwell Review #1",
+        author: "Ivy",
+        content: "Chicken rice was fragrant with tender meat. Chili had a sharp heat and the broth was comforting.",
+        mediaUrl: "/img/maxwell.jpg",
+      },
+      {
+        id: "mfc-2",
+        title: "Maxwell Review #2",
+        author: "Claire",
+        content: "Fish soup was clean and light with fresh slices. Loved the fried garlic bits on top.",
+        mediaUrl: "/img/maxwell.jpg",
+      },
+      {
+        id: "mfc-3",
+        title: "Maxwell Review #3",
+        author: "Marcus",
+        content: "Fried oyster had crispy edges with gooey center. Chili balanced the richness nicely.",
+        mediaUrl: "/img/maxwell.jpg",
+      },
+      {
+        id: "mfc-4",
+        title: "Maxwell Review #4",
+        author: "Aaron",
+        content: "Carrot cake (black) was well caramelized and not too sweet. Plenty of egg and chye poh.",
+        mediaUrl: "/img/maxwell.jpg",
+      },
+      // Mixed extras
+      {
+        id: "mix-1",
+        title: "Newton Soursop Drink",
+        author: "Zack",
+        content: "Tried soursop juice at Newton—tart, refreshing, and great after BBQ.",
+        mediaUrl: "/img/newton.jpg",
+      },
+      {
+        id: "mix-2",
+        title: "Changi Kaya Toast",
+        author: "Claire",
+        content: "Ended breakfast with kaya toast—crisp bread, thick butter. Kopi was strong!",
+        mediaUrl: "/img/changi_village.jpg",
+      },
+      {
+        id: "mix-3",
+        title: "Maxwell Tau Huey",
+        author: "Wen",
+        content: "Tau huey smooth like silk, syrup not cloying. Perfect light dessert.",
+        mediaUrl: "/img/maxwell.jpg",
+      }
+    ];
+
+    seedBtn.addEventListener('click', async () => {
+      seedBtn.disabled = true;
+      statusDiv.innerHTML = 'Starting seed process...<br><br>';
+      
+      let created = 0;
+      let updated = 0;
+      let skipped = 0;
+
+      for (const thread of threads) {
+        try {
+          // Check if post already exists with createdAt
+          const postRef = doc(db, 'posts', thread.id);
+          const postSnap = await getDoc(postRef);
+          
+          if (postSnap.exists() && postSnap.data().createdAt) {
+            statusDiv.innerHTML += `✓ Skipped ${thread.id} (already exists)<br>`;
+            skipped++;
+          } else {
+            // Create or update post with all required fields
+            await setDoc(postRef, {
+              authorName: thread.author,
+              caption: thread.content,
+              mediaUrl: thread.mediaUrl || null,
+              title: thread.title,
+              // Use a fake authorId since these are sample posts
+              authorId: 'sample-user',
+              createdAt: serverTimestamp(),
+              updatedAt: serverTimestamp()
+            }, { merge: true });
+            
+            if (postSnap.exists()) {
+              statusDiv.innerHTML += `✓ Updated ${thread.id} with createdAt<br>`;
+              updated++;
+            } else {
+              statusDiv.innerHTML += `✓ Created ${thread.id}<br>`;
+              created++;
+            }
+          }
+        } catch (error) {
+          statusDiv.innerHTML += `✗ Error with ${thread.id}: ${error.message}<br>`;
+        }
+      }
+
+      statusDiv.innerHTML += `<br><strong>Done!</strong><br>`;
+      statusDiv.innerHTML += `Created: ${created}<br>`;
+      statusDiv.innerHTML += `Updated: ${updated}<br>`;
+      statusDiv.innerHTML += `Skipped: ${skipped}<br>`;
+      statusDiv.innerHTML += `<br><strong>Now refresh the community page to see your likes persist!</strong>`;
+      seedBtn.disabled = false;
+    });
+  </script>
+</body>
+</html>
+
