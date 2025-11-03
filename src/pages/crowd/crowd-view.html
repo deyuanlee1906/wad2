@@ -1,136 +1,1895 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Crowd Levels</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChopeLah - Crowd View Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
   <link rel="stylesheet" href="/styles/main.css" />
   <link rel="stylesheet" href="/styles/components.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    .dropdown {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      width: 100%;
-    }
+        :root {
+            --color-white: rgba(255, 255, 255, 1);
+            --color-cream-50: #fafafa;
+            --color-cream-100: #ffffff;
+            --color-gray-200: #f5f5f5;
+            --color-gray-300: rgba(167, 169, 169, 1);
+            --color-slate-500: rgba(98, 108, 113, 1);
+            --color-brown-600: rgba(94, 82, 64, 1);
+            --color-charcoal-700: rgba(31, 33, 33, 1);
+            --color-charcoal-800: rgba(38, 40, 40, 1);
+            --color-slate-900: #262626;
+            
+            /* Theme colors matching the rest of the site */
+            --color-primary: #C9784F;
+            --color-primary-hover: #b36a43;
+            --color-secondary: #D98566;
+            --color-accent: #F2C6B6;
+            --color-background-light: #F2D9BB;
+            --color-surface-light: #F2F2F2;
+            
+            --color-red-400: rgba(255, 84, 89, 1);
+            --color-orange-400: #D98566;
+            --color-orange-500: #C9784F;
+            --color-green-500: rgba(34, 197, 94, 1);
+            
+            --color-primary-rgb: 201, 120, 79;
+            --color-brown-600-rgb: 242, 198, 182;
+            --color-slate-900-rgb: 38, 38, 38;
+            
+            --color-background: #fafafa;
+            --color-surface: #ffffff;
+            --color-text: #1a1a1a;
+            --color-text-secondary: #666;
+            --color-border: rgba(224, 224, 224, 1);
+            --color-card-border: #e0e0e0;
+            
+            --font-family-base: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-size-xs: 11px;
+            --font-size-sm: 12px;
+            --font-size-base: 14px;
+            --font-size-lg: 16px;
+            --font-size-xl: 18px;
+            --font-size-2xl: 20px;
+            --font-size-3xl: 24px;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 550;
+            --font-weight-bold: 600;
+            
+            --space-8: 8px;
+            --space-12: 12px;
+            --space-16: 16px;
+            --space-20: 20px;
+            --space-24: 24px;
+            --space-32: 32px;
+            
+            --radius-base: 8px;
+            --radius-md: 10px;
+            --radius-lg: 12px;
+            
+            --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        }
 
-    .dropdown label {
-      font-weight: 600;
-      color: #262626;
-    }
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --color-gray-400-rgb: 119, 124, 124;
+                --color-gray-300-rgb: 167, 169, 169;
+                
+                --color-background: var(--color-charcoal-700);
+                --color-surface: var(--color-charcoal-800);
+                --color-text: var(--color-gray-200);
+                --color-text-secondary: rgba(var(--color-gray-300-rgb), 0.7);
+                --color-primary: #D98566;
+                --color-primary-hover: #C9784F;
+                --color-border: rgba(var(--color-gray-400-rgb), 0.3);
+                --color-card-border: rgba(var(--color-gray-400-rgb), 0.2);
+            }
+        }
 
-    .dropdown select {
-      width: 100%;
-      padding: 10px;
-      border: 2px solid #F2C6B6;
-      border-radius: 8px;
-      background-color: #F2F2F2;
-      color: #262626;
-      font-size: 14px;
-      transition: all 0.3s ease;
-      outline: none;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .dropdown select:hover {
-      border-color: #D98566;
-      background-color: #ffffff;
-    }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #fafafa;
+            color: #1a1a1a;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            padding-top: 70px;
+            padding-bottom: 80px;
+        }
 
-    .dropdown select:focus {
-      border-color: #C9784F;
-      background-color: #ffffff;
-      box-shadow: 0 0 0 3px rgba(201, 120, 79, 0.1);
-    }
+        @media (max-width: 768px) {
+            body {
+                padding-top: 0;
+                padding-bottom: 80px;
+            }
+        }
 
-    .hawker-info-box {
-      margin: 15px 0;
-      padding: 15px;
-      background-color: #F2D9BB;
-      border: 2px solid #F2C6B6;
-      border-radius: 10px;
-      transition: all 0.2s ease;
-    }
+        /* Desktop View */
+        .desktop-view {
+            display: block;
+            padding: var(--space-32);
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
-    .hawker-info-box:hover {
-      border-color: #D98566;
-      box-shadow: 0 2px 8px rgba(217, 133, 102, 0.1);
-    }
+        /* Mobile View */
+        .mobile-view {
+            display: none;
+            padding: var(--space-16);
+        }
 
-    .hawker-info-box strong {
-      color: #1a1a1a;
-    }
+        /* Header */
+        .header {
+            margin-bottom: var(--space-32);
+        }
 
-    .hawker-info-box div {
-      color: #262626;
-    }
+        .header h1 {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            color: #1a1a1a;
+            margin-bottom: var(--space-8);
+        }
+
+        .header-subtitle {
+            font-size: var(--font-size-base);
+            color: var(--color-text-secondary);
+        }
+
+        .hawker-selector {
+  display: flex;
+            gap: var(--space-12);
+            margin-top: var(--space-20);
+            flex-wrap: wrap;
+        }
+
+        .select-wrapper {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .select-wrapper label {
+            display: block;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-medium);
+            color: #1a1a1a;
+            margin-bottom: var(--space-8);
+        }
+
+        select {
+  width: 100%;
+            padding: var(--space-12);
+  border: 2px solid #F2C6B6;
+            border-radius: var(--radius-base);
+  background-color: #F2F2F2;
+  color: #262626;
+            font-size: var(--font-size-base);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:hover {
+            border-color: #D98566;
+            background-color: #ffffff;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #C9784F;
+            box-shadow: 0 0 0 3px rgba(201, 120, 79, 0.1);
+            background-color: #ffffff;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-16);
+            margin-bottom: var(--space-32);
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--radius-lg);
+            padding: var(--space-20);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-label {
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: var(--space-8);
+        }
+
+        .stat-value {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            color: #1a1a1a;
+            margin-bottom: var(--space-8);
+        }
+
+        .stat-change {
+            font-size: var(--font-size-sm);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .stat-change.positive {
+            color: var(--color-green-500);
+        }
+
+        .stat-change.negative {
+            color: var(--color-red-400);
+        }
+
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: var(--space-24);
+            margin-bottom: var(--space-24);
+        }
+
+        /* Chart Card */
+        .chart-card {
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--radius-lg);
+            padding: var(--space-24);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-20);
+        }
+
+        .chart-title {
+            font-size: var(--font-size-xl);
+            font-weight: var(--font-weight-semibold);
+            color: #1a1a1a;
+        }
+
+        .time-filter {
+            display: flex;
+            gap: var(--space-8);
+        }
+
+        .time-btn {
+            padding: 6px 12px;
+            border: 1px solid var(--color-border);
+            background: transparent;
+            border-radius: var(--radius-base);
+            font-size: var(--font-size-sm);
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .time-btn.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+
+        .time-btn:hover:not(.active) {
+            border-color: var(--color-primary);
+            color: var(--color-primary);
+        }
+
+        /* Bar Chart */
+        .bar-chart {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-16);
+            min-height: 300px;
+        }
+
+        .bar-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-12);
+            animation: slideIn 0.4s ease-out forwards;
+            opacity: 0;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Staggered animation delays */
+        .bar-item:nth-child(1) { animation-delay: 0.05s; }
+        .bar-item:nth-child(2) { animation-delay: 0.1s; }
+        .bar-item:nth-child(3) { animation-delay: 0.15s; }
+        .bar-item:nth-child(4) { animation-delay: 0.2s; }
+        .bar-item:nth-child(5) { animation-delay: 0.25s; }
+        .bar-item:nth-child(6) { animation-delay: 0.3s; }
+        .bar-item:nth-child(7) { animation-delay: 0.35s; }
+
+        .bar-label {
+            min-width: 80px;
+            font-size: var(--font-size-sm);
+            color: #1a1a1a;
+            font-weight: var(--font-weight-medium);
+        }
+
+        .bar-track {
+            flex: 1;
+            height: 32px;
+            background: rgba(var(--color-primary-rgb), 0.1);
+            border-radius: var(--radius-base);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: var(--radius-base);
+            display: flex;
+            align-items: center;
+            padding: 0 var(--space-12);
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            color: white;
+            transition: width 0.5s ease, background-color 0.3s ease;
+        }
+
+        .bar-fill.low {
+            background: var(--color-green-500);
+        }
+
+        .bar-fill.medium {
+            background: var(--color-secondary);
+        }
+
+        .bar-fill.high {
+            background: var(--color-primary);
+        }
+
+        .bar-value {
+            min-width: 50px;
+            text-align: right;
+            font-size: var(--font-size-sm);
+            font-weight: var(--font-weight-semibold);
+            color: #1a1a1a;
+        }
+
+        /* Leaderboard */
+        .leaderboard {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-12);
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-12);
+            padding: var(--space-16);
+            background: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: var(--radius-md);
+            transition: all 0.2s;
+            animation: fadeInUp 0.4s ease-out forwards;
+            opacity: 0;
+        }
+        
+        .leaderboard-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            border-color: #C9784F;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Staggered animation delays */
+        .leaderboard-item:nth-child(1) { animation-delay: 0.05s; }
+        .leaderboard-item:nth-child(2) { animation-delay: 0.1s; }
+        .leaderboard-item:nth-child(3) { animation-delay: 0.15s; }
+
+        .rank-badge {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: var(--font-weight-bold);
+            font-size: var(--font-size-base);
+            flex-shrink: 0;
+        }
+
+        .rank-badge.gold {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+        }
+
+        .rank-badge.silver {
+            background: linear-gradient(135deg, #C0C0C0, #808080);
+            color: white;
+        }
+
+        .rank-badge.bronze {
+            background: linear-gradient(135deg, #CD7F32, #8B4513);
+            color: white;
+        }
+
+        .stall-info {
+            flex: 1;
+        }
+
+        .stall-name {
+            font-weight: var(--font-weight-semibold);
+            color: #1a1a1a;
+            margin-bottom: 2px;
+        }
+
+        .stall-cuisine {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        .popularity-score {
+            text-align: right;
+        }
+
+        .score-value {
+            font-size: var(--font-size-lg);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary);
+        }
+
+        .score-label {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        /* Second Row */
+        .second-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-24);
+        }
+
+        /* Activity Feed */
+        .activity-feed {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-12);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .activity-item {
+            display: flex;
+            gap: var(--space-12);
+            padding: var(--space-12);
+            border-left: 3px solid var(--color-primary);
+            background: #ffffff;
+            border-radius: 0 var(--radius-base) var(--radius-base) 0;
+            animation: fadeInUp 0.4s ease-out forwards;
+            opacity: 0;
+        }
+
+        /* Staggered animation delays for activity items */
+        .activity-item:nth-child(1) { animation-delay: 0.05s; }
+        .activity-item:nth-child(2) { animation-delay: 0.1s; }
+        .activity-item:nth-child(3) { animation-delay: 0.15s; }
+        .activity-item:nth-child(4) { animation-delay: 0.2s; }
+        .activity-item:nth-child(5) { animation-delay: 0.25s; }
+
+        .activity-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: var(--font-size-sm);
+            flex-shrink: 0;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-text {
+            font-size: var(--font-size-sm);
+            color: #1a1a1a;
+            margin-bottom: 4px;
+        }
+
+        .activity-time {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        /* Peak Hours */
+        .peak-hours-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-12);
+        }
+
+        .hour-card {
+            padding: var(--space-16);
+            border: 1px solid #e0e0e0;
+            border-radius: var(--radius-md);
+            text-align: center;
+            background: #ffffff;
+            animation: fadeInUp 0.4s ease-out forwards;
+            opacity: 0;
+        }
+
+        /* Staggered animation delays for hour cards */
+        .hour-card:nth-child(1) { animation-delay: 0.05s; }
+        .hour-card:nth-child(2) { animation-delay: 0.1s; }
+        .hour-card:nth-child(3) { animation-delay: 0.15s; }
+        .hour-card:nth-child(4) { animation-delay: 0.2s; }
+
+        .hour-time {
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-semibold);
+            color: #1a1a1a;
+            margin-bottom: var(--space-8);
+        }
+
+        .hour-bar {
+            height: 60px;
+            background: rgba(var(--color-primary-rgb), 0.1);
+            border-radius: var(--radius-base);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: var(--space-8);
+        }
+
+        .hour-bar-fill {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--color-primary);
+            transition: height 0.5s ease, background-color 0.3s ease;
+        }
+
+        .hour-percentage {
+            font-size: var(--font-size-xs);
+            color: var(--color-text-secondary);
+        }
+
+        /* Responsive - Mobile */
+        @media (max-width: 375px) {
+            .desktop-view {
+                display: none;
+            }
+
+            .mobile-view {
+                display: block;
+            }
+
+            .header h1 {
+                font-size: var(--font-size-2xl);
+            }
+
+            .hawker-selector {
+                flex-direction: column;
+            }
+
+            .select-wrapper {
+                min-width: 100%;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .second-row {
+                grid-template-columns: 1fr;
+            }
+
+            .time-filter {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .time-btn {
+                flex: 1;
+            }
+
+            .peak-hours-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        /* Loading state */
+        .loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(var(--color-primary-rgb), 0.2);
+            border-top-color: var(--color-primary);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Live indicator */
+        .live-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            background: rgba(var(--color-primary-rgb), 0.1);
+            border-radius: 999px;
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            color: var(--color-primary);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+}
   </style>
 </head>
 <body>
-<div class="instagram-container">
-  <div class="instagram-header">
-    <h1><i class="bi bi-eye"></i> Crowd View</h1>
+    <!-- DESKTOP VIEW -->
+    <div class="desktop-view">
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: start;">
+                <div>
+                    <h1>🍜 Crowd View Dashboard</h1>
+                    <p class="header-subtitle">Real-time crowd analytics for hawker centres in Singapore</p>
+                </div>
+                <div class="live-indicator">
+                    <span class="live-dot"></span>
+                    LIVE
+                </div>
   </div>
 
-  <div class="instagram-feed">
-    <div class="instagram-post">
-      <div class="post-header">
-        <div class="user-info">
-          <div class="avatar">H</div>
-          <div class="user-details">
-            <span class="username">Hawker Centre</span>
-            <span class="location">Crowd Levels</span>
+            <div class="hawker-selector">
+                <div class="select-wrapper">
+                    <label for="hawker-select">Select Hawker Centre</label>
+                    <select id="hawker-select">
+                        <option value="maxwell">Maxwell Food Centre</option>
+                        <option value="newton">Newton Food Centre</option>
+                        <option value="changi">Changi Village Food Centre</option>
+                    </select>
+                </div>
+                <div class="select-wrapper">
+                    <label for="stall-select">Select Stall (Optional)</label>
+                    <select id="stall-select">
+                        <option value="">All Stalls</option>
+                    </select>
           </div>
         </div>
       </div>
       
-      <div class="post-image">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/63/Maxwell_Food_Centre%2C_Singapore_-_panoramio.jpg" 
-             alt="Hawker Centre" style="width: 100%; height: 300px; object-fit: cover;" />
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Current Occupancy</div>
+                <div class="stat-value">78%</div>
+                <div class="stat-change positive">↑ 12% from 1hr ago</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Active Reservations</div>
+                <div class="stat-value">34</div>
+                <div class="stat-change positive">↑ 8 new bookings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Avg Wait Time</div>
+                <div class="stat-value">15m</div>
+                <div class="stat-change negative">↑ 3 mins</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Peak Time Today</div>
+                <div class="stat-value">12:30</div>
+                <div class="stat-change">Expected at 92%</div>
       </div>
-      
-      <div class="post-caption">
-        <div class="dropdown" style="margin: 15px 0;">
-        <label for="hawker-select">Select Hawker Centre:</label>
-        <select id="hawker-select">
-            <option value="maxwell" selected>Maxwell Food Centre</option>
-            <option value="newton">Newton Food Centre</option>
-            <option value="changi">Changi Village Food Centre</option>
-        </select>
         </div>
 
-        <div class="dropdown" style="margin: 15px 0;">
-        <label for="stall-select">Select Stall:</label>
-        <select id="stall-select">
-            <option value="all">All Stalls</option>
-            <option value="tian_tian">Tian Tian Hainanese Chicken Rice</option>
-            <option value="zhen_zhen">Zhen Zhen Porridge</option>
-            <option value="maxwell_fuzhou">Maxwell Fuzhou Oyster Cake</option>
-        </select>
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h2 class="chart-title">Hawker Centre Crowd Level</h2>
+                    <div class="time-filter">
+                        <button class="time-btn">1H</button>
+                        <button class="time-btn active">Today</button>
+                        <button class="time-btn">Week</button>
+                    </div>
+                </div>
+                <div class="bar-chart" id="hawker-chart">
+                    <div class="bar-item">
+                        <div class="bar-label">8:00 AM</div>
+                        <div class="bar-track">
+                            <div class="bar-fill low" style="width: 35%;">35%</div>
+                        </div>
+                        <div class="bar-value">Low</div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">10:00 AM</div>
+                        <div class="bar-track">
+                            <div class="bar-fill medium" style="width: 58%;">58%</div>
+                        </div>
+                        <div class="bar-value">Medium</div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">12:00 PM</div>
+                        <div class="bar-track">
+                            <div class="bar-fill high" style="width: 92%;">92%</div>
+                        </div>
+                        <div class="bar-value">High</div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">2:00 PM</div>
+                        <div class="bar-track">
+                            <div class="bar-fill medium" style="width: 65%;">65%</div>
+                        </div>
+                        <div class="bar-value">Medium</div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">4:00 PM</div>
+                        <div class="bar-track">
+                            <div class="bar-fill low" style="width: 42%;">42%</div>
+                        </div>
+                        <div class="bar-value">Low</div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">6:00 PM</div>
+                        <div class="bar-track">
+                            <div class="bar-fill high" style="width: 88%;">88%</div>
+                        </div>
+                        <div class="bar-value">High</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h2 class="chart-title">🏆 Top 3 Popular Stalls</h2>
+                </div>
+                <div class="leaderboard">
+                    <div class="leaderboard-item">
+                        <div class="rank-badge gold">1</div>
+                        <div class="stall-info">
+                            <div class="stall-name">Tian Tian Chicken Rice</div>
+                            <div class="stall-cuisine">Hainanese • Chicken Rice</div>
+                        </div>
+                        <div class="popularity-score">
+                            <div class="score-value">9.4</div>
+                            <div class="score-label">Rating</div>
+                        </div>
+                    </div>
+                    <div class="leaderboard-item">
+                        <div class="rank-badge silver">2</div>
+                        <div class="stall-info">
+                            <div class="stall-name">Sungei Road Laksa</div>
+                            <div class="stall-cuisine">Peranakan • Laksa</div>
+                        </div>
+                        <div class="popularity-score">
+                            <div class="score-value">9.1</div>
+                            <div class="score-label">Rating</div>
+                        </div>
+                    </div>
+                    <div class="leaderboard-item">
+                        <div class="rank-badge bronze">3</div>
+                        <div class="stall-info">
+                            <div class="stall-name">Wei Wei Noodles</div>
+                            <div class="stall-cuisine">Chinese • Noodles</div>
+                        </div>
+                        <div class="popularity-score">
+                            <div class="score-value">8.8</div>
+                            <div class="score-label">Rating</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         
-        <div class="hawker-info-box">
-          <div style="margin-bottom: 8px;">
-            <strong>📍 <span id="hawker-name">Maxwell Food Centre</span></strong>
-          </div>
-          <div style="margin-bottom: 8px;">
-            <span id="hawker-address">1 Kadayanallur St, Singapore 069184</span>
-          </div>
-          <div>
-            <span id="hawker-hours">6:00AM - 10:00PM</span>
-          </div>
+        <!-- Second Row -->
+        <div class="second-row">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h2 class="chart-title">Stall-Specific Crowd Level</h2>
+                </div>
+                <div class="bar-chart">
+                    <div class="bar-item">
+                        <div class="bar-label">Chicken Rice</div>
+                        <div class="bar-track">
+                            <div class="bar-fill high" style="width: 85%;">Queue: 12</div>
+                        </div>
+                        <div class="bar-value">15m</div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Laksa</div>
+                        <div class="bar-track">
+                            <div class="bar-fill medium" style="width: 70%;">Queue: 8</div>
+                        </div>
+                        <div class="bar-value">10m</div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Satay</div>
+                        <div class="bar-track">
+                            <div class="bar-fill medium" style="width: 55%;">Queue: 6</div>
+                        </div>
+                        <div class="bar-value">8m</div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Roast Meat</div>
+                        <div class="bar-track">
+                            <div class="bar-fill low" style="width: 40%;">Queue: 3</div>
+                        </div>
+                        <div class="bar-value">5m</div>
+                    </div>
+                    <div class="bar-item">
+                        <div class="bar-label">Noodles</div>
+                        <div class="bar-track">
+                            <div class="bar-fill low" style="width: 32%;">Queue: 2</div>
+                        </div>
+                        <div class="bar-value">3m</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h2 class="chart-title" id="peak-hours-title">📊 Peak Hours Analysis</h2>
+                </div>
+                <div class="peak-hours-grid" id="desktop-peak-hours">
+                    <!-- Peak hours will be dynamically populated -->
+                </div>
+            </div>
         </div>
         
-        <div style="height: 300px; margin: 15px 0;">
-          <canvas id="crowdChart"></canvas>
+        <!-- Activity Feed -->
+        <div class="chart-card" style="margin-top: var(--space-24);">
+            <div class="chart-header">
+                <h2 class="chart-title">🔔 Recent Activity</h2>
+            </div>
+            <div class="activity-feed">
+                <div class="activity-item">
+                    <div class="activity-icon">📅</div>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>New reservation</strong> at Tian Tian Chicken Rice for 4 people</div>
+                        <div class="activity-time">2 minutes ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">⚠️</div>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>High crowd alert</strong> - Maxwell Food Centre reached 92% capacity</div>
+                        <div class="activity-time">8 minutes ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">✅</div>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>Reservation completed</strong> - Table released at Satay Street</div>
+                        <div class="activity-time">15 minutes ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">📊</div>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>Crowd decreased</strong> - Now at 78% capacity (was 92%)</div>
+                        <div class="activity-time">22 minutes ago</div>
         </div>
       </div>
     </div>
   </div>
 </div>
 
+    <!-- MOBILE VIEW (iPhone SE) -->
+    <div class="mobile-view">
+        <div class="header">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-16);">
+                <h1>🍜 Crowd View</h1>
+                <div class="live-indicator">
+                    <span class="live-dot"></span>
+                    LIVE
+                </div>
+            </div>
+            
+            <div class="hawker-selector">
+                <div class="select-wrapper">
+                    <label for="hawker-select-mobile">Hawker Centre</label>
+                    <select id="hawker-select-mobile">
+                        <option value="maxwell">Maxwell Food Centre</option>
+                        <option value="newton">Newton Food Centre</option>
+                        <option value="changi">Changi Village Food Centre</option>
+                    </select>
+                </div>
+                <div class="select-wrapper">
+                    <label for="stall-select-mobile">Stall (Optional)</label>
+                    <select id="stall-select-mobile">
+                        <option value="">All Stalls</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Occupancy</div>
+                <div class="stat-value">78%</div>
+                <div class="stat-change positive">↑ 12%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Wait Time</div>
+                <div class="stat-value">15m</div>
+                <div class="stat-change negative">↑ 3m</div>
+            </div>
+        </div>
+
+        <!-- Hawker Centre Chart -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h2 class="chart-title">Centre Crowd</h2>
+                <div class="time-filter">
+                    <button class="time-btn">1H</button>
+                    <button class="time-btn active">Today</button>
+                    <button class="time-btn">Week</button>
+                </div>
+            </div>
+            <div class="bar-chart">
+                <div class="bar-item">
+                    <div class="bar-label">8AM</div>
+                    <div class="bar-track">
+                        <div class="bar-fill low" style="width: 35%;">35%</div>
+                    </div>
+                </div>
+                <div class="bar-item">
+                    <div class="bar-label">10AM</div>
+                    <div class="bar-track">
+                        <div class="bar-fill medium" style="width: 58%;">58%</div>
+                    </div>
+                </div>
+                <div class="bar-item">
+                    <div class="bar-label">12PM</div>
+                    <div class="bar-track">
+                        <div class="bar-fill high" style="width: 92%;">92%</div>
+                    </div>
+                </div>
+                <div class="bar-item">
+                    <div class="bar-label">2PM</div>
+                    <div class="bar-track">
+                        <div class="bar-fill medium" style="width: 65%;">65%</div>
+                    </div>
+                </div>
+                <div class="bar-item">
+                    <div class="bar-label">6PM</div>
+                    <div class="bar-track">
+                        <div class="bar-fill high" style="width: 88%;">88%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Top Stalls -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h2 class="chart-title">🏆 Top Stalls</h2>
+            </div>
+            <div class="leaderboard">
+                <div class="leaderboard-item">
+                    <div class="rank-badge gold">1</div>
+                    <div class="stall-info">
+                        <div class="stall-name">Tian Tian Chicken Rice</div>
+                        <div class="stall-cuisine">Chicken Rice</div>
+                    </div>
+                    <div class="popularity-score">
+                        <div class="score-value">9.4</div>
+                    </div>
+                </div>
+                <div class="leaderboard-item">
+                    <div class="rank-badge silver">2</div>
+                    <div class="stall-info">
+                        <div class="stall-name">Sungei Road Laksa</div>
+                        <div class="stall-cuisine">Laksa</div>
+                    </div>
+                    <div class="popularity-score">
+                        <div class="score-value">9.1</div>
+                    </div>
+                </div>
+                <div class="leaderboard-item">
+                    <div class="rank-badge bronze">3</div>
+                    <div class="stall-info">
+                        <div class="stall-name">Wei Wei Noodles</div>
+                        <div class="stall-cuisine">Noodles</div>
+                    </div>
+                    <div class="popularity-score">
+                        <div class="score-value">8.8</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stall Crowds -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h2 class="chart-title">Stall Queues</h2>
+            </div>
+            <div class="bar-chart">
+                <div class="bar-item">
+                    <div class="bar-label" style="min-width: 60px;">Chicken</div>
+                    <div class="bar-track">
+                        <div class="bar-fill high" style="width: 85%;">12</div>
+                    </div>
+                    <div class="bar-value">15m</div>
+                </div>
+                <div class="bar-item">
+                    <div class="bar-label" style="min-width: 60px;">Laksa</div>
+                    <div class="bar-track">
+                        <div class="bar-fill medium" style="width: 70%;">8</div>
+                    </div>
+                    <div class="bar-value">10m</div>
+                </div>
+                <div class="bar-item">
+                    <div class="bar-label" style="min-width: 60px;">Satay</div>
+                    <div class="bar-track">
+                        <div class="bar-fill medium" style="width: 55%;">6</div>
+                    </div>
+                    <div class="bar-value">8m</div>
+                </div>
+                <div class="bar-item">
+                    <div class="bar-label" style="min-width: 60px;">Roast</div>
+                    <div class="bar-track">
+                        <div class="bar-fill low" style="width: 40%;">3</div>
+                    </div>
+                    <div class="bar-value">5m</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Peak Hours -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h2 class="chart-title" id="mobile-peak-hours-title">📊 Peak Hours</h2>
+            </div>
+            <div class="peak-hours-grid" id="mobile-peak-hours">
+                <!-- Peak hours will be dynamically populated -->
+            </div>
+        </div>
+
+        <!-- Activity -->
+        <div class="chart-card">
+            <div class="chart-header">
+                <h2 class="chart-title">🔔 Activity</h2>
+            </div>
+            <div class="activity-feed">
+                <div class="activity-item">
+                    <div class="activity-icon">📅</div>
+                    <div class="activity-content">
+                        <div class="activity-text">New reservation at Chicken Rice</div>
+                        <div class="activity-time">2 mins ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">⚠️</div>
+                    <div class="activity-content">
+                        <div class="activity-text">High crowd alert - 92% capacity</div>
+                        <div class="activity-time">8 mins ago</div>
+                    </div>
+                </div>
+                <div class="activity-item">
+                    <div class="activity-icon">✅</div>
+                    <div class="activity-content">
+                        <div class="activity-text">Table released at Satay Street</div>
+                        <div class="activity-time">15 mins ago</div>
+                    </div>
+                </div>
+  </div>
+  </div>
+</div>
+
+  <script>
+        // Track current time filter
+        let currentTimeFilter = 'Today';
+
+        // Track activity log for live updates with timestamps
+        let activityLog = [];
+        
+        // Helper function to get relative time string
+        function getRelativeTime(minutesAgo) {
+            if (minutesAgo === 0) return "Just now";
+            if (minutesAgo === 1) return "1 minute ago";
+            if (minutesAgo < 60) return `${minutesAgo} minutes ago`;
+            const hoursAgo = Math.floor(minutesAgo / 60);
+            if (hoursAgo === 1) return "1 hour ago";
+            return `${hoursAgo} hours ago`;
+        }
+        
+        // Helper function to update activity timestamps
+        function updateActivityTimestamps() {
+            const now = Date.now();
+            activityLog.forEach(activity => {
+                if (activity.timestamp) {
+                    const minutesAgo = Math.floor((now - activity.timestamp) / (1000 * 60));
+                    activity.time = getRelativeTime(minutesAgo);
+                }
+            });
+        }
+
+        // Comprehensive stall data with realistic personalized metrics
+        const stallData = {
+            maxwell: {
+                name: "Maxwell Food Centre",
+                address: "1 Kadayanallur St, Singapore 069184",
+                currentOccupancy: 78,
+                avgWaitTime: 15,
+                activeReservations: 34,
+                peakTimeToday: "12:30",
+                peakExpectedOccupancy: 92,
+                crowdLevels1H: [65, 72, 78],
+                crowdLevels: [35, 58, 92, 65, 42, 88, 72, 45],
+                crowdLevelsWeek: [68, 72, 75, 70, 73, 78, 71],
+                peakHours: { breakfast: 45, lunch: 92, teaTime: 38, dinner: 88 },
+                stalls: [
+                    { slug: "peanuts-soup", name: "Peanuts Soup", queue: 3, waitTime: 4, occupancy: 40, rating: 4.3, cuisine: "Chinese", peakHours: { breakfast: 65, lunch: 45, teaTime: 35, dinner: 30 } },
+                    { slug: "hajmeer-kwaja", name: "Hajmeer Kwaja", queue: 0, waitTime: 0, occupancy: 0, rating: 4.8, cuisine: "Malay", closed: true, peakHours: { breakfast: 85, lunch: 70, teaTime: 20, dinner: 15 } },
+                    { slug: "luckmeow", name: "LuckMeow", queue: 8, waitTime: 15, occupancy: 65, rating: 4.1, cuisine: "Indian", peakHours: { breakfast: 40, lunch: 75, teaTime: 60, dinner: 55 } },
+                    { slug: "ramen-taisho", name: "Ramen Taisho", queue: 5, waitTime: 8, occupancy: 55, rating: 4.2, cuisine: "Japanese", peakHours: { breakfast: 20, lunch: 70, teaTime: 50, dinner: 85 } },
+                    { slug: "china-street-fritters", name: "China Street Fritters", queue: 2, waitTime: 2, occupancy: 35, rating: 4.5, cuisine: "Chinese", peakHours: { breakfast: 55, lunch: 40, teaTime: 30, dinner: 25 } },
+                    { slug: "bold-x-braised", name: "Bold X Braised", queue: 0, waitTime: 0, occupancy: 0, rating: 4.0, cuisine: "Taiwanese", closed: true, peakHours: { breakfast: 25, lunch: 80, teaTime: 65, dinner: 75 } },
+                    { slug: "korean-cuisine", name: "Korean Cuisine", queue: 6, waitTime: 10, occupancy: 60, rating: 4.0, cuisine: "Korean", peakHours: { breakfast: 30, lunch: 75, teaTime: 55, dinner: 80 } },
+                    { slug: "neapolitan-style-pizza", name: "Neapolitan Style Pizza", queue: 4, waitTime: 10, occupancy: 50, rating: 4.0, cuisine: "Western", peakHours: { breakfast: 15, lunch: 60, teaTime: 45, dinner: 90 } },
+                    { slug: "tian-tian-chicken-rice", name: "Tian Tian Chicken Rice", queue: 18, waitTime: 12, occupancy: 95, rating: 4.7, cuisine: "Chinese", peakHours: { breakfast: 70, lunch: 95, teaTime: 85, dinner: 75 } }
+                ]
+            },
+            newton: {
+                name: "Newton Food Centre",
+                address: "500 Clemenceau Ave N, Singapore 229495",
+                currentOccupancy: 72,
+                avgWaitTime: 18,
+                activeReservations: 28,
+                peakTimeToday: "7:00 PM",
+                peakExpectedOccupancy: 89,
+                crowdLevels1H: [58, 68, 72],
+                crowdLevels: [30, 45, 68, 85, 55, 89, 82, 40],
+                crowdLevelsWeek: [65, 70, 72, 68, 71, 75, 69],
+                peakHours: { breakfast: 30, lunch: 68, teaTime: 55, dinner: 89 },
+                stalls: [
+                    { slug: "hotplate-bbq-seafood", name: "Hotplate BBQ Seafood", queue: 12, waitTime: 20, occupancy: 85, rating: 4.6, cuisine: "Seafood", peakHours: { breakfast: 20, lunch: 60, teaTime: 40, dinner: 95 } },
+                    { slug: "22-best-satay", name: "22 Best Satay", queue: 15, waitTime: 18, occupancy: 90, rating: 4.4, cuisine: "Malay", peakHours: { breakfast: 25, lunch: 55, teaTime: 45, dinner: 92 } },
+                    { slug: "heng-heng-chicken-rice", name: "Heng Heng Chicken Rice", queue: 7, waitTime: 10, occupancy: 60, rating: 4.2, cuisine: "Western", peakHours: { breakfast: 50, lunch: 75, teaTime: 55, dinner: 70 } },
+                    { slug: "teochew-rice-and-porridge", name: "Teochew Rice And Porridge", queue: 4, waitTime: 5, occupancy: 45, rating: 4.3, cuisine: "Chinese", peakHours: { breakfast: 70, lunch: 50, teaTime: 35, dinner: 40 } },
+                    { slug: "lina-fishball-noodles", name: "Lina Fishball Noodles", queue: 0, waitTime: 0, occupancy: 0, rating: 4.0, cuisine: "Chinese", closed: true, peakHours: { breakfast: 60, lunch: 70, teaTime: 40, dinner: 45 } },
+                    { slug: "aminahs-prata", name: "Aminah's Prata", queue: 0, waitTime: 0, occupancy: 0, rating: 4.0, cuisine: "Indian", closed: true, peakHours: { breakfast: 85, lunch: 65, teaTime: 50, dinner: 55 } }
+                ]
+            },
+            changi: {
+                name: "Changi Village Food Centre",
+                address: "2 Changi Village Rd, Singapore 500002",
+                currentOccupancy: 65,
+                avgWaitTime: 12,
+                activeReservations: 22,
+                peakTimeToday: "12:00 PM",
+                peakExpectedOccupancy: 85,
+                crowdLevels1H: [55, 60, 65],
+                crowdLevels: [25, 42, 85, 70, 48, 75, 60, 35],
+                crowdLevelsWeek: [58, 63, 65, 62, 64, 67, 61],
+                peakHours: { breakfast: 42, lunch: 85, teaTime: 48, dinner: 75 },
+                stalls: [
+                    { slug: "d-authentic-nasi-lemak", name: "D Authentic Nasi Lemak", queue: 10, waitTime: 8, occupancy: 80, rating: 4.7, cuisine: "Malay", peakHours: { breakfast: 85, lunch: 92, teaTime: 70, dinner: 65 } },
+                    { slug: "alliance-seafood", name: "Alliance Seafood", queue: 8, waitTime: 25, occupancy: 70, rating: 4.5, cuisine: "Seafood", peakHours: { breakfast: 15, lunch: 50, teaTime: 35, dinner: 88 } },
+                    { slug: "burgs", name: "Burgs", queue: 5, waitTime: 12, occupancy: 55, rating: 4.4, cuisine: "Western", peakHours: { breakfast: 30, lunch: 70, teaTime: 55, dinner: 82 } },
+                    { slug: "koka-wanton-noodles", name: "Koka Wanton Noodles", queue: 3, waitTime: 5, occupancy: 40, rating: 4.1, cuisine: "Chinese", peakHours: { breakfast: 65, lunch: 55, teaTime: 35, dinner: 45 } },
+                    { slug: "jiak-mee", name: "Jiak Mee", queue: 3, waitTime: 5, occupancy: 40, rating: 4.1, cuisine: "Chinese", peakHours: { breakfast: 60, lunch: 50, teaTime: 30, dinner: 40 } },
+                    { slug: "fortune-popiah", name: "Fortune Popiah", queue: 1, waitTime: 2, occupancy: 25, rating: 4.0, cuisine: "Chinese", peakHours: { breakfast: 45, lunch: 40, teaTime: 25, dinner: 30 } },
+                    { slug: "alifs-nasi-lemak", name: "Alif's Nasi Lemak", queue: 6, waitTime: 3, occupancy: 50, rating: 4.0, cuisine: "Malay", peakHours: { breakfast: 80, lunch: 75, teaTime: 55, dinner: 60 } },
+                    { slug: "mala-hotpot", name: "Mala Hotpot", queue: 0, waitTime: 0, occupancy: 0, rating: 4.0, cuisine: "Chinese", closed: true, peakHours: { breakfast: 20, lunch: 60, teaTime: 50, dinner: 85 } }
+                ]
+            }
+        };
+
+        // Activity feed data with realistic timestamps
+        function getActivityFeed(hawkerKey, stallSlug = null) {
+            const hawker = stallData[hawkerKey];
+            
+            // If no activity log exists, create initial activities with timestamps
+            if (activityLog.length === 0) {
+                const now = Date.now();
+                activityLog = [
+                    {
+                        icon: "📅",
+                        text: `New reservation at Hawker Centre for ${Math.floor(Math.random() * 4) + 2} people`,
+                        time: "2 minutes ago",
+                        timestamp: now - 2 * 60 * 1000
+                    },
+                    {
+                        icon: "⚠️",
+                        text: `High crowd alert - ${hawker.name} reached ${hawker.currentOccupancy}% capacity`,
+                        time: "8 minutes ago",
+                        timestamp: now - 8 * 60 * 1000
+                    },
+                    {
+                        icon: "✅",
+                        text: `Reservation completed - Table released`,
+                        time: "15 minutes ago",
+                        timestamp: now - 15 * 60 * 1000
+                    },
+                    {
+                        icon: "📊",
+                        text: `Crowd decreased - Now at ${hawker.currentOccupancy}% capacity (was ${hawker.currentOccupancy + 14}%)`,
+                        time: "22 minutes ago",
+                        timestamp: now - 22 * 60 * 1000
+                    },
+                    {
+                        icon: "🔥",
+                        text: `${hawker.stalls.filter(s => !s.closed).sort((a, b) => b.queue - a.queue)[0]?.name} has the longest queue with ${hawker.stalls.filter(s => !s.closed).sort((a, b) => b.queue - a.queue)[0]?.queue} people`,
+                        time: "30 minutes ago",
+                        timestamp: now - 30 * 60 * 1000
+                    }
+                ];
+            }
+            
+            // Update timestamps before returning
+            updateActivityTimestamps();
+            return activityLog;
+        }
+        
+        // Helper function to add new activity to the log
+        function addActivity(icon, text) {
+            activityLog.unshift({
+                icon: icon,
+                text: text,
+                time: "Just now",
+                timestamp: Date.now()
+            });
+            // Keep only the last 10 activities
+            if (activityLog.length > 10) {
+                activityLog = activityLog.slice(0, 10);
+            }
+        }
+
+        // Function to update stall dropdown based on selected hawker centre
+        function updateStallOptions(hawkerValue, selectElement) {
+            // Clear existing options except "All Stalls"
+            selectElement.innerHTML = '<option value="">All Stalls</option>';
+            
+            if (hawkerValue && stallData[hawkerValue]) {
+                const stalls = stallData[hawkerValue].stalls;
+                stalls.forEach(stall => {
+                    const option = document.createElement('option');
+                    option.value = stall.slug;
+                    option.textContent = stall.name;
+                    selectElement.appendChild(option);
+                });
+            }
+        }
+
+        // Initialize stall options on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const hawkerSelect = document.getElementById('hawker-select');
+            const stallSelect = document.getElementById('stall-select');
+            const hawkerSelectMobile = document.getElementById('hawker-select-mobile');
+            const stallSelectMobile = document.getElementById('stall-select-mobile');
+
+            // Initialize desktop dropdowns
+            if (hawkerSelect && stallSelect) {
+                updateStallOptions(hawkerSelect.value, stallSelect);
+                updateDashboard(hawkerSelect.value);
+            }
+
+            // Initialize mobile dropdowns
+            if (hawkerSelectMobile && stallSelectMobile) {
+                updateStallOptions(hawkerSelectMobile.value, stallSelectMobile);
+                updateMobileDashboard(hawkerSelectMobile.value);
+            }
+        });
+
+        // Function to update dashboard with hawker centre data
+        function updateDashboard(hawkerKey, stallSlug = null) {
+            const hawker = stallData[hawkerKey];
+            if (!hawker) return;
+
+            // Update stats cards
+            const statValues = document.querySelectorAll('.stat-value');
+            if (statValues.length >= 4) {
+                statValues[0].textContent = hawker.currentOccupancy + '%';
+                statValues[1].textContent = hawker.activeReservations;
+                statValues[2].textContent = hawker.avgWaitTime + 'm';
+                statValues[3].textContent = hawker.peakTimeToday;
+            }
+
+            // Update crowd level chart based on current time filter
+            let crowdData;
+            if (currentTimeFilter === '1H') {
+                crowdData = hawker.crowdLevels1H;
+            } else if (currentTimeFilter === 'Week') {
+                crowdData = hawker.crowdLevelsWeek;
+            } else {
+                crowdData = hawker.crowdLevels;
+            }
+            updateCrowdChart(crowdData, currentTimeFilter);
+
+            // Update top stalls leaderboard
+            updateLeaderboard(hawker.stalls);
+
+            // Update stall-specific crowd levels
+            updateStallCrowdLevels(hawker.stalls);
+
+            // Update peak hours (stall-specific if stall is selected)
+            const stallSelect = document.getElementById('stall-select');
+            const selectedStallSlug = stallSlug || (stallSelect ? stallSelect.value : null);
+            
+            if (selectedStallSlug && selectedStallSlug !== '') {
+                const selectedStall = hawker.stalls.find(s => s.slug === selectedStallSlug);
+                if (selectedStall && selectedStall.peakHours) {
+                    updatePeakHours(selectedStall.peakHours, selectedStall.name);
+                } else {
+                    updatePeakHours(hawker.peakHours, hawker.name);
+                }
+            } else {
+                updatePeakHours(hawker.peakHours, hawker.name);
+            }
+
+            // Update activity feed
+            updateActivityFeed(hawkerKey, stallSlug);
+        }
+
+        function updateCrowdChart(levels, timeFilter = 'Today') {
+            const chartContainer = document.getElementById('hawker-chart');
+            if (!chartContainer) return;
+
+            let timeSlots;
+            let maxItems;
+            
+            if (timeFilter === '1H') {
+                timeSlots = ['40m ago', '20m ago', 'Now'];
+                maxItems = 3;
+            } else if (timeFilter === 'Week') {
+                timeSlots = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                maxItems = 7;
+            } else {
+                // Today
+                timeSlots = ['8:00 AM', '10:00 AM', '12:00 PM', '2:00 PM', '4:00 PM', '6:00 PM', '8:00 PM', '10:00 PM'];
+                maxItems = 6;
+            }
+            
+            chartContainer.innerHTML = '';
+            
+            levels.slice(0, maxItems).forEach((level, idx) => {
+                const levelClass = level >= 80 ? 'high' : level >= 50 ? 'medium' : 'low';
+                const barItem = document.createElement('div');
+                barItem.className = 'bar-item';
+                barItem.innerHTML = `
+                    <div class="bar-label">${timeSlots[idx]}</div>
+                    <div class="bar-track">
+                        <div class="bar-fill ${levelClass}" style="width: 0;">0%</div>
+                    </div>
+                    <div class="bar-value">${level >= 80 ? 'High' : level >= 50 ? 'Medium' : 'Low'}</div>
+                `;
+                chartContainer.appendChild(barItem);
+                
+                // Animate to the actual width using requestAnimationFrame
+                requestAnimationFrame(() => {
+                    const barFill = barItem.querySelector('.bar-fill');
+                    if (barFill) {
+                        barFill.style.width = `${level}%`;
+                        barFill.textContent = `${level}%`;
+                    }
+                });
+            });
+        }
+
+        function updateLeaderboard(stalls) {
+            const leaderboard = document.querySelector('.leaderboard');
+            if (!leaderboard) return;
+
+            const topStalls = stalls
+                .filter(s => !s.closed)
+                .sort((a, b) => b.rating - a.rating)
+                .slice(0, 3);
+
+            leaderboard.innerHTML = '';
+            topStalls.forEach((stall, idx) => {
+                const badges = ['gold', 'silver', 'bronze'];
+                const item = document.createElement('div');
+                item.className = 'leaderboard-item';
+                item.innerHTML = `
+                    <div class="rank-badge ${badges[idx]}">${idx + 1}</div>
+                    <div class="stall-info">
+                        <div class="stall-name">${stall.name}</div>
+                        <div class="stall-cuisine">${stall.cuisine}</div>
+                    </div>
+                    <div class="popularity-score">
+                        <div class="score-value">${stall.rating}</div>
+                        <div class="score-label">Rating</div>
+                    </div>
+                `;
+                leaderboard.appendChild(item);
+            });
+        }
+
+        function updateStallCrowdLevels(stalls) {
+            const stallCrowdContainer = document.querySelector('.second-row .bar-chart');
+            if (!stallCrowdContainer) return;
+
+            const openStalls = stalls.filter(s => !s.closed).sort((a, b) => b.queue - a.queue);
+            stallCrowdContainer.innerHTML = '';
+            
+            openStalls.slice(0, 5).forEach(stall => {
+                const occupancy = stall.occupancy || 0;
+                const levelClass = occupancy >= 80 ? 'high' : occupancy >= 50 ? 'medium' : 'low';
+                const barItem = document.createElement('div');
+                barItem.className = 'bar-item';
+                barItem.innerHTML = `
+                    <div class="bar-label">${stall.name.length > 15 ? stall.name.substring(0, 15) + '...' : stall.name}</div>
+                    <div class="bar-track">
+                        <div class="bar-fill ${levelClass}" style="width: 0;">Queue: 0</div>
+                    </div>
+                    <div class="bar-value">${stall.waitTime}m</div>
+                `;
+                stallCrowdContainer.appendChild(barItem);
+                
+                // Animate to the actual width using requestAnimationFrame
+                requestAnimationFrame(() => {
+                    const barFill = barItem.querySelector('.bar-fill');
+                    if (barFill) {
+                        barFill.style.width = `${occupancy}%`;
+                        barFill.textContent = `Queue: ${stall.queue}`;
+                    }
+                });
+            });
+        }
+
+        function updatePeakHours(peakHours, locationName = null) {
+            const peakGrid = document.getElementById('desktop-peak-hours') || document.querySelector('.desktop-view .peak-hours-grid');
+            const peakTitle = document.getElementById('peak-hours-title');
+            if (!peakGrid) return;
+
+            // Update title to show stall-specific or hawker centre-specific
+            if (peakTitle && locationName) {
+                // Check if it's a hawker centre name
+                const isHawkerCentre = locationName === stallData.maxwell?.name || 
+                                       locationName === stallData.newton?.name || 
+                                       locationName === stallData.changi?.name;
+                
+                if (isHawkerCentre) {
+                    peakTitle.textContent = `📊 Peak Hours Analysis`;
+                } else {
+                    // It's a stall name
+                    peakTitle.textContent = `📊 ${locationName} Peak Hours`;
+                }
+            }
+
+            const periods = [
+                { label: 'Breakfast', value: peakHours.breakfast },
+                { label: 'Lunch', value: peakHours.lunch },
+                { label: 'Tea Time', value: peakHours.teaTime },
+                { label: 'Dinner', value: peakHours.dinner }
+            ];
+
+            peakGrid.innerHTML = '';
+            periods.forEach(period => {
+                const card = document.createElement('div');
+                card.className = 'hour-card';
+                card.innerHTML = `
+                    <div class="hour-time">${period.label}</div>
+                    <div class="hour-bar">
+                        <div class="hour-bar-fill" style="height: 0;"></div>
+                    </div>
+                    <div class="hour-percentage">0%</div>
+                `;
+                peakGrid.appendChild(card);
+                
+                // Animate to the actual height using requestAnimationFrame
+                requestAnimationFrame(() => {
+                    const barFill = card.querySelector('.hour-bar-fill');
+                    const percentage = card.querySelector('.hour-percentage');
+                    if (barFill) {
+                        barFill.style.height = `${period.value}%`;
+                    }
+                    if (percentage) {
+                        percentage.textContent = `${period.value}%`;
+                    }
+                });
+            });
+        }
+
+        function updateActivityFeed(hawkerKey, stallSlug) {
+            const feed = document.querySelector('.activity-feed');
+            if (!feed) return;
+
+            const activities = getActivityFeed(hawkerKey, stallSlug);
+            feed.innerHTML = '';
+            
+            activities.forEach(activity => {
+                const item = document.createElement('div');
+                item.className = 'activity-item';
+                item.innerHTML = `
+                    <div class="activity-icon">${activity.icon}</div>
+                    <div class="activity-content">
+                        <div class="activity-text"><strong>${activity.text}</strong></div>
+                        <div class="activity-time">${activity.time}</div>
+                    </div>
+                `;
+                feed.appendChild(item);
+            });
+        }
+
+        // Simulate live data updates
+        function updateCrowdData() {
+            const hawkerSelect = document.getElementById('hawker-select');
+            if (hawkerSelect) {
+                const hawker = stallData[hawkerSelect.value];
+                if (hawker) {
+                    const oldOccupancy = hawker.currentOccupancy;
+                    
+                    // Simulate small fluctuations
+                    const fluctuation = Math.floor(Math.random() * 6) - 3;
+                    hawker.currentOccupancy = Math.max(30, Math.min(95, hawker.currentOccupancy + fluctuation));
+                    
+                    // Update active reservations randomly
+                    const reservationChange = Math.floor(Math.random() * 5) - 2;
+                    hawker.activeReservations = Math.max(0, hawker.activeReservations + reservationChange);
+                    
+                    // Update average wait time based on occupancy
+                    const waitTimeChange = Math.floor(Math.random() * 4) - 2;
+                    hawker.avgWaitTime = Math.max(3, Math.min(30, hawker.avgWaitTime + waitTimeChange));
+                    
+                    // Update some stall queues randomly
+                    hawker.stalls.filter(s => !s.closed).forEach(stall => {
+                        if (Math.random() > 0.6) {
+                            const queueChange = Math.floor(Math.random() * 3) - 1;
+                            stall.queue = Math.max(0, stall.queue + queueChange);
+                            stall.occupancy = Math.max(0, Math.min(100, stall.occupancy + queueChange * 3));
+                            stall.waitTime = Math.max(0, Math.min(30, stall.waitTime + queueChange * 2));
+                        }
+                    });
+                    
+                    // Log significant changes to activity feed
+                    const occupancyChange = hawker.currentOccupancy - oldOccupancy;
+                    if (Math.abs(occupancyChange) >= 3) {
+                        if (occupancyChange > 0) {
+                            addActivity("📈", `Crowd increased by ${occupancyChange}% - Now at ${hawker.currentOccupancy}% capacity`);
+                        } else {
+                            addActivity("📉", `Crowd decreased by ${Math.abs(occupancyChange)}% - Now at ${hawker.currentOccupancy}% capacity`);
+                        }
+                    }
+                    
+                    if (Math.abs(reservationChange) > 0) {
+                        if (reservationChange > 0) {
+                            addActivity("📅", `${reservationChange} new reservation${reservationChange > 1 ? 's' : ''} at ${hawker.name}`);
+                        } else {
+                            addActivity("✅", `${Math.abs(reservationChange)} reservation${reservationChange < -1 ? 's' : ''} completed`);
+                        }
+                    }
+                    
+                    // Occasionally add a random activity
+                    if (Math.random() > 0.7) {
+                        const randomStall = hawker.stalls.filter(s => !s.closed && Math.random() > 0.5)[0];
+                        if (randomStall) {
+                            addActivity("🔥", `${randomStall.name} - Queue now at ${randomStall.queue} people (${randomStall.waitTime}m wait)`);
+                        }
+                    }
+                    
+                    updateDashboard(hawkerSelect.value);
+                }
+            }
+        }
+
+        // Update every 1 minute
+        setInterval(updateCrowdData, 60000);
+        
+        // Update activity timestamps every 30 seconds to keep them current
+        setInterval(() => {
+            updateActivityTimestamps();
+            const hawkerSelect = document.getElementById('hawker-select');
+            if (hawkerSelect) {
+                updateDashboard(hawkerSelect.value);
+            }
+        }, 30000);
+
+        // Dropdown change handlers
+        document.getElementById('hawker-select')?.addEventListener('change', function(e) {
+            const hawkerKey = e.target.value;
+            const stallSelect = document.getElementById('stall-select');
+            if (stallSelect) {
+                updateStallOptions(hawkerKey, stallSelect);
+                updateDashboard(hawkerKey);
+            }
+        });
+
+        document.getElementById('stall-select')?.addEventListener('change', function(e) {
+            const hawkerSelect = document.getElementById('hawker-select');
+            if (hawkerSelect) {
+                updateDashboard(hawkerSelect.value, e.target.value);
+            }
+        });
+
+        // Function to update mobile dashboard
+        function updateMobileDashboard(hawkerKey) {
+            const hawker = stallData[hawkerKey];
+            if (!hawker) return;
+
+            // Update mobile stats
+            const mobileStats = document.querySelectorAll('.mobile-view .stat-value');
+            if (mobileStats.length >= 2) {
+                mobileStats[0].textContent = hawker.currentOccupancy + '%';
+                mobileStats[1].textContent = hawker.avgWaitTime + 'm';
+            }
+
+            // Update mobile crowd chart based on current time filter
+            const mobileChart = document.querySelector('.mobile-view .bar-chart');
+            if (mobileChart && mobileChart.id !== 'hawker-chart') {
+                let timeSlots;
+                let crowdData;
+                let maxItems;
+                
+                if (currentTimeFilter === '1H') {
+                    timeSlots = ['40m ago', '20m ago', 'Now'];
+                    crowdData = hawker.crowdLevels1H;
+                    maxItems = 3;
+                } else if (currentTimeFilter === 'Week') {
+                    timeSlots = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                    crowdData = hawker.crowdLevelsWeek;
+                    maxItems = 7;
+                } else {
+                    timeSlots = ['8AM', '10AM', '12PM', '2PM', '6PM'];
+                    crowdData = hawker.crowdLevels;
+                    maxItems = 5;
+                }
+                
+                mobileChart.innerHTML = '';
+                
+                crowdData.slice(0, maxItems).forEach((level, idx) => {
+                    const levelClass = level >= 80 ? 'high' : level >= 50 ? 'medium' : 'low';
+                    const barItem = document.createElement('div');
+                    barItem.className = 'bar-item';
+                    barItem.innerHTML = `
+                        <div class="bar-label">${timeSlots[idx]}</div>
+                        <div class="bar-track">
+                            <div class="bar-fill ${levelClass}" style="width: 0;">0%</div>
+                        </div>
+                    `;
+                    mobileChart.appendChild(barItem);
+                    
+                    // Animate to the actual width using requestAnimationFrame
+                    requestAnimationFrame(() => {
+                        const barFill = barItem.querySelector('.bar-fill');
+                        if (barFill) {
+                            barFill.style.width = `${level}%`;
+                            barFill.textContent = `${level}%`;
+                        }
+                    });
+                });
+            }
+
+            // Update mobile leaderboard
+            const mobileLeaderboard = document.querySelector('.mobile-view .leaderboard');
+            if (mobileLeaderboard) {
+                const topStalls = hawker.stalls
+                    .filter(s => !s.closed)
+                    .sort((a, b) => b.rating - a.rating)
+                    .slice(0, 3);
+
+                mobileLeaderboard.innerHTML = '';
+                topStalls.forEach((stall, idx) => {
+                    const badges = ['gold', 'silver', 'bronze'];
+                    const item = document.createElement('div');
+                    item.className = 'leaderboard-item';
+                    item.innerHTML = `
+                        <div class="rank-badge ${badges[idx]}">${idx + 1}</div>
+                        <div class="stall-info">
+                            <div class="stall-name">${stall.name}</div>
+                            <div class="stall-cuisine">${stall.cuisine}</div>
+                        </div>
+                        <div class="popularity-score">
+                            <div class="score-value">${stall.rating}</div>
+                        </div>
+                    `;
+                    mobileLeaderboard.appendChild(item);
+                });
+            }
+
+            // Update mobile stall queues
+            const mobileStallQueues = document.querySelectorAll('.mobile-view .bar-chart');
+            if (mobileStallQueues.length > 1) {
+                const stallQueues = mobileStallQueues[mobileStallQueues.length - 1];
+                const openStalls = hawker.stalls.filter(s => !s.closed).sort((a, b) => b.queue - a.queue);
+                stallQueues.innerHTML = '';
+                
+                openStalls.slice(0, 4).forEach(stall => {
+                    const occupancy = stall.occupancy || 0;
+                    const levelClass = occupancy >= 80 ? 'high' : occupancy >= 50 ? 'medium' : 'low';
+                    const barItem = document.createElement('div');
+                    barItem.className = 'bar-item';
+                    barItem.innerHTML = `
+                        <div class="bar-label" style="min-width: 60px;">${stall.name.length > 10 ? stall.name.substring(0, 10) + '...' : stall.name}</div>
+                        <div class="bar-track">
+                            <div class="bar-fill ${levelClass}" style="width: 0;">0</div>
+                        </div>
+                        <div class="bar-value">${stall.waitTime}m</div>
+                    `;
+                    stallQueues.appendChild(barItem);
+                    
+                    // Animate to the actual width using requestAnimationFrame
+                    requestAnimationFrame(() => {
+                        const barFill = barItem.querySelector('.bar-fill');
+                        if (barFill) {
+                            barFill.style.width = `${occupancy}%`;
+                            barFill.textContent = `${stall.queue}`;
+                        }
+                    });
+                });
+            }
+
+            // Update mobile peak hours (stall-specific if stall is selected)
+            const mobilePeakHours = document.getElementById('mobile-peak-hours') || document.querySelector('.mobile-view .peak-hours-grid');
+            const mobilePeakTitle = document.getElementById('mobile-peak-hours-title') || document.querySelector('.mobile-view .chart-title');
+            const mobileStallSelect = document.getElementById('stall-select-mobile');
+            const selectedMobileStallSlug = mobileStallSelect ? mobileStallSelect.value : null;
+            
+            if (mobilePeakHours) {
+                let peakHoursData = hawker.peakHours;
+                let locationName = hawker.name;
+                
+                if (selectedMobileStallSlug && selectedMobileStallSlug !== '') {
+                    const selectedStall = hawker.stalls.find(s => s.slug === selectedMobileStallSlug);
+                    if (selectedStall && selectedStall.peakHours) {
+                        peakHoursData = selectedStall.peakHours;
+                        locationName = selectedStall.name;
+                    }
+                }
+                
+                // Update mobile title
+                if (mobilePeakTitle) {
+                    if (locationName !== hawker.name) {
+                        mobilePeakTitle.textContent = `📊 ${locationName} Peak Hours`;
+                    } else {
+                        mobilePeakTitle.textContent = `📊 Peak Hours`;
+                    }
+                }
+                
+                const periods = [
+                    { label: 'Breakfast', value: peakHoursData.breakfast },
+                    { label: 'Lunch', value: peakHoursData.lunch },
+                    { label: 'Tea', value: peakHoursData.teaTime },
+                    { label: 'Dinner', value: peakHoursData.dinner }
+                ];
+
+                mobilePeakHours.innerHTML = '';
+                periods.forEach(period => {
+                    const card = document.createElement('div');
+                    card.className = 'hour-card';
+                    card.innerHTML = `
+                        <div class="hour-time">${period.label}</div>
+                        <div class="hour-bar">
+                            <div class="hour-bar-fill" style="height: 0;"></div>
+                        </div>
+                        <div class="hour-percentage">0%</div>
+                    `;
+                    mobilePeakHours.appendChild(card);
+                    
+                    // Animate to the actual height using requestAnimationFrame
+                    requestAnimationFrame(() => {
+                        const barFill = card.querySelector('.hour-bar-fill');
+                        const percentage = card.querySelector('.hour-percentage');
+                        if (barFill) {
+                            barFill.style.height = `${period.value}%`;
+                        }
+                        if (percentage) {
+                            percentage.textContent = `${period.value}%`;
+                        }
+                    });
+                });
+            }
+
+            // Update mobile activity feed
+            const mobileActivity = document.querySelector('.mobile-view .activity-feed');
+            if (mobileActivity) {
+                const activities = getActivityFeed(hawkerKey);
+                mobileActivity.innerHTML = '';
+                
+                activities.slice(0, 3).forEach(activity => {
+                    const item = document.createElement('div');
+                    item.className = 'activity-item';
+                    item.innerHTML = `
+                        <div class="activity-icon">${activity.icon}</div>
+                        <div class="activity-content">
+                            <div class="activity-text">${activity.text}</div>
+                            <div class="activity-time">${activity.time}</div>
+                        </div>
+                    `;
+                    mobileActivity.appendChild(item);
+                });
+            }
+        }
+
+        // Mobile dropdowns
+        document.getElementById('hawker-select-mobile')?.addEventListener('change', function(e) {
+            const hawkerKey = e.target.value;
+            const stallSelectMobile = document.getElementById('stall-select-mobile');
+            if (stallSelectMobile) {
+                updateStallOptions(hawkerKey, stallSelectMobile);
+                updateMobileDashboard(hawkerKey);
+            }
+        });
+
+        document.getElementById('stall-select-mobile')?.addEventListener('change', function(e) {
+            const hawkerSelectMobile = document.getElementById('hawker-select-mobile');
+            if (hawkerSelectMobile) {
+                updateMobileDashboard(hawkerSelectMobile.value);
+            }
+        });
+
+        // Time filter buttons
+        document.querySelectorAll('.time-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Remove active class from siblings in the same container
+                this.parentElement.querySelectorAll('.time-btn').forEach(b => b.classList.remove('active'));
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Update the global time filter variable
+                currentTimeFilter = this.textContent.trim();
+                
+                // Update the dashboard with new time filter (both desktop and mobile)
+                const hawkerSelect = document.getElementById('hawker-select');
+                if (hawkerSelect) {
+                    updateDashboard(hawkerSelect.value);
+                }
+                
+                const hawkerSelectMobile = document.getElementById('hawker-select-mobile');
+                if (hawkerSelectMobile) {
+                    updateMobileDashboard(hawkerSelectMobile.value);
+                }
+            });
+        });
+    </script>
+
+    <!-- Navigation Bar -->
 <div class="nav-bar">
   <a href="/" class="nav-logo"><i class="bi bi-shop"></i>ChopeLah</a>
   <div class="nav-items">
@@ -162,327 +1921,5 @@
     </button>
   </div>
 </div>
-
-  <script>
-    const hawkerData = {
-      maxwell: {
-        name: "Maxwell Food Centre",
-        address: "1 Kadayanallur St, Singapore 069184",
-        hours: "6:00AM - 10:00PM",
-        stalls: {
-          "peanuts-soup": [3, 8, 15, 25, 20, 18, 10, 2], // Peanuts Soup
-          "hajmeer-kwaja": [2, 6, 12, 22, 18, 15, 8, 1], // Hajmeer Kwaja
-          "luckmeow": [5, 12, 20, 35, 28, 30, 15, 3], // LuckMeow
-          "ramen-taisho": [4, 10, 18, 30, 25, 28, 12, 2], // Ramen Taisho
-          "china-street-fritters": [3, 8, 15, 28, 22, 20, 10, 2], // China Street Fritters
-          "bold-x-braised": [4, 9, 16, 32, 26, 25, 12, 2], // Bold X Braised
-          "korean-cuisine": [5, 11, 19, 35, 28, 32, 15, 3], // Korean Cuisine
-          "neapolitan-style-pizza": [6, 12, 22, 40, 32, 35, 18, 4], // Neapolitan Style Pizza
-          "tian-tian-chicken-rice": [8, 20, 35, 55, 45, 50, 25, 5] // Tian Tian Chicken Rice
-        }
-      },
-      newton: {
-        name: "Newton Food Centre",
-        address: "500 Clemenceau Ave N, Singapore 229495",
-        hours: "5:00AM - 11:00PM",
-        stalls: {
-          "hotplate-bbq-seafood": [6, 15, 28, 50, 40, 45, 22, 4], // Hotplate BBQ Seafood
-          "22-best-satay": [8, 18, 32, 55, 45, 50, 25, 5], // 22 Best Satay
-          "heng-heng-chicken-rice": [5, 12, 22, 40, 32, 35, 18, 3], // Heng Heng Chicken Rice
-          "teochew-rice-and-porridge": [4, 10, 18, 35, 28, 30, 15, 2], // Teochew Rice And Porridge
-          "lina-fishball-noodles": [3, 8, 15, 28, 22, 25, 12, 2], // Lina Fishball Noodles
-          "aminahs-prata": [5, 12, 20, 38, 30, 32, 16, 3] // Aminah's Prata
-        }
-      },
-      changi: {
-        name: "Changi Village Food Centre",
-        address: "2 Changi Village Rd, Singapore 500002",
-        hours: "6:30AM - 9:00PM",
-        stalls: {
-          "d-authentic-nasi-lemak": [4, 12, 25, 45, 35, 40, 20, 3], // D Authentic Nasi Lemak
-          "alliance-seafood": [6, 15, 28, 50, 40, 45, 22, 4], // Alliance Seafood
-          "burgs": [4, 10, 18, 32, 26, 28, 14, 2], // Burgs
-          "koka-wanton-noodles": [3, 8, 15, 28, 22, 25, 12, 2], // Koka Wanton Noodles
-          "jiak-mee": [3, 8, 15, 28, 22, 25, 12, 2], // Jiak Mee
-          "fortune-popiah": [2, 5, 10, 20, 15, 18, 8, 1], // Fortune Popiah
-          "alifs-nasi-lemak": [4, 10, 20, 35, 28, 30, 15, 2], // Alif's Nasi Lemak
-          "mala-hotpot": [5, 12, 22, 40, 32, 35, 18, 3] // Mala Hotpot
-        }
-      }
-    };
-
-    let currentHawker = 'maxwell';
-    let currentStallData = hawkerData[currentHawker].stalls;
-
-    function computeAllStallsSum() {
-      const keys = Object.keys(currentStallData);
-      const length = currentStallData[keys[0]].length;
-      const totals = new Array(length).fill(0);
-      keys.forEach(key => {
-        currentStallData[key].forEach((value, idx) => {
-          totals[idx] += value;
-        });
-      });
-      return totals;
-    }
-
-    function updateHawkerInfo(hawkerKey) {
-      const hawker = hawkerData[hawkerKey];
-      document.getElementById('hawker-name').textContent = hawker.name;
-      document.getElementById('hawker-address').textContent = hawker.address;
-      document.getElementById('hawker-hours').textContent = "Loading hours...";
-      
-      // Fetch real hours from Google Maps via SerpAPI
-      fetchHawkerHours(hawker.name, hawker.address);
-    }
-
-    function fetchHawkerHours(hawkerName, address) {
-      // For now, use realistic static hours since API calls are problematic
-      const staticHours = {
-        maxwell: "6:00AM - 10:00PM (Daily)",
-        newton: "5:00AM - 11:00PM (Daily)", 
-        changi: "6:30AM - 9:00PM (Daily)"
-      };
-      
-      const currentHawker = document.getElementById('hawker-select').value;
-      document.getElementById('hawker-hours').textContent = staticHours[currentHawker] || "Hours not available";
-      
-      // Optional: Try API call in background (commented out due to CORS issues)
-      /*
-      const apiKey = "2e5022fe16c5374fb40750a1bb17db9b7884b94272d88de37b23b488abc363ff";
-      const query = `${hawkerName} ${address}`;
-      const url = `https://serpapi.com/search.json?engine=google_maps&q=${encodeURIComponent(query)}&location=Singapore&api_key=${apiKey}`;
-      
-      fetch(url)
-        .then(response => response.json())
-        .then(data => {
-          console.log('API Response:', data);
-          // Process API response here if needed
-        })
-        .catch(error => {
-          console.log('API call failed, using static hours:', error);
-        });
-      */
-    }
-
-    function updateStallOptions(hawkerKey) {
-      const stallSelect = document.getElementById('stall-select');
-      const hawker = hawkerData[hawkerKey];
-      
-      // Clear existing options except "All Stalls"
-      stallSelect.innerHTML = '<option value="all">All Stalls</option>';
-      
-      // Add hawker-specific stalls
-      const stallNames = {
-        maxwell: {
-          "peanuts-soup": "Peanuts Soup",
-          "hajmeer-kwaja": "Hajmeer Kwaja",
-          "luckmeow": "LuckMeow",
-          "ramen-taisho": "Ramen Taisho",
-          "china-street-fritters": "China Street Fritters",
-          "bold-x-braised": "Bold X Braised",
-          "korean-cuisine": "Korean Cuisine",
-          "neapolitan-style-pizza": "Neapolitan Style Pizza",
-          "tian-tian-chicken-rice": "Tian Tian Chicken Rice"
-        },
-        newton: {
-          "hotplate-bbq-seafood": "Hotplate BBQ Seafood",
-          "22-best-satay": "22 Best Satay",
-          "heng-heng-chicken-rice": "Heng Heng Chicken Rice",
-          "teochew-rice-and-porridge": "Teochew Rice And Porridge",
-          "lina-fishball-noodles": "Lina Fishball Noodles",
-          "aminahs-prata": "Aminah's Prata"
-        },
-        changi: {
-          "d-authentic-nasi-lemak": "D Authentic Nasi Lemak",
-          "alliance-seafood": "Alliance Seafood",
-          "burgs": "Burgs",
-          "koka-wanton-noodles": "Koka Wanton Noodles",
-          "jiak-mee": "Jiak Mee",
-          "fortune-popiah": "Fortune Popiah",
-          "alifs-nasi-lemak": "Alif's Nasi Lemak",
-          "mala-hotpot": "Mala Hotpot"
-        }
-      };
-      
-      const currentStallNames = stallNames[hawkerKey];
-      Object.keys(currentStallNames).forEach(stallKey => {
-        const option = document.createElement('option');
-        option.value = stallKey;
-        option.textContent = currentStallNames[stallKey];
-        stallSelect.appendChild(option);
-      });
-    }
-
-    function fetchStallHours(hawkerName, stallName) {
-      // Realistic stall hours based on typical hawker stall operating patterns
-      const stallHours = {
-        // Maxwell Food Centre stalls
-        "peanuts-soup": "6:00AM - 2:00PM (Daily)",
-        "hajmeer-kwaja": "5:30AM - 2:00PM (Daily)",
-        "luckmeow": "7:00AM - 3:00PM (Daily)",
-        "ramen-taisho": "11:00AM - 9:00PM (Daily)",
-        "china-street-fritters": "6:00AM - 2:00PM (Daily)",
-        "bold-x-braised": "11:00AM - 8:00PM (Daily)",
-        "korean-cuisine": "11:00AM - 9:00PM (Daily)",
-        "neapolitan-style-pizza": "12:00PM - 10:00PM (Daily)",
-        "tian-tian-chicken-rice": "7:00AM - 2:00PM (Closed Mon)",
-        
-        // Newton Food Centre stalls  
-        "hotplate-bbq-seafood": "5:00PM - 11:00PM (Daily)",
-        "22-best-satay": "5:00PM - 11:00PM (Daily)",
-        "heng-heng-chicken-rice": "10:00AM - 8:00PM (Daily)",
-        "teochew-rice-and-porridge": "6:00AM - 2:00PM (Daily)",
-        "lina-fishball-noodles": "7:00AM - 3:00PM (Daily)",
-        "aminahs-prata": "7:00AM - 10:00PM (Daily)",
-        
-        // Changi Village Food Centre stalls
-        "d-authentic-nasi-lemak": "6:00AM - 2:00PM (Daily)",
-        "alliance-seafood": "5:00PM - 11:00PM (Daily)",
-        "burgs": "11:00AM - 9:00PM (Daily)",
-        "koka-wanton-noodles": "7:00AM - 3:00PM (Daily)",
-        "jiak-mee": "7:00AM - 3:00PM (Daily)",
-        "fortune-popiah": "6:00AM - 2:00PM (Daily)",
-        "alifs-nasi-lemak": "6:00AM - 2:00PM (Daily)",
-        "mala-hotpot": "11:00AM - 9:00PM (Daily)"
-      };
-      
-      // Find the stall key based on stall name (reverse lookup)
-      const stallKey = Object.keys(stallHours).find(key => {
-        const stallNames = {
-          "peanuts-soup": "Peanuts Soup",
-          "hajmeer-kwaja": "Hajmeer Kwaja",
-          "luckmeow": "LuckMeow",
-          "ramen-taisho": "Ramen Taisho",
-          "china-street-fritters": "China Street Fritters",
-          "bold-x-braised": "Bold X Braised",
-          "korean-cuisine": "Korean Cuisine",
-          "neapolitan-style-pizza": "Neapolitan Style Pizza",
-          "tian-tian-chicken-rice": "Tian Tian Chicken Rice",
-          "hotplate-bbq-seafood": "Hotplate BBQ Seafood",
-          "22-best-satay": "22 Best Satay",
-          "heng-heng-chicken-rice": "Heng Heng Chicken Rice",
-          "teochew-rice-and-porridge": "Teochew Rice And Porridge",
-          "lina-fishball-noodles": "Lina Fishball Noodles",
-          "aminahs-prata": "Aminah's Prata",
-          "d-authentic-nasi-lemak": "D Authentic Nasi Lemak",
-          "alliance-seafood": "Alliance Seafood",
-          "burgs": "Burgs",
-          "koka-wanton-noodles": "Koka Wanton Noodles",
-          "jiak-mee": "Jiak Mee",
-          "fortune-popiah": "Fortune Popiah",
-          "alifs-nasi-lemak": "Alif's Nasi Lemak",
-          "mala-hotpot": "Mala Hotpot"
-        };
-        return stallNames[key] === stallName;
-      });
-      
-      const hours = stallKey ? stallHours[stallKey] : "Hours not available";
-      document.getElementById('hawker-hours').innerHTML = `<strong>Stall Hours:</strong> ${hours}`;
-    }
-
-    // Initialize stall options on page load
-    updateStallOptions(currentHawker);
-
-    const ctx = document.getElementById("crowdChart");
-    const chart = new Chart(ctx, {
-      type: "bar",
-      data: {
-        labels: ["3a", "6a", "9a", "12p", "3p", "6p", "9p", "12a"],
-        datasets: [
-          {
-            label: "Crowd Level",
-            data: computeAllStallsSum(),
-            backgroundColor: "#C9784F",
-            borderRadius: 6,
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
-        scales: {
-          y: {
-            beginAtZero: true,
-            grid: { color: "#F2D9BB" },
-            ticks: { color: "#262626" },
-          },
-          x: {
-            grid: { display: false },
-            ticks: { color: "#262626" },
-          },
-        },
-      },
-    });
-
-    // Update chart when hawker is changed
-    const hawkerSelect = document.getElementById("hawker-select");
-    hawkerSelect.addEventListener("change", (e) => {
-      currentHawker = e.target.value;
-      currentStallData = hawkerData[currentHawker].stalls;
-      updateHawkerInfo(currentHawker);
-      updateStallOptions(currentHawker);
-      
-      // Update chart with new hawker data (default to "All Stalls")
-      chart.data.datasets[0].data = computeAllStallsSum();
-      chart.update();
-    });
-
-    // Update chart when stall is changed
-    const stallSelect = document.getElementById("stall-select");
-    stallSelect.addEventListener("change", (e) => {
-      const value = e.target.value;
-      chart.data.datasets[0].data = value === 'all' ? computeAllStallsSum() : currentStallData[value];
-      chart.update();
-      
-      // Fetch stall-specific hours if not "All Stalls"
-      if (value !== 'all') {
-        const hawker = hawkerData[currentHawker];
-        const stallNames = {
-          maxwell: {
-            "peanuts-soup": "Peanuts Soup",
-            "hajmeer-kwaja": "Hajmeer Kwaja",
-            "luckmeow": "LuckMeow",
-            "ramen-taisho": "Ramen Taisho",
-            "china-street-fritters": "China Street Fritters",
-            "bold-x-braised": "Bold X Braised",
-            "korean-cuisine": "Korean Cuisine",
-            "neapolitan-style-pizza": "Neapolitan Style Pizza",
-            "tian-tian-chicken-rice": "Tian Tian Chicken Rice"
-          },
-          newton: {
-            "hotplate-bbq-seafood": "Hotplate BBQ Seafood",
-            "22-best-satay": "22 Best Satay",
-            "heng-heng-chicken-rice": "Heng Heng Chicken Rice",
-            "teochew-rice-and-porridge": "Teochew Rice And Porridge",
-            "lina-fishball-noodles": "Lina Fishball Noodles",
-            "aminahs-prata": "Aminah's Prata"
-          },
-          changi: {
-            "d-authentic-nasi-lemak": "D Authentic Nasi Lemak",
-            "alliance-seafood": "Alliance Seafood",
-            "burgs": "Burgs",
-            "koka-wanton-noodles": "Koka Wanton Noodles",
-            "jiak-mee": "Jiak Mee",
-            "fortune-popiah": "Fortune Popiah",
-            "alifs-nasi-lemak": "Alif's Nasi Lemak",
-            "mala-hotpot": "Mala Hotpot"
-          }
-        };
-        
-        const stallName = stallNames[currentHawker][value];
-        if (stallName) {
-          fetchStallHours(hawker.name, stallName);
-        }
-      } else {
-        // Show hawker centre hours for "All Stalls"
-        fetchHawkerHours(hawkerData[currentHawker].name, hawkerData[currentHawker].address);
-      }
-    });
-  </script>
 </body>
 </html>
-
-
-
