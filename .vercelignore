@@ -1,0 +1,5 @@
+# Don't process or transform any files
+**/*.js
+**/*.html
+**/*.css
+

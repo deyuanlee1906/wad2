@@ -23,16 +23,62 @@ app.get('/api/health', (req, res) => {
 // Express static middleware will handle requests for files that exist,
 // and pass through to next middleware if file doesn't exist
 const staticPath = path.join(__dirname, '../src');
+const fs = require('fs');
+
+// Explicit handler for JS files FIRST to prevent any transformation/bundling
+// This runs before express.static to ensure raw files are served
+// Use regex to match any .js file in scripts or pages directories
+app.get(/^\/(scripts|pages)\/.*\.js$/, (req, res, next) => {
+  const filePath = path.join(staticPath, req.path);
+  
+  // Check if file exists
+  if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+    try {
+      // Read file directly to ensure we're serving the raw source
+      const fileContent = fs.readFileSync(filePath, 'utf8');
+      
+      // Verify it's not already transformed (should not contain exports.__esModule)
+      if (fileContent.includes('exports.__esModule') || fileContent.includes('Object.defineProperty(exports')) {
+        console.error(`WARNING: ${req.path} appears to be transformed. This should not happen.`);
+        console.error(`File path: ${filePath}`);
+      }
+      
+      // Set proper headers for ES modules
+      res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      // Force no cache to prevent stale transformed versions
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+      
+      // Send file content directly
+      return res.send(fileContent);
+    } catch (error) {
+      console.error(`Error reading file ${filePath}:`, error);
+      return res.status(500).send('Error reading file');
+    }
+  }
+  
+  // File doesn't exist, pass to next middleware
+  next();
+});
 
 app.use(express.static(staticPath, {
   // Ensure proper MIME types for JavaScript modules
   setHeaders: (res, filePath) => {
     if (filePath.endsWith('.js')) {
       res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+      // No cache for JS files to prevent stale versions
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
     }
   },
   // Don't serve index.html for directory requests - let our route handle it
-  index: false
+  index: false,
+  // Don't compress/transform files
+  dotfiles: 'ignore',
+  etag: false, // Disable etag to prevent cache issues
+  lastModified: false // Disable lastModified to prevent cache issues
 }));
 
 // Handle POST requests to HTML routes (prevent errors from accidental form submissions)
