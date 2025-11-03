@@ -464,6 +464,13 @@ input:not(:placeholder-shown) ~ label {
   margin-right: auto;
 }
 
+/* Desktop: Wider search bar */
+@media (min-width: 769px) {
+  .search-container {
+    max-width: 500px;
+  }
+}
+
 .search-container i {
   position: absolute;
   left: 12px;
@@ -498,6 +505,15 @@ input:not(:placeholder-shown) ~ label {
   min-height: 100vh;
   padding-top: 70px;
   padding-bottom: 80px;
+}
+
+/* Desktop view - expand container for grid */
+@media (min-width: 769px) {
+  .instagram-container {
+    max-width: 1400px;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
 }
 
 /* Mobile view - padding at bottom instead */
@@ -540,6 +556,37 @@ input:not(:placeholder-shown) ~ label {
   padding: 20px 0;
 }
 
+/* Desktop: Pinterest-style grid layout */
+@media (min-width: 769px) {
+  .instagram-feed {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+    padding: 20px;
+  }
+}
+
+/* Tablet: 2 columns */
+@media (min-width: 769px) and (max-width: 1200px) {
+  .instagram-feed {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Large desktop: 3 columns */
+@media (min-width: 1201px) and (max-width: 1600px) {
+  .instagram-feed {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Extra large desktop: 4 columns */
+@media (min-width: 1601px) {
+  .instagram-feed {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
 /* === Instagram Post === */
 .instagram-post {
   background-color: #ffffff;
@@ -548,11 +595,29 @@ input:not(:placeholder-shown) ~ label {
   margin-bottom: 16px;
   overflow: hidden;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  transition: box-shadow 0.2s ease;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Desktop: Remove margin-bottom in grid */
+@media (min-width: 769px) {
+  .instagram-post {
+    margin-bottom: 0;
+    height: fit-content;
+  }
 }
 
 .instagram-post:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Desktop: Add hover lift effect */
+@media (min-width: 769px) {
+  .instagram-post:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.12);
+  }
 }
 
 /* === Post Header === */
@@ -659,6 +724,29 @@ input:not(:placeholder-shown) ~ label {
 .post-image {
   width: 100%;
   background-color: #F2C6B6;
+  overflow: hidden;
+}
+
+.post-image img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+/* Mobile: Fixed height for consistency */
+@media (max-width: 768px) {
+  .post-image img {
+    height: 400px;
+  }
+}
+
+/* Desktop: Natural image height for Pinterest effect */
+@media (min-width: 769px) {
+  .post-image img {
+    max-height: 500px;
+    min-height: 200px;
+  }
 }
 
 .post-image .image-placeholder,
@@ -676,7 +764,14 @@ input:not(:placeholder-shown) ~ label {
   position: relative;
   overflow: hidden;
   aspect-ratio: 1 / 1;
-  margin-bottom: 12px;
+}
+
+/* Desktop: More compact placeholders */
+@media (min-width: 769px) {
+  .post-image .image-placeholder,
+  .image-placeholder {
+    height: 300px;
+  }
 }
 
 .post-image .image-placeholder::before {
