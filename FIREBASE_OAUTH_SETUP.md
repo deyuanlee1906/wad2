@@ -1,24 +1,24 @@
-# Vercel + Firebase OAuth Setup Guide
+# Firebase OAuth Setup Guide
 
-## Issue: Google Login Not Working on Vercel
+## Issue: Google/Facebook Login Not Working After Deployment
 
-When deploying to Vercel, Google OAuth login may fail because Firebase requires authorized redirect URIs to be whitelisted in your Firebase Console.
+When deploying to a hosting platform, Google OAuth login may fail because Firebase requires authorized redirect URIs to be whitelisted in your Firebase Console.
 
 ## Solution: Update Firebase Authorized Domains
 
-### Step 1: Get Your Vercel Domain
-1. Deploy your app to Vercel (or check your existing deployment)
-2. Note your Vercel URL (e.g., `https://your-app.vercel.app`)
+### Step 1: Get Your Deployment Domain
+1. Deploy your app to your hosting platform
+2. Note your production URL (e.g., `https://your-app.example.com`)
 
-### Step 2: Add Vercel Domain to Firebase Console
+### Step 2: Add Domain to Firebase Console
 
 1. Go to [Firebase Console](https://console.firebase.google.com/)
 2. Select your project: **wad2-login-5799b**
 3. Navigate to: **Authentication** → **Settings** → **Authorized domains**
 4. Click **Add domain**
-5. Enter your Vercel domain (without `https://`):
-   - `your-app.vercel.app`
-   - `*.vercel.app` (for preview deployments)
+5. Enter your production domain (without `https://`):
+   - `your-app.example.com`
+   - Add both production and staging domains if applicable
 
 ### Step 3: Verify OAuth Providers
 
@@ -35,25 +35,25 @@ When deploying to Vercel, Google OAuth login may fail because Firebase requires 
 2. Select project: **wad2-login-5799b** (or the associated project)
 3. Navigate to: **APIs & Services** → **OAuth consent screen**
 4. Add authorized domains:
-   - `vercel.app`
-   - Your specific Vercel domain
+   - Your production domain
+   - Any staging/preview domains
 
 ### Step 5: Test
 
 After updating:
 1. Clear browser cache/cookies
-2. Try Google login on your Vercel deployment
+2. Try Google login on your deployed application
 3. Check browser console for any CORS or redirect errors
 
 ## Common Issues & Solutions
 
 ### Issue: "redirect_uri_mismatch" Error
-**Solution**: Make sure your Vercel domain is added to Firebase Authorized domains
+**Solution**: Make sure your production domain is added to Firebase Authorized domains
 
 ### Issue: Popup Blocked
 **Solution**: 
 - Check browser popup blocker settings
-- Ensure your Vercel domain uses HTTPS (Vercel provides this automatically)
+- Ensure your domain uses HTTPS
 - Try `signInWithRedirect` instead of `signInWithPopup` if popups are blocked
 
 ### Issue: CORS Error
@@ -89,10 +89,10 @@ getRedirectResult(auth).then((result) => {
 
 ## Testing Checklist
 
-- [ ] Vercel domain added to Firebase Authorized domains
+- [ ] Production domain added to Firebase Authorized domains
 - [ ] Google OAuth provider enabled in Firebase
 - [ ] OAuth consent screen configured in Google Cloud Console
 - [ ] Firebase config matches project settings
-- [ ] HTTPS enabled on Vercel (automatic)
-- [ ] Tested on actual Vercel deployment (not localhost)
+- [ ] HTTPS enabled on hosting platform
+- [ ] Tested on actual deployment (not localhost)
 
