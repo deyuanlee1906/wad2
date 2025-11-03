@@ -303,6 +303,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (error) {
         console.error("Google login failed:", error);
+        const errorCode = error.code;
+        let errorMessage = "Google login failed. Please try again.";
+        
+        if (errorCode === 'auth/popup-blocked') {
+          errorMessage = "Popup was blocked. Please allow popups for this site and try again.";
+        } else if (errorCode === 'auth/popup-closed-by-user') {
+          errorMessage = "Login cancelled. Please try again.";
+        } else if (errorCode === 'auth/unauthorized-domain') {
+          errorMessage = "This domain is not authorized. Please contact support.";
+        } else if (errorCode === 'auth/operation-not-allowed') {
+          errorMessage = "Google login is not enabled. Please contact support.";
+        }
+        
+        showMessage(errorMessage, "signInMessage");
       }
     });
   });
@@ -341,6 +355,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (error) {
         console.error("Facebook login failed:", error);
+        const errorCode = error.code;
+        let errorMessage = "Facebook login failed. Please try again.";
+        
+        if (errorCode === 'auth/popup-blocked') {
+          errorMessage = "Popup was blocked. Please allow popups for this site and try again.";
+        } else if (errorCode === 'auth/popup-closed-by-user') {
+          errorMessage = "Login cancelled. Please try again.";
+        } else if (errorCode === 'auth/unauthorized-domain') {
+          errorMessage = "This domain is not authorized. Please contact support.";
+        } else if (errorCode === 'auth/operation-not-allowed') {
+          errorMessage = "Facebook login is not enabled. Please contact support.";
+        }
+        
+        showMessage(errorMessage, "signInMessage");
       }
     });
   });

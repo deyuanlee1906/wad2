@@ -12,7 +12,7 @@
 <body>
     <div class="container" id="signup" style="display:none;">
       <h1 class="form-title">Register</h1>
-      <form method="post" action="/pages/chope/chope.html">
+      <form onsubmit="event.preventDefault(); return false;">
         <div id="signUpMessage" class="messageDiv" style="display:none;"></div>
         <div class="input-group">
            <i class="fas fa-user"></i>
@@ -42,7 +42,7 @@
             <label for="rPassword">Password</label>
         </div>
         <div class="field-help" id="rPasswordHelp" style="display:none;"></div>
-       <button class="btn" id="submitSignUp" >Sign Up</button>
+       <button type="button" class="btn" id="submitSignUp" >Sign Up</button>
       </form>
       <p class="or">
         ----------or--------
@@ -60,7 +60,7 @@
 
   <div class="container" id="signIn">
         <h1 class="form-title">Sign In</h1>
-        <form method="post" action="/pages/chope/chope.html">
+        <form onsubmit="event.preventDefault(); return false;">
           <div id="signInMessage" class="messageDiv" style="display:none;"></div>
 
           <div class="input-group">
@@ -76,7 +76,7 @@
           <p class="recover">
             <a href="#" id="recoverPasswordLink">Recover Password</a>
           </p>
-         <button  class="btn"  id="submitSignIn">Sign In</button>
+         <button type="button" class="btn" id="submitSignIn">Sign In</button>
         </form>
         <p class="or">
           ----------or--------
