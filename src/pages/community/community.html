@@ -58,35 +58,49 @@
 <script type="module">
 // Expose like sync helpers globally so existing non-module code can call them
 import { getAuth } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
-import { getFirestore, doc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-
-const auth = getAuth();
-const db = getFirestore();
+import { getFirestore, doc, setDoc, deleteDoc, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
 async function setUserLike(postId, postSnapshot) {
+  const auth = getAuth();
+  const db = getFirestore();
   const user = auth.currentUser;
   const uid = user?.uid;
   if (!uid) throw new Error('not-authenticated');
   const pid = String(postId);
   const suid = String(uid);
+  
+  // Check if post already exists in Firestore
+  const postRef = doc(db, 'posts', pid);
+  const existingPost = await getDoc(postRef);
+  
   // Ensure a minimal posts/{postId} exists so Profile can fetch liked posts
-  // We merge, so if it already exists we won't overwrite existing fields
+  // IMPORTANT: Include createdAt so the post can be queried by orderBy('createdAt')
   const base = {
     updatedAt: serverTimestamp(),
   };
-  if (postSnapshot) {
-    base.caption = postSnapshot.caption || '';
-    base.mediaUrl = postSnapshot.mediaUrl || null;
-    base.authorName = postSnapshot.authorName || '';
+  
+  // Only set createdAt if this is a new post
+  if (!existingPost.exists()) {
+    base.createdAt = serverTimestamp();
+    base.authorId = 'sample-user'; // Default for sample posts
   }
+  
+  if (postSnapshot) {
+    base.caption = postSnapshot.caption || postSnapshot.content || '';
+    base.mediaUrl = postSnapshot.mediaUrl || null;
+    base.authorName = postSnapshot.authorName || postSnapshot.author || '';
+  }
+  
   await Promise.all([
-    setDoc(doc(db, 'posts', pid), base, { merge: true }),
+    setDoc(postRef, base, { merge: true }),
     setDoc(doc(db, 'users', suid, 'likes', pid), { postId: pid, likedAt: serverTimestamp() }, { merge: true }),
     setDoc(doc(db, 'posts', pid, 'likes', suid), { uid: suid, likedAt: serverTimestamp() }, { merge: true })
   ]);
 }
 
 async function unsetUserLike(postId) {
+  const auth = getAuth();
+  const db = getFirestore();
   const user = auth.currentUser;
   const uid = user?.uid;
   if (!uid) throw new Error('not-authenticated');
@@ -103,12 +117,15 @@ window.__likeSync = { setUserLike, unsetUserLike };
 
 <script src="/scripts/main.js"></script>
 <script type="module">
-import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+import { getFirestore, collection, query, orderBy, limit, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 // Instagram-style feed functionality
+const auth = getAuth();
+const db = getFirestore();
 const feed = document.getElementById('instagramFeed');
 let likeCounts = {}; // Will be loaded from Firestore per user
-let followStatus = JSON.parse(localStorage.getItem('followStatus')) || {};
-let bookmarkStatus = JSON.parse(localStorage.getItem('bookmarkStatus')) || {};
+let followStatus = {}; // Will be loaded from Firestore per user
+let bookmarkStatus = {}; // Will be loaded from Firestore per user
 
 // Track current user's likes from Firestore
 let userLikes = new Set();
@@ -116,8 +133,10 @@ let userLikes = new Set();
 async function renderInstagramFeed() {
   feed.innerHTML = '';
 
-  // Load current user's likes from Firestore
+  // Load current user's likes, follows, and bookmarks from Firestore
   await loadUserLikes();
+  await loadUserFollows();
+  await loadUserBookmarks();
 
   // Render Firestore posts first (new, permanent posts)
   try {
@@ -160,18 +179,23 @@ async function renderInstagramFeed() {
 // Load current user's likes and like counts from Firestore
 async function loadUserLikes() {
   try {
-    const user = getAuth().currentUser;
+    const user = auth.currentUser;
     if (!user) {
+      console.log('No user logged in, skipping like loading');
       userLikes.clear();
       likeCounts = {};
       return;
     }
+    
+    console.log('Loading likes for user:', user.uid);
     
     // Load user's liked posts
     const likesRef = collection(db, 'users', user.uid, 'likes');
     const likesSnap = await getDocs(likesRef);
     userLikes.clear();
     likeCounts = {};
+    
+    console.log(`User has ${likesSnap.size} likes in their collection`);
     
     // Count likes for each post by checking posts/{postId}/likes subcollections
     const postsRef = collection(db, 'posts');
@@ -203,10 +227,65 @@ async function loadUserLikes() {
         }
       }
     }
+    
+    console.log('Likes loaded:', Array.from(userLikes));
+    console.log('Like counts:', likeCounts);
   } catch (e) {
     console.error('Failed to load user likes', e);
     userLikes.clear();
     likeCounts = {};
+  }
+}
+
+// Load current user's follow status from Firestore
+async function loadUserFollows() {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      followStatus = {};
+      return;
+    }
+    
+    // Load user's followed authors
+    const followsRef = collection(db, 'users', user.uid, 'follows');
+    const followsSnap = await getDocs(followsRef);
+    followStatus = {};
+    
+    followsSnap.docs.forEach(docSnap => {
+      const authorName = docSnap.id; // Document ID is the author name
+      followStatus[authorName] = true;
+    });
+    
+    console.log('Follows loaded:', followStatus);
+  } catch (e) {
+    console.error('Failed to load user follows', e);
+    followStatus = {};
+  }
+}
+
+// Load current user's bookmark status from Firestore
+async function loadUserBookmarks() {
+  try {
+    const user = auth.currentUser;
+    if (!user) {
+      bookmarkStatus = {};
+      return;
+    }
+    
+    // Load user's bookmarked posts
+    const bookmarksRef = collection(db, 'users', user.uid, 'bookmarks');
+    const bookmarksSnap = await getDocs(bookmarksRef);
+    bookmarkStatus = {};
+    
+    bookmarksSnap.docs.forEach(docSnap => {
+      const postId = docSnap.id; // Document ID is the post ID
+      bookmarkStatus[postId] = true;
+    });
+    
+    console.log('Bookmarks loaded:', bookmarkStatus);
+  } catch (e) {
+    console.error('Failed to load user bookmarks', e);
+    bookmarkStatus = {};
   }
 }
 
@@ -361,40 +440,75 @@ function setupPostInteractions(postElement, thread) {
   
   // Follow functionality
   const followBtn = postElement.querySelector('.follow-btn');
-  followBtn.addEventListener('click', function() {
-    const user = this.dataset.user;
+  followBtn.addEventListener('click', async function() {
+    const authorName = this.dataset.user;
     const isFollowing = this.classList.contains('following');
+    const currentUser = auth.currentUser;
     
-    if (isFollowing) {
-      followStatus[user] = false;
-      this.classList.remove('following');
-      this.innerHTML = '<i class="bi bi-person-plus"></i> Follow';
-    } else {
-      followStatus[user] = true;
-      this.classList.add('following');
-      this.innerHTML = '<i class="bi bi-person-check-fill"></i> Following';
+    if (!currentUser) {
+      alert('Please sign in to follow users.');
+      return;
     }
     
-    localStorage.setItem('followStatus', JSON.stringify(followStatus));
+    try {
+      if (isFollowing) {
+        // Unfollow: remove from Firestore
+        await deleteDoc(doc(db, 'users', currentUser.uid, 'follows', authorName));
+        followStatus[authorName] = false;
+        this.classList.remove('following');
+        this.innerHTML = '<i class="bi bi-person-plus"></i> Follow';
+      } else {
+        // Follow: add to Firestore
+        await setDoc(doc(db, 'users', currentUser.uid, 'follows', authorName), {
+          authorName: authorName,
+          followedAt: new Date()
+        });
+        followStatus[authorName] = true;
+        this.classList.add('following');
+        this.innerHTML = '<i class="bi bi-person-check-fill"></i> Following';
+      }
+    } catch (e) {
+      console.error('Follow action failed', e);
+      alert('Could not update follow status. Please try again.');
+    }
   });
   
   // Bookmark functionality
   const bookmarkBtn = postElement.querySelector('.bookmark-btn');
-  bookmarkBtn.addEventListener('click', function() {
+  bookmarkBtn.addEventListener('click', async function() {
     const postId = thread.id;
     const isBookmarked = this.classList.contains('bookmarked');
+    const currentUser = auth.currentUser;
     
-    if (isBookmarked) {
-      bookmarkStatus[postId] = false;
-      this.classList.remove('bookmarked');
-      this.querySelector('i').className = 'bi bi-bookmark';
-    } else {
-      bookmarkStatus[postId] = true;
-      this.classList.add('bookmarked');
-      this.querySelector('i').className = 'bi bi-bookmark-fill';
+    if (!currentUser) {
+      alert('Please sign in to bookmark posts.');
+      return;
     }
     
-    localStorage.setItem('bookmarkStatus', JSON.stringify(bookmarkStatus));
+    try {
+      if (isBookmarked) {
+        // Remove bookmark from Firestore
+        await deleteDoc(doc(db, 'users', currentUser.uid, 'bookmarks', postId));
+        bookmarkStatus[postId] = false;
+        this.classList.remove('bookmarked');
+        this.querySelector('i').className = 'bi bi-bookmark';
+      } else {
+        // Add bookmark to Firestore
+        await setDoc(doc(db, 'users', currentUser.uid, 'bookmarks', postId), {
+          postId: postId,
+          bookmarkedAt: new Date(),
+          authorName: thread.author,
+          caption: thread.content || '',
+          mediaUrl: thread.mediaUrl || null
+        });
+        bookmarkStatus[postId] = true;
+        this.classList.add('bookmarked');
+        this.querySelector('i').className = 'bi bi-bookmark-fill';
+      }
+    } catch (e) {
+      console.error('Bookmark action failed', e);
+      alert('Could not update bookmark status. Please try again.');
+    }
   });
   
   // Comment toggle
@@ -495,8 +609,20 @@ document.getElementById('searchInput').addEventListener('input', function() {
   });
 });
 
-// Initialize the feed
-renderInstagramFeed();
+// Initialize the feed AFTER auth is ready
+// This ensures likes/follows/bookmarks load correctly
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+
+let feedInitialized = false;
+
+onAuthStateChanged(getAuth(), async (user) => {
+  if (!feedInitialized) {
+    feedInitialized = true;
+    // Auth state is now ready (user logged in or not)
+    // Now we can safely load likes and render the feed
+    await renderInstagramFeed();
+  }
+});
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>

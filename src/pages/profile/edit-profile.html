@@ -218,6 +218,15 @@
 </head>
 <body>
   <div class="edit-profile-container">
+    <!-- Welcome Banner for New Users -->
+    <div id="welcomeBanner" class="alert alert-success" style="display: none; background-color: #d4edda; border-color: #c3e6cb; color: #155724;">
+      <i class="bi bi-check-circle-fill"></i> 
+      <strong>Welcome to ChopeLah!</strong> Your account has been created. Take a moment to customize your profile below, then click "Continue to App" when you're ready.
+      <button id="continueToAppBtn" class="btn btn-primary" style="margin-top: 8px;">
+        <i class="bi bi-arrow-right-circle"></i> Continue to App
+      </button>
+    </div>
+
     <!-- Header with Profile Preview -->
     <div class="edit-profile-header">
       <h3>Edit Profile</h3>
@@ -233,12 +242,6 @@
         </button>
       </div>
 
-      <!-- Photo Upload -->
-      <div class="form-group">
-        <input id="photoInput" type="file" accept="image/*" class="form-control">
-        <span class="form-text">Upload a new profile photo (JPEG/PNG recommended)</span>
-        <div id="photoError" class="text-danger hidden"></div>
-      </div>
     </div>
 
     <!-- Username Section -->
@@ -253,6 +256,21 @@
       </div>
       <button id="saveUsernameBtn" class="btn btn-primary">
         <i class="bi bi-check-lg"></i> Save Username
+      </button>
+    </div>
+
+    <!-- Bio Section -->
+    <div class="form-section">
+      <div class="form-section-title">
+        <i class="bi bi-chat-left-text"></i> Bio
+      </div>
+      <div class="form-group">
+        <textarea id="bioInput" class="form-control" placeholder="Tell us about yourself..." rows="4"></textarea>
+        <span class="form-text">Share your food interests or favorite hawker centers!</span>
+        <div id="bioError" class="text-danger hidden"></div>
+      </div>
+      <button id="saveBioBtn" class="btn btn-primary">
+        <i class="bi bi-check-lg"></i> Save Bio
       </button>
     </div>
 
@@ -290,6 +308,33 @@
       <i class="bi bi-info-circle"></i> 
       For security, you may need to re-enter your password when changing email or password.
     </div>
+
+    <!-- Danger Zone -->
+    <div class="form-section" style="border: 2px solid #dc3545;">
+      <div class="form-section-title" style="color: #dc3545;">
+        <i class="bi bi-exclamation-triangle-fill"></i> Danger Zone
+      </div>
+      <div class="form-group">
+        <p class="text-muted" style="font-size: 14px; margin-bottom: 16px;">
+          <strong>Permanently delete your account and all associated data.</strong>
+        </p>
+        <p class="text-muted" style="font-size: 13px;">
+          This action cannot be undone. All your data will be removed:
+        </p>
+        <ul class="text-muted" style="font-size: 13px; margin-left: 20px;">
+          <li>All your posts</li>
+          <li>All your likes on posts (hearts will be removed from posts)</li>
+          <li>All your follows</li>
+          <li>All your saved/bookmarked posts</li>
+          <li>Your profile information</li>
+          <li>Your authentication account</li>
+        </ul>
+        <div id="deleteError" class="text-danger hidden" style="margin-top: 12px;"></div>
+      </div>
+      <button id="deleteAccountBtn" class="btn btn-danger">
+        <i class="bi bi-trash3"></i> Delete My Account
+      </button>
+    </div>
   </div>
 
     <div class="nav-bar">
@@ -325,23 +370,23 @@
     </div>
 
   <script type="module">
-    import { getAuth, onAuthStateChanged, updateEmail, updatePassword, signOut, reauthenticateWithCredential, EmailAuthProvider } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-storage.js";
+    import { getAuth, onAuthStateChanged, updateEmail, updatePassword, signOut, reauthenticateWithCredential, EmailAuthProvider, deleteUser } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, getDocs, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
     const auth = getAuth();
     const db = getFirestore();
-    const storage = getStorage();
 
     const avatarPreview = document.getElementById('avatarPreview');
     const currentUsernameEl = document.getElementById('currentUsername');
     const currentEmailEl = document.getElementById('currentEmail');
-    const photoInput = document.getElementById('photoInput');
-    const photoError = document.getElementById('photoError');
 
     const usernameInput = document.getElementById('usernameInput');
     const usernameError = document.getElementById('usernameError');
     const saveUsernameBtn = document.getElementById('saveUsernameBtn');
+
+    const bioInput = document.getElementById('bioInput');
+    const bioError = document.getElementById('bioError');
+    const saveBioBtn = document.getElementById('saveBioBtn');
 
     const emailInput = document.getElementById('emailInput');
     const emailError = document.getElementById('emailError');
@@ -351,7 +396,25 @@
     const passwordError = document.getElementById('passwordError');
     const savePasswordBtn = document.getElementById('savePasswordBtn');
 
+    const deleteError = document.getElementById('deleteError');
+    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
+
     const logoutBtn = document.getElementById('logoutBtn');
+    const welcomeBanner = document.getElementById('welcomeBanner');
+    const continueToAppBtn = document.getElementById('continueToAppBtn');
+
+    // Check if this is a new user (from URL parameter)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('welcome') === 'true') {
+      welcomeBanner.style.display = 'block';
+    }
+
+    // Handle "Continue to App" button
+    if (continueToAppBtn) {
+      continueToAppBtn.addEventListener('click', () => {
+        window.location.href = '/pages/chope/chope.html';
+      });
+    }
 
     function showError(el, message) {
       el.textContent = message || '';
@@ -372,6 +435,8 @@
       const username = data.username || (data.email ? data.email.split('@')[0] : 'user');
       currentUsernameEl.textContent = `@${username}`;
       currentEmailEl.textContent = data.email || '';
+      // Load bio into textarea
+      bioInput.value = data.bio || '';
       // Always use default grey avatar (no external photos)
       setAvatar(username, '');
     }
@@ -504,22 +569,144 @@
       }
     });
 
-    // Photo upload -> Storage -> update users.photoURL
-    photoInput.addEventListener('change', async (e) => {
-      showError(photoError, '');
-      const file = e.target.files?.[0];
+    // Bio change (no auth required, just update Firestore)
+    saveBioBtn.addEventListener('click', async () => {
+      showError(bioError, '');
       const user = auth.currentUser;
-      if (!file || !user) return;
+      if (!user) return;
+      const newBio = (bioInput.value || '').trim();
+      
+      // Bio can be empty - allow clearing it
       try {
-        const path = `user_uploads/${user.uid}/profile_${Date.now()}`;
-        const r = ref(storage, path);
-        await uploadBytes(r, file);
-        const url = await getDownloadURL(r);
-        await setDoc(doc(db, 'users', user.uid), { photoURL: url }, { merge: true });
+        await setDoc(doc(db, 'users', user.uid), { bio: newBio || null }, { merge: true });
         await loadCurrentUser(user.uid);
+        alert('Bio updated successfully!');
       } catch (e) {
         console.error(e);
-        showError(photoError, 'Could not upload photo.');
+        showError(bioError, 'Could not update bio. Try again.');
+      }
+    });
+
+    // Delete Account with comprehensive cleanup
+    deleteAccountBtn.addEventListener('click', async () => {
+      const confirmation = window.prompt(
+        '⚠️ WARNING: This will permanently delete your account and ALL data.\n\n' +
+        'Type "DELETE" (in capitals) to confirm deletion:'
+      );
+      
+      if (confirmation !== 'DELETE') {
+        if (confirmation) {
+          showError(deleteError, 'Deletion cancelled. You must type "DELETE" exactly (in capitals).');
+        }
+        return;
+      }
+
+      const user = auth.currentUser;
+      if (!user) {
+        showError(deleteError, 'Not authenticated.');
+        return;
+      }
+
+      const uid = user.uid;
+      deleteAccountBtn.disabled = true;
+      deleteAccountBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Deleting...';
+      showError(deleteError, '');
+
+      try {
+        console.log('Starting account deletion for user:', uid);
+
+        // Step 1: Get user's username for cleanup
+        const userDoc = await getDoc(doc(db, 'users', uid));
+        const username = userDoc.exists() ? userDoc.data().username : null;
+        console.log('Username:', username);
+
+        // Step 2: Delete all user's posts and their likes
+        const postsQuery = query(collection(db, 'posts'), where('authorId', '==', uid));
+        const postsSnapshot = await getDocs(postsQuery);
+        console.log(`Deleting ${postsSnapshot.size} user posts...`);
+        
+        for (const postDoc of postsSnapshot.docs) {
+          const postId = postDoc.id;
+          
+          // Delete all likes on this post
+          const postLikesSnapshot = await getDocs(collection(db, 'posts', postId, 'likes'));
+          for (const likeDoc of postLikesSnapshot.docs) {
+            await deleteDoc(likeDoc.ref);
+          }
+          
+          // Delete the post itself
+          await deleteDoc(doc(db, 'posts', postId));
+        }
+
+        // Step 3: Remove user's likes from ALL posts (this resets hearts on other posts)
+        const userLikesSnapshot = await getDocs(collection(db, 'users', uid, 'likes'));
+        console.log(`Cleaning up ${userLikesSnapshot.size} likes from posts...`);
+        
+        for (const likeDoc of userLikesSnapshot.docs) {
+          const postId = likeDoc.id;
+          // Remove from post's likes subcollection (this decrements like count)
+          try {
+            await deleteDoc(doc(db, 'posts', postId, 'likes', uid));
+          } catch (e) {
+            console.warn(`Could not delete like from post ${postId}:`, e);
+          }
+          // Remove from user's likes subcollection
+          await deleteDoc(likeDoc.ref);
+        }
+
+        // Step 4: Delete user's bookmarks
+        const userBookmarksSnapshot = await getDocs(collection(db, 'users', uid, 'bookmarks'));
+        console.log(`Cleaning up ${userBookmarksSnapshot.size} bookmarks...`);
+        
+        for (const bookmarkDoc of userBookmarksSnapshot.docs) {
+          await deleteDoc(bookmarkDoc.ref);
+        }
+
+        // Step 5: Delete user's follows
+        const userFollowsSnapshot = await getDocs(collection(db, 'users', uid, 'follows'));
+        console.log(`Cleaning up ${userFollowsSnapshot.size} follows...`);
+        
+        for (const followDoc of userFollowsSnapshot.docs) {
+          await deleteDoc(followDoc.ref);
+        }
+
+        // Step 6: Delete username reservation
+        if (username) {
+          try {
+            await deleteDoc(doc(db, 'usernames', username));
+            console.log(`Deleted username reservation: ${username}`);
+          } catch (e) {
+            console.warn('Could not delete username reservation:', e);
+          }
+        }
+
+        // Step 7: Delete user document
+        await deleteDoc(doc(db, 'users', uid));
+        console.log('Deleted user document');
+
+        // Step 8: Delete Firebase Auth account
+        await deleteUser(user);
+        console.log('Deleted Firebase Auth user');
+
+        // Step 9: Clear local storage
+        localStorage.removeItem('loggedInUserId');
+
+        // Success - redirect to home
+        alert('✅ Your account has been permanently deleted.\n\nAll your likes, follows, and bookmarks have been removed from all posts.');
+        window.location.href = '/index.html';
+
+      } catch (error) {
+        console.error('Account deletion error:', error);
+        deleteAccountBtn.disabled = false;
+        deleteAccountBtn.innerHTML = '<i class="bi bi-trash3"></i> Delete My Account';
+        
+        if (error.code === 'auth/requires-recent-login') {
+          showError(deleteError, 
+            '🔒 For security, please log out and log back in, then try deleting your account again.');
+        } else {
+          showError(deleteError, 
+            '❌ Could not delete account: ' + (error.message || 'Unknown error. Please try again.'));
+        }
       }
     });
 
