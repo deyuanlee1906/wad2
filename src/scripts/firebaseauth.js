@@ -4,8 +4,8 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, se
 import { getFirestore, setDoc, doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 import { GoogleAuthProvider, signInWithPopup, FacebookAuthProvider } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 
-// Your web app's Firebase configuration (must be defined before using getAuth/getFirestore)
-const firebaseConfig = {
+// Fallback Firebase configuration (used if API fetch fails)
+const fallbackFirebaseConfig = {
   apiKey: "AIzaSyApmvl3E-sbQMZfadYGfa4P0EJ6N7IEZmo",
   authDomain: "wad2-login-5799b.firebaseapp.com",
   projectId: "wad2-login-5799b",
@@ -14,30 +14,86 @@ const firebaseConfig = {
   appId: "1:148986270821:web:fc17df5adf49b464a1628c"
 };
 
-// Initialize Firebase before any calls to getAuth/getFirestore
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-// Use browser language for auth emails
-try { auth.useDeviceLanguage && auth.useDeviceLanguage(); } catch (_) {}
-const db = getFirestore(app);
+// Fetch Firebase config from API endpoint (uses environment variables)
+async function getFirebaseConfig() {
+  try {
+    const response = await fetch('/api/firebase-config');
+    if (response.ok) {
+      const config = await response.json();
+      // Only use API config if apiKey is provided, otherwise use fallback
+      if (config.apiKey && config.apiKey.trim() !== '') {
+        console.log('✅ Loaded Firebase config from environment variables');
+        return config;
+      }
+    }
+  } catch (error) {
+    console.warn('⚠️ Could not fetch Firebase config from API, using fallback:', error.message);
+  }
+  // Use fallback config if API fetch fails or apiKey is empty
+  console.log('📋 Using fallback Firebase config');
+  return fallbackFirebaseConfig;
+}
 
-// ========================================
-// EXPORT FIREBASE GLOBALS IMMEDIATELY
-// ========================================
-window.db = db;
-window.doc = doc;
-window.setDoc = setDoc;
-window.getDoc = getDoc;
-window.collection = collection;
-window.query = query;
-window.where = where;
-window.getDocs = getDocs;
-window.updateDoc = updateDoc;
-window.deleteDoc = deleteDoc;
-window.serverTimestamp = serverTimestamp;
-window.addDoc = addDoc;
+// Initialize Firebase with config from API or fallback
+let app, auth, db;
+let firebaseConfig = fallbackFirebaseConfig;
 
-console.log("✅ Firebase initialized successfully - all functions exported to window");
+// Promise that resolves when Firebase is initialized
+const firebaseInitPromise = (async function initializeFirebase() {
+  try {
+    firebaseConfig = await getFirebaseConfig();
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    // Use browser language for auth emails
+    try { auth.useDeviceLanguage && auth.useDeviceLanguage(); } catch (_) {}
+    db = getFirestore(app);
+    
+    // Export to window once initialized
+    window.db = db;
+    window.doc = doc;
+    window.setDoc = setDoc;
+    window.getDoc = getDoc;
+    window.collection = collection;
+    window.query = query;
+    window.where = where;
+    window.getDocs = getDocs;
+    window.updateDoc = updateDoc;
+    window.deleteDoc = deleteDoc;
+    window.serverTimestamp = serverTimestamp;
+    window.addDoc = addDoc;
+    window.auth = auth; // Also export auth
+    
+    console.log("✅ Firebase initialized successfully - all functions exported to window");
+    return { app, auth, db, firebaseConfig };
+  } catch (error) {
+    console.error("❌ Firebase initialization failed:", error);
+    // Fallback initialization with default config
+    app = initializeApp(fallbackFirebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+    
+    // Export to window with fallback
+    window.db = db;
+    window.doc = doc;
+    window.setDoc = setDoc;
+    window.getDoc = getDoc;
+    window.collection = collection;
+    window.query = query;
+    window.where = where;
+    window.getDocs = getDocs;
+    window.updateDoc = updateDoc;
+    window.deleteDoc = deleteDoc;
+    window.serverTimestamp = serverTimestamp;
+    window.addDoc = addDoc;
+    window.auth = auth;
+    
+    console.log("⚠️ Firebase initialized with fallback config");
+    return { app, auth, db, firebaseConfig: fallbackFirebaseConfig };
+  }
+})();
+
+// Export the promise so other code can wait for initialization
+window.firebaseInitPromise = firebaseInitPromise;
 
 /**
  * Insert a single document into a collection
@@ -263,8 +319,10 @@ function showMessage(message, divID){
     },10000);
 }
 
-// Defer DOM queries and event bindings until content is loaded
-document.addEventListener('DOMContentLoaded', () => {
+// Defer DOM queries and event bindings until content is loaded AND Firebase is initialized
+document.addEventListener('DOMContentLoaded', async () => {
+  // Wait for Firebase to be initialized before setting up event handlers
+  await firebaseInitPromise;
   // Bind to all matching icons (IDs are duplicated in markup)
   const googleButtons = document.querySelectorAll('#googleLogin');
   const facebookButtons = document.querySelectorAll('#facebookLogin');

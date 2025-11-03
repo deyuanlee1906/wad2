@@ -1,0 +1,29 @@
+services:
+  - type: web
+    name: chope-lah
+    env: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false
+      - key: FIREBASE_API_KEY
+        sync: false
+      - key: FIREBASE_AUTH_DOMAIN
+        value: wad2-login-5799b.firebaseapp.com
+      - key: FIREBASE_PROJECT_ID
+        value: wad2-login-5799b
+      - key: FIREBASE_STORAGE_BUCKET
+        value: wad2-login-5799b.appspot.com
+      - key: FIREBASE_MESSAGING_SENDER_ID
+        value: "148986270821"
+      - key: FIREBASE_APP_ID
+        value: "1:148986270821:web:fc17df5adf49b464a1628c"
+
