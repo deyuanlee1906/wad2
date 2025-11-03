@@ -1,4 +1,3 @@
-<!-- /pages/order/stall.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,65 +10,112 @@
   <script type="module" src="/scripts/firebaseauth.js"></script>
 
   <style>
-    :root{--bg:#f8f9fa;--card:#fff;--accent:#d98566}
-    body{background:var(--bg);margin:0;padding-top:70px;padding-bottom:140px;font-family:Inter,system-ui}
-    @media (max-width:768px){ body{padding-top:0;padding-bottom:140px} }
-    .container{max-width:1200px;padding:18px;margin:0 auto}
+    :root{--bg:#f5f5f5;--card:#fff;--accent:#d98566;--text:#1a1a1a;--text-muted:#666}
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%;width:100%;font-family:Inter,system-ui}
+    body{background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+    
+    /* Full-screen layout using flexbox to maximize space */
+    .main-content{display:flex;flex-direction:column;flex:1;min-height:100vh;margin-bottom:80px}
+    /* added margin-bottom to main-content to prevent cart footer overlap */
+    .header-section{padding:20px 24px;border-bottom:1px solid rgba(0,0,0,0.06);background:var(--card);flex-shrink:0}
     .header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-    .header h2{margin:0;font-size:1.25rem}
-    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+    .header h2{margin:0;font-size:1.5rem;font-weight:600}
+    .controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
     .time-select{min-width:160px}
-    .layout{display:grid;grid-template-columns: 220px 1fr; gap:18px}
-    @media (max-width:767px){ .layout { grid-template-columns: 1fr; } .left-rail{order:2} .menu-col{order:1} }
-    .left-rail{position:sticky;top:82px;height:calc(100vh - 170px);overflow:auto;padding-right:8px}
-    @media (max-width:768px){ .left-rail{top:12px} }
-    .category-pill{padding:8px 12px;border-radius:999px;background:#fff;margin-bottom:8px;display:block;border:1px solid rgba(0,0,0,0.06);cursor:pointer}
-    .category-pill.active{background:var(--accent);color:#fff;border-color:var(--accent)}
-    .menu-list{padding:10px}
-    .menu-section{margin-bottom:18px}
-    .menu-item{display:flex;gap:12px;background:var(--card);padding:12px;border-radius:10px;align-items:center;border:1px solid rgba(0,0,0,0.04)}
-    .menu-item img{width:90px;height:70px;object-fit:cover;border-radius:8px}
-    .qty-controls{display:flex;align-items:center;gap:6px}
-    .qty-controls button{width:34px;height:34px;border-radius:6px;border:1px solid rgba(0,0,0,0.08);background:#fff}
-    .cart-fixed{position:fixed;bottom:0;left:0;right:0;background:#fff;padding:12px;border-top:1px solid #ddd;z-index:1000}
-    @media (max-width:375px){
-      .layout{grid-template-columns:1fr}
-      .left-rail{height:auto;position:relative;display:flex;overflow:auto;padding-bottom:8px;gap:6px}
-      .category-pill{white-space:nowrap}
-      .menu-item img{width:70px;height:60px}
-      .qty-controls button{width:30px;height:30px}
-      .time-select{min-width:120px}
+    
+    /* Full-height layout grid with improved spacing */
+    .layout-wrapper{display:flex;flex:1;gap:0;min-height:0}
+    .layout{display:grid;grid-template-columns:240px 1fr;gap:0;width:100%;height:100%;min-height:0}
+    @media (max-width:767px){ .layout { grid-template-columns: 1fr; } }
+    
+    .left-rail{position:sticky;top:0;height:100%;overflow-y:auto;padding:12px 8px;background:var(--card);border-right:1px solid rgba(0,0,0,0.06);flex-shrink:0}
+    @media (max-width:768px){ .left-rail{display:none} }
+    
+    .menu-col{flex:1;overflow-y:auto;min-height:0;padding:20px 24px;padding-bottom:40px}
+    /* added padding-bottom to menu-col to ensure content doesn't hide under fixed footer */
+    .menu-list{max-width:100%}
+    .menu-section{margin-bottom:28px}
+    .menu-section h4{margin-bottom:14px;font-size:1.1rem;font-weight:600;color:var(--text)}
+    
+    /* Enhanced menu item styling with better spacing and shadows */
+    .menu-item{display:flex;gap:14px;background:var(--card);padding:14px;border-radius:12px;align-items:stretch;border:1px solid rgba(0,0,0,0.04);transition:all 0.2s ease;cursor:pointer}
+    .menu-item:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08);border-color:rgba(0,0,0,0.08)}
+    .menu-item img{width:100px;height:80px;object-fit:cover;border-radius:10px;flex-shrink:0}
+    .menu-item-content{flex:1;display:flex;flex-direction:column;justify-content:space-between}
+    .menu-item-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+    .menu-item-title{font-weight:600;font-size:1rem;margin:0}
+    .menu-item-description{font-size:0.875rem;color:var(--text-muted);margin:4px 0 0 0}
+    .menu-item-price{font-weight:700;color:var(--accent);font-size:1.1rem}
+    .menu-item-status{font-size:0.8rem;color:var(--text-muted);margin-top:4px}
+    
+    /* Modern quantity controls with refined styling */
+    .qty-controls{display:flex;align-items:center;gap:0;background:#f0f0f0;border-radius:8px;padding:2px;width:fit-content}
+    .qty-controls button{width:40px;height:40px;border:none;background:transparent;color:var(--accent);font-weight:600;font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s ease;border-radius:6px;margin:2px}
+    .qty-controls button:hover{background:rgba(217,133,102,0.1);color:var(--accent)}
+    .qty-controls button:active{transform:scale(0.95)}
+    .qty-display{min-width:44px;text-align:center;font-weight:600;color:var(--text);font-size:1rem}
+    .btn-add{display:inline-flex;align-items:center;justify-content:center;background:var(--accent);color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.2s ease;font-size:0.95rem}
+    .btn-add:hover{background:#c66d52;transform:translateY(-1px);box-shadow:0 2px 8px rgba(217,133,102,0.3)}
+    .btn-add:active{transform:translateY(0)}
+    
+    /* Full-screen cart footer with improved styling */
+    .cart-fixed{position:fixed;bottom:0;left:0;right:0;background:var(--card);padding:14px 24px;border-top:1px solid rgba(0,0,0,0.08);z-index:1000;box-shadow:0 -2px 8px rgba(0,0,0,0.04);height:80px;display:flex;align-items:center}
+    /* adjusted cart-fixed to have fixed height and flex centering */
+    .cart-content{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto;width:100%}
+    .cart-total{display:flex;align-items:center;gap:12px;font-size:1rem}
+    .cart-total strong{font-size:1.1rem;color:var(--text)}
+    #cartTotal{font-weight:700;color:var(--accent);font-size:1.3rem}
+    .checkout-section{display:flex;gap:12px;align-items:center}
+    #checkoutBtn{background:var(--accent);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.2s ease;min-width:200px}
+    #checkoutBtn:hover:not(:disabled){background:#c66d52;transform:translateY(-1px);box-shadow:0 2px 8px rgba(217,133,102,0.3)}
+    #checkoutBtn:disabled{opacity:0.5;cursor:not-allowed}
+    
+    /* Improved category pills with better contrast */
+    .category-pill{padding:10px 14px;border-radius:999px;background:#fff;margin-bottom:8px;display:block;border:1px solid rgba(0,0,0,0.08);cursor:pointer;font-size:0.95rem;font-weight:500;transition:all 0.2s ease;color:var(--text)}
+    .category-pill:hover{border-color:var(--accent);background:#fafafa}
+    .category-pill.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 8px rgba(217,133,102,0.2)}
+    
+    @media (max-width:768px){ 
+      .main-content{margin-bottom:100px}
+      /* increased bottom margin for mobile due to taller footer */
+      .menu-col{padding:16px 12px;padding-bottom:20px}
+      .header-section{padding:16px 12px}
+      .cart-fixed{height:100px;padding:12px 16px}
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div class="header">
-      <button class="btn btn-link" onclick="goBack()"><i class="bi bi-arrow-left"></i> Back</button>
-      <h2 id="stallName"></h2>
+  <div class="main-content">
+    <div class="header-section">
+      <div class="header">
+        <button class="btn btn-link" onclick="goBack()"><i class="bi bi-arrow-left"></i> Back</button>
+        <h2 id="stallName"></h2>
+      </div>
+
+      <div class="controls">
+        <div class="btn-group" role="group">
+          <button id="dineBtn" class="btn btn-outline-primary active" onclick="setOption('Dine In')">Dine In</button>
+          <button id="pickupBtn" class="btn btn-outline-primary" onclick="setOption('Takeaway')">Takeaway</button>
+        </div>
+
+        <div class="time-select">
+          <select id="timeSelect" class="form-select"></select>
+        </div>
+
+        <div class="flex-grow-1 text-end">
+          <small id="stallMeta" class="text-muted"></small>
+        </div>
+      </div>
     </div>
 
-    <div class="controls">
-      <div class="btn-group" role="group">
-        <button id="dineBtn" class="btn btn-outline-primary active" onclick="setOption('Dine In')">Dine In</button>
-        <button id="pickupBtn" class="btn btn-outline-primary" onclick="setOption('Takeaway')">Takeaway</button>
+    <div class="layout-wrapper">
+      <div class="layout">
+        <aside class="left-rail" id="categoryRail" aria-label="Menu categories"></aside>
+        <main class="menu-col">
+          <div id="menuContainer" class="menu-list"></div>
+        </main>
       </div>
-
-      <div class="time-select">
-        <select id="timeSelect" class="form-select"></select>
-      </div>
-
-      <div class="flex-grow-1 text-end">
-        <small id="stallMeta" class="text-muted"></small>
-      </div>
-    </div>
-
-    <div class="layout">
-      <aside class="left-rail" id="categoryRail" aria-label="Menu categories"></aside>
-
-      <main class="menu-col">
-        <div id="menuContainer" class="menu-list"></div>
-      </main>
     </div>
   </div>
 
@@ -131,7 +177,7 @@
       currentStall = { id: stallDoc.id, ...stallDoc.data() };
       
       document.getElementById('stallName').textContent = currentStall.name || '';
-      document.getElementById('stallMeta').textContent = `${currentStall.cuisine || ''} • ${currentStall.location || ''}`;
+      document.getElementById('stallMeta').textContent = `${currentStall.cuisine || ''} • ${currentStall.foodCentre || ''}`;
       buildTimeOptions();
 
       const menuRef = window.collection(window.db,'menuItems');
@@ -155,18 +201,23 @@
       const menuHtml = categories.map(cat=>{
         const items = menuItems.filter(m=> (m.category||'Others')===cat);
         return `<section class="menu-section" data-cat="${cat}">
-          <h4 style="margin-bottom:10px">${cat}</h4>
+          <h4>${cat}</h4>
           ${items.map(it=> `
-            <div class="menu-item mb-2" data-id="${it.id}">
+            <div class="menu-item mb-3" data-id="${it.id}">
               <img src="${it.image||'/img/placeholder.svg'}" alt="${it.name}">
-              <div style="flex:1">
-                <div class="d-flex justify-content-between align-items-start">
-                  <div><strong>${it.name}</strong><div class="text-muted small">${it.description||''}</div></div>
-                  <div class="text-primary fw-semibold">$${(Number(it.price)||0).toFixed(2)}</div>
+              <div class="menu-item-content">
+                <div>
+                  <div class="menu-item-header">
+                    <div>
+                      <p class="menu-item-title">${it.name}</p>
+                      <p class="menu-item-description">${it.description||''}</p>
+                    </div>
+                    <div class="menu-item-price">$${(Number(it.price)||0).toFixed(2)}</div>
+                  </div>
+                  <div class="menu-item-status">${it.available === false ? 'Unavailable' : ''}</div>
                 </div>
-                <div class="text-muted small">${it.available? '': 'Unavailable'}</div>
               </div>
-              <div class="qty-controls">
+              <div style="display:flex;align-items:center">
                 ${ renderQtyControls(it.id) }
               </div>
             </div>
@@ -201,15 +252,17 @@
       const item = menuItems.find(x=>x.id===itemId);
       const cartItem = cart.find(c=>c.id===itemId);
       const qty = cartItem ? cartItem.qty : 0;
-      if (!item.available) return `<button class="btn btn-secondary" disabled>Sold out</button>`;
+      if (item.available === false) return `<button class="btn btn-secondary" disabled>Sold out</button>`;
       if (qty>0){
         return `
-          <button class="qty-minus" onclick="changeQty('${itemId}',-1)">−</button>
-          <div style="min-width:26px;text-align:center">${qty}</div>
-          <button class="qty-plus" onclick="changeQty('${itemId}',1)">+</button>
+          <div class="qty-controls">
+            <button class="qty-minus" onclick="changeQty('${itemId}',-1)">−</button>
+            <div class="qty-display">${qty}</div>
+            <button class="qty-plus" onclick="changeQty('${itemId}',1)">+</button>
+          </div>
         `;
       } else {
-        return `<button class="btn btn-primary btn-add" onclick="addToCart('${itemId}')">Add</button>`;
+        return `<button class="btn-add" onclick="addToCart('${itemId}')">Add to Cart</button>`;
       }
     }
 
@@ -271,31 +324,17 @@
   </script>
 
   <div class="cart-fixed">
-    <div class="d-flex justify-content-between align-items-center mb-2">
-      <div><strong>Cart Total:</strong> <span id="cartTotal">$0.00</span></div>
-      <div style="width:240px;text-align:right">
-        <button id="checkoutBtn" class="btn btn-success" onclick="goToCheckout()" disabled>View Cart & Checkout</button>
+    <div class="cart-content">
+      <div class="cart-total">
+        <strong>Cart Total:</strong> 
+        <span id="cartTotal">$0.00</span>
+      </div>
+      <div class="checkout-section">
+        <button id="checkoutBtn" onclick="goToCheckout()" disabled>View Cart & Checkout</button>
       </div>
     </div>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
-  <div class="nav-bar">
-    <a href="/" class="nav-logo"><i class="bi bi-shop"></i>ChopeLah</a>
-    <div class="nav-items">
-      <button class="active" onclick="location.href='/pages/order/online-order-home.html'"><i class="bi bi-cart3"></i><span>Order</span></button>
-      <button onclick="location.href='/pages/community/community.html'"><i class="bi bi-people"></i><span>Community</span></button>
-      <button onclick="location.href='/pages/chope/chope.html'"><i class="bi bi-bookmark"></i><span>Chope</span></button>
-      <button onclick="location.href='/pages/crowd/crowd-view.html'"><i class="bi bi-eye"></i><span>Crowd View</span></button>
-    </div>
-    <div class="nav-right">
-      <button class="notification-btn" onclick="alert('No new notifications')">
-        <i class="bi bi-bell"></i>
-        <span class="notification-badge">3</span>
-      </button>
-      <button onclick="location.href='/pages/profile/profile.html'"><i class="bi bi-person"></i><span>Profile</span></button>
-    </div>
-  </div>
 </body>
 </html>

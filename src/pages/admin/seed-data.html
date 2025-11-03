@@ -316,10 +316,10 @@
                     cuisine: "Chinese",
                     rating: 4.8,
                     status: "open",
-                    priceRange: "$3-10",
+                    priceRange: "$2-6",
                     waitTime: "4 min",
                     image: "/img/stall1.jpg",
-                    categories: ["Rice", "Noodles"]
+                    categories: ["Soup","Rice","Noodles", "Sides"]
                 },
                 {
                     id: 'stallHajmeerKwaja',
@@ -342,10 +342,10 @@
                     cuisine: "Indian",
                     rating: 4.1,
                     status: "open",
-                    priceRange: "$2-10",
+                    priceRange: "$2-5",
                     waitTime: "15 min",
                     image: "/img/stall3.jpg",
-                    categories: ["Curry", "Rice", "Naan"]
+                    categories: ["Prata", "Mains"]
                 },
                 {
                     id: 'stallRamenTaisho',
@@ -355,7 +355,7 @@
                     cuisine: "Japanese",
                     rating: 4.2,
                     status: "open",
-                    priceRange: "$7-15",
+                    priceRange: "$5-10",
                     waitTime: "8 min",
                     image: "/img/stall4.jpg",
                     categories: ["Ramen", "Rice Bowls", "Appetizers"]
@@ -368,10 +368,10 @@
                     cuisine: "Chinese",
                     rating: 4.5,
                     status: "open",
-                    priceRange: "$2-8",
-                    waitTime: "12 min",
+                    priceRange: "$1-5",
+                    waitTime: "2 min",
                     image: "/img/stall5.jpg",
-                    categories: ["Fritters", "Snacks", "Rice"]
+                    categories: ["Sets", "Fritters"]
                 },
                 {
                     id: 'stallBoldXBraised',
@@ -610,25 +610,278 @@
             ];
 
             const MENU_ITEMS_DATA = [
-                { id: 'food-hajmeer-001', name: "Nasi Lemak", price: 5.50, category: "Rice", stallId: "stallHajmeerKwaja", image: "/img/food4.jpg", description: "Traditional coconut rice with fried chicken", available: true },
-                { id: 'food-hajmeer-002', name: "Mee Goreng", price: 6.00, category: "Noodles", stallId: "stallHajmeerKwaja", image: "/img/food5.jpg", description: "Spicy fried noodles", available: true },
-                { id: 'food-luckmeow-001', name: "Butter Chicken", price: 8.50, category: "Curry", stallId: "stallLuckMeow", image: "/img/food6.jpg", description: "Creamy butter chicken curry", available: true },
-                { id: 'food-luckmeow-002', name: "Chicken Biryani", price: 7.50, category: "Rice", stallId: "stallLuckMeow", image: "/img/food7.jpg", description: "Fragrant basmati rice with chicken", available: true },
-                { id: 'food-luckmeow-003', name: "Garlic Naan", price: 3.00, category: "Naan", stallId: "stallLuckMeow", image: "/img/food8.jpg", description: "Fresh garlic naan bread", available: true },
-                { id: 'food-ramen-001', name: "Tonkotsu Ramen", price: 12.00, category: "Ramen", stallId: "stallRamenTaisho", image: "/img/food9.jpg", description: "Rich pork bone broth ramen", available: true },
-                { id: 'food-ramen-002', name: "Chicken Teriyaki Bowl", price: 9.50, category: "Rice Bowls", stallId: "stallRamenTaisho", image: "/img/food10.jpg", description: "Grilled teriyaki chicken over rice", available: true },
-                { id: 'food-ramen-003', name: "Gyoza", price: 5.50, category: "Appetizers", stallId: "stallRamenTaisho", image: "/img/food1.jpg", description: "Pan-fried dumplings", available: true },
-                { id: 'food-china-001', name: "You Tiao", price: 2.50, category: "Fritters", stallId: "stallChinaStreetFritters", image: "/img/food2.jpg", description: "Crispy Chinese fried dough", available: true },
-                { id: 'food-china-002', name: "Prawn Fritters", price: 6.00, category: "Fritters", stallId: "stallChinaStreetFritters", image: "/img/food3.jpg", description: "Crispy prawn fritters", available: true },
-                { id: 'food-china-003', name: "Egg Fried Rice", price: 4.50, category: "Rice", stallId: "stallChinaStreetFritters", image: "/img/food4.jpg", description: "Classic egg fried rice", available: true },
-                { id: 'food-bold-001', name: "Braised Pork Rice", price: 8.00, category: "Braised", stallId: "stallBoldXBraised", image: "/img/food5.jpg", description: "Tender braised pork over rice", available: true },
-                { id: 'food-bold-002', name: "Beef Noodles", price: 9.50, category: "Noodles", stallId: "stallBoldXBraised", image: "/img/food6.jpg", description: "Rich beef broth noodles", available: true },
-                { id: 'food-changi-nl-001', name: "Nasi Lemak Set", price: 5.50, category: "Nasi Lemak", stallId: "stallDAuthenticNasiLemak", image: "/img/food4.jpg", description: "Coconut rice with fried chicken and sambal", available: true },
-                { id: 'food-changi-nl-002', name: "Nasi Lemak with Ikan Bilis", price: 4.50, category: "Nasi Lemak", stallId: "stallDAuthenticNasiLemak", image: "/img/food5.jpg", description: "Coconut rice with anchovies", available: true },
-                { id: 'food-changi-seafood-001', name: "Chilli Crab (Small)", price: 22.00, category: "Seafood", stallId: "stallAllianceSeafood", image: "/img/food6.jpg", description: "Fresh crab in sweet chilli sauce", available: true },
-                { id: 'food-changi-seafood-002', name: "Butter Prawns", price: 16.00, category: "Seafood", stallId: "stallAllianceSeafood", image: "/img/food7.jpg", description: "Crispy prawns in butter sauce", available: true },
-                { id: 'food-changi-malay-001', name: "Mee Goreng", price: 6.50, category: "Noodles", stallId: "stallBurgs", image: "/img/food8.jpg", description: "Spicy fried yellow noodles", available: true },
-                { id: 'food-changi-malay-002', name: "Nasi Goreng", price: 5.00, category: "Rice", stallId: "stallBurgs", image: "/img/food9.jpg", description: "Indonesian style fried rice", available: true }
+                {
+                    id: 'peanuts-soup-1',
+                    name: "ABC Soup",
+                    price: 5.50,
+                    category: "Soup",
+                    stallId: "stallPeanutsSoup",
+                    image: "/img/food1.jpg"
+                },
+                {
+                    id: 'peanuts-soup-2',
+                    name: "Carrot Soup",
+                    price: 5.50,
+                    category: "Soup",
+                    stallId: "stallPeanutsSoup",
+                    image: "/img/food2.jpg"
+                },
+                {
+                    id: 'peanuts-soup-3',
+                    name: "Lotus Root Soup",
+                    price: 5.50,
+                    category: "Soup",
+                    stallId: "stallPeanutsSoup",
+                    image: "/img/food3.jpg"
+                },
+                {
+                    id: 'peanuts-soup-4',
+                    name: "Egg Fried Rice",
+                    price: 6.00,
+                    category: "Rice",
+                    stallId: "stallPeanutsSoup",
+                    image: "/img/food7.jpg"
+                },
+                {
+                    id: 'peanuts-soup-5',
+                    name: "Bacon Fried Rice",
+                    price: 6.00,
+                    category: "Rice",
+                    stallId: "stallPeanutsSoup",
+                    image: "/img/food8.jpg"
+                },
+                {
+                    id: 'peanuts-soup-6',
+                    name: "Laksa Noodles",
+                    price: 4.50,
+                    category: "Noodles",
+                    stallId: "stallPeanutsSoup",
+                    image: "/img/food4.jpg"
+                },
+                {
+                    id: 'peanuts-soup-7',
+                    name: "Char Kuey Teow",
+                    price: 5.00,
+                    category: "Noodles",
+                    stallId: "stallPeanutsSoup",
+                    image: "/img/food5.jpg"
+                },
+                {
+                    id: 'peanuts-soup-8',
+                    name: "Pan Mee",
+                    price: 4.50,
+                    category: "Noodles",
+                    stallId: "stallPeanutsSoup",
+                    image: "/img/food11.jpg"
+                },
+                {
+                    id: 'peanuts-soup-9',
+                    name: "Wanton Noodles",
+                    price: 4.00,
+                    category: "Noodles",
+                    stallId: "stallPeanutsSoup",
+                    image: "/img/food12.jpg"
+                },
+                {
+                    id: 'peanuts-soup-10',
+                    name: "Fried Popiah",
+                    price: 2.00,
+                    category: "Sides",
+                    stallId: "stallPeanutsSoup",
+                    image: "/img/food10.jpg"
+                },
+                {
+                    id: 'peanuts-soup-11',
+                    name: "Fried Nuggets",
+                    price: 2.00,
+                    category: "Sides",
+                    stallId: "stallPeanutsSoup",
+                    image: "/img/food9.jpg"
+                },
+                {
+                    id: 'luckmeow-1',
+                    name: "Plain Prata",
+                    price: 2.00,
+                    category: "Prata",
+                    stallId: "stallLuckMeow",
+                    image: "/img/food13.jpg"
+                },
+                {
+                    id: 'luckmeow-2',
+                    name: "Cheese Prata",
+                    price: 2.50,
+                    category: "Prata",
+                    stallId: "stallLuckMeow",
+                    image: "/img/food14.jpg"
+                },
+                {
+                    id: 'luckmeow-3',
+                    name: "Tissue Prata",
+                    price: 3.00,
+                    category: "Prata",
+                    stallId: "stallLuckMeow",
+                    image: "/img/food15.jpg"
+                },  
+                {
+                    id: 'luckmeow-4',
+                    name: "Egg Prata",
+                    price: 2.50,
+                    category: "Prata",
+                    stallId: "stallLuckMeow",
+                    image: "/img/food16.jpg"
+                },
+                {
+                    id: 'luckmeow-5',
+                    name: "Coin Prata",
+                    price: 2.00,
+                    category: "Prata",
+                    stallId: "stallLuckMeow",
+                    image: "/img/food17.jpg"
+                },
+                {
+                    id: 'luckmeow-6',
+                    name: "Biryani Rice",
+                    price: 5.00,
+                    category: "Mains",
+                    stallId: "stallLuckMeow",
+                    image: "/img/food18.jpg"
+                },
+                {
+                    id: 'luckmeow-7',
+                    name: "Fried Mee Goreng",
+                    price: 5.00,
+                    category: "Mains",
+                    stallId: "stallLuckMeow",
+                    image: "/img/food19.jpg"
+                },
+                {
+                    id: 'luckmeow-8',
+                    name: "Nasi Kandar",
+                    price: 5.00,
+                    category: "Mains",
+                    stallId: "stallLuckMeow",
+                    image: "/img/food20.jpg"
+                },
+                {
+                    id: 'ramen-taisho-1',
+                    name: "Miso Ramen",
+                    price: 7.00,
+                    category: "Ramen",
+                    stallId: "stallRamenTaisho",
+                    image: "/img/food21.jpg"
+                },
+                {
+                    id: 'ramen-taisho-2',
+                    name: "Spicy Miso Ramen",
+                    price: 7.00,
+                    category: "Ramen",
+                    stallId: "stallRamenTaisho",
+                    image: "/img/food22.jpg"
+                },
+                {
+                    id: 'ramen-taisho-3',
+                    name: "Tonkotsu Ramen",
+                    price: 8.00,
+                    category: "Ramen",
+                    stallId: "stallRamenTaisho",
+                    image: "/img/food23.jpg"
+                },
+                {
+                    id: 'ramen-taisho-4',
+                    name: "Shoyu Ramen",
+                    price: 7.50,
+                    category: "Ramen",
+                    stallId: "stallRamenTaisho",
+                    image: "/img/food24.jpg"
+                },
+                {
+                    id: 'ramen-taisho-5',
+                    name: "Spicy Shoyu Ramen",
+                    price: 7.50,
+                    category: "Ramen",
+                    stallId: "stallRamenTaisho",
+                    image: "/img/food25.jpg"
+                },
+                {
+                    id: 'ramen-taisho-6',
+                    name: "Beef Rice Bowl",
+                    price: 10.00,
+                    category: "Rice Bowls",
+                    stallId: "stallRamenTaisho",
+                    image: "/img/food26.jpg"
+                },
+                {
+                    id: 'ramen-taisho-7',
+                    name: "Chicken Rice Bowl",
+                    price: 8.50,
+                    category: "Rice Bowls",
+                    stallId: "stallRamenTaisho",
+                    image: "/img/food27.jpg"
+                },      
+                {
+                    id: 'ramen-taisho-8',
+                    name: "Salmon Rice Bowl",
+                    price: 10.00,
+                    category: "Rice Bowls",
+                    stallId: "stallRamenTaisho",
+                    image: "/img/food28.jpg"
+                },
+                {
+                    id: 'ramen-taisho-9',
+                    name: "Tofu",
+                    price: 5.00,
+                    category: "Appetizers",
+                    stallId: "stallRamenTaisho",
+                    image: "/img/food29.jpg"
+                },
+                {
+                    id: 'ramen-taisho-10',
+                    name: "Gyoza",
+                    price: 6.00,
+                    category: "Appetizers",
+                    stallId: "stallRamenTaisho",
+                    image: "/img/food30.jpg"
+                },
+                {
+                    id: 'china-street-fritters-1',
+                    name: "Set A",
+                    price: 5.00,
+                    category: "Sets",
+                    stallId: "stallChinaStreetFritters",
+                    image: "/img/food31.jpg"
+                },
+                {
+                    id: 'china-street-fritters-2',
+                    name: "Set B",
+                    price: 5.00,
+                    category: "Sets",
+                    stallId: "stallChinaStreetFritters",
+                    image: "/img/food32.jpg"
+                },
+                {
+                    id: 'china-street-fritters-3',
+                    name: "Fried Fish Balls",
+                    price: 1.00,
+                    category: "Fritters",
+                    stallId: "stallChinaStreetFritters",
+                    image: "/img/food33.jpg"
+                },
+                {
+                    id: 'china-street-fritters-4',
+                    name: "Fried Spring Rolls",
+                    price: 1.00,
+                    category: "Fritters",
+                    stallId: "stallChinaStreetFritters",
+                    image: "/img/food34.jpg"
+                },
+                {
+                    id: 'china-street-fritters-5',
+                    name: "Fried Egg",
+                    price: 1.00,
+                    category: "Fritters",
+                    stallId: "stallChinaStreetFritters",
+                    image: "/img/food35.jpg"
+                }
             ];
 
             function log(message, type = 'info') {
