@@ -303,20 +303,30 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       } catch (error) {
         console.error("Google login failed:", error);
+        console.error("Error code:", error.code);
+        console.error("Error message:", error.message);
+        console.error("Full error:", JSON.stringify(error, null, 2));
+        
         const errorCode = error.code;
-        let errorMessage = "Google login failed. Please try again.";
+        let errorMessage = `Google login failed: ${error.message || errorCode || 'Unknown error'}`;
         
         if (errorCode === 'auth/popup-blocked') {
           errorMessage = "Popup was blocked. Please allow popups for this site and try again.";
         } else if (errorCode === 'auth/popup-closed-by-user') {
           errorMessage = "Login cancelled. Please try again.";
         } else if (errorCode === 'auth/unauthorized-domain') {
-          errorMessage = "This domain is not authorized. Please contact support.";
+          errorMessage = `Unauthorized domain. Current domain: ${window.location.hostname}. Please add ${window.location.hostname} to Firebase Authorized domains.`;
         } else if (errorCode === 'auth/operation-not-allowed') {
-          errorMessage = "Google login is not enabled. Please contact support.";
+          errorMessage = "Google login is not enabled in Firebase Console.";
+        } else if (errorCode === 'auth/account-exists-with-different-credential') {
+          errorMessage = "An account already exists with the same email but different sign-in method.";
         }
         
         showMessage(errorMessage, "signInMessage");
+        
+        // Log to console for debugging
+        console.log("Current domain:", window.location.hostname);
+        console.log("Firebase authDomain:", firebaseConfig.authDomain);
       }
     });
   });
