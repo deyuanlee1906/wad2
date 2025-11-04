@@ -13,17 +13,50 @@
     /* Applied cleaner styling from wait-for-db with coral accent color and improved spacing */
     :root{--bg:#f5f5f5;--card:#fff;--accent:#d98566;--text:#1a1a1a;--text-muted:#666}
     * {margin:0;padding:0;box-sizing:border-box}
-    html,body{height:100%;width:100%;font-family:Inter,system-ui}
-    body{background:var(--bg);color:var(--text);display:flex;flex-direction:column}
+    html,body{height:100%;width:100%;font-family:Inter,system-ui;overflow-x:hidden}
+    body{background:var(--bg);color:var(--text);display:flex;flex-direction:column;overflow-x:hidden}
     
     /* Increased bottom margin to account for fixed footer height */
     .main-content{display:flex;flex-direction:column;flex:1;min-height:100vh;margin-bottom:100px}
     .header-section{padding:20px 24px;border-bottom:1px solid rgba(0,0,0,0.06);background:var(--card);flex-shrink:0}
     .header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
     .header h2{margin:0;font-size:1.5rem;font-weight:600}
-    .controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-    .time-select{min-width:180px;flex-shrink:0;position:relative}
-    .time-select .form-select{width:100%;padding-right:40px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231a1a1a' d='M6 9L1 4h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;background-size:12px}
+    .controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;width:100%}
+    .time-select{min-width:180px;max-width:220px;flex:0 1 auto;position:relative}
+    .time-select .form-select{
+      width:100%;
+      padding:10px 36px 10px 12px;
+      border:1px solid var(--text);
+      border-radius:6px;
+      background:white;
+      color:var(--text);
+      font-size:16px;
+      font-weight:600;
+      appearance:none;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231a1a1a' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+      background-repeat:no-repeat;
+      background-position:right 12px center;
+      background-size:12px;
+      box-sizing:border-box;
+      cursor:pointer;
+      transition:all 0.2s;
+    }
+    .time-select .form-select:hover{
+      border-color:#4285f4;
+      box-shadow:0 0 0 2px rgba(66, 133, 244, 0.1);
+    }
+    .time-select .form-select:focus{
+      outline:none;
+      border-color:#4285f4;
+      box-shadow:0 0 0 3px rgba(66, 133, 244, 0.2);
+    }
+    .time-select .form-select:disabled{
+      background-color:#e9ecef;
+      opacity:0.6;
+      cursor:not-allowed;
+    }
+    .controls .flex-grow-1{flex:1;min-width:0;text-align:right}
+    .controls .flex-grow-1 small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
     
     /* Full-height layout grid with improved spacing */
     .layout-wrapper{display:flex;flex:1;gap:0;min-height:0}
@@ -128,18 +161,8 @@
       box-shadow:0 2px 8px rgba(217,133,102,0.3);
     }
     
-    /* Enhanced form select styling */
-    .form-select{
-      border-radius:10px;
-      border:2px solid rgba(0,0,0,0.08);
-      padding:10px 16px;
-      font-weight:500;
-      transition:all 0.2s ease;
-    }
-    .form-select:focus{
-      border-color:var(--accent);
-      box-shadow:0 0 0 3px rgba(217,133,102,0.1);
-    }
+    /* Enhanced form select styling - only apply to non-time-select selects */
+    /* Time select has its own styling above */
     
     @media (max-width:768px){ 
       /* Increased mobile bottom margin and padding for taller footer */
@@ -148,6 +171,150 @@
       .header-section{padding:16px 12px}
       .cart-fixed{height:100px;padding:12px 0}
       .cart-content{padding:0 12px}
+      .header h2{font-size:1.3rem}
+      .controls{flex-direction:column;align-items:stretch;gap:8px;width:100%}
+      .time-select{width:100%;min-width:100%;max-width:100%}
+      .btn-group{width:100%}
+      .btn-group .btn{flex:1}
+      .controls .flex-grow-1{text-align:left;width:100%}
+      /* Show horizontal category bar on mobile */
+      .category-bar-horizontal{display:block}
+    }
+    
+    /* Horizontal category bar for mobile */
+    .category-bar-horizontal{
+      display:none;
+      background:var(--card);
+      border-bottom:1px solid rgba(0,0,0,0.08);
+      padding:12px 8px;
+      overflow-x:auto;
+      overflow-y:hidden;
+      white-space:nowrap;
+      position:sticky;
+      top:0;
+      z-index:99;
+      -webkit-overflow-scrolling:touch;
+    }
+    .category-bar-horizontal::-webkit-scrollbar{
+      display:none;
+    }
+    .category-bar-horizontal{
+      -ms-overflow-style:none;
+      scrollbar-width:none;
+    }
+    .category-pill-horizontal{
+      display:inline-block;
+      padding:8px 14px;
+      border-radius:999px;
+      background:#fff;
+      margin-right:8px;
+      border:1px solid rgba(0,0,0,0.08);
+      cursor:pointer;
+      font-size:0.85rem;
+      font-weight:500;
+      transition:all 0.2s ease;
+      color:var(--text);
+      white-space:nowrap;
+      flex-shrink:0;
+    }
+    .category-pill-horizontal:hover{
+      border-color:var(--accent);
+      background:#fafafa;
+    }
+    .category-pill-horizontal.active{
+      background:var(--accent);
+      color:#fff;
+      border-color:var(--accent);
+      box-shadow:0 2px 8px rgba(217,133,102,0.2);
+    }
+    
+    /* iPhone SE and small devices */
+    @media (max-width:390px){
+      body{overflow:hidden;height:100vh}
+      .main-content{display:flex;flex-direction:column;height:100vh;margin-bottom:0;padding-top:0}
+      .header-section{position:fixed;top:0;left:0;right:0;z-index:1000;background:var(--card);padding:12px 8px;border-bottom:1px solid rgba(0,0,0,0.08);box-shadow:0 2px 4px rgba(0,0,0,0.04)}
+      /* Fixed category bar below header, above cart */
+      .category-bar-horizontal{
+        position:fixed;
+        top:140px;
+        left:0;
+        right:0;
+        z-index:999;
+        background:var(--card);
+        border-bottom:1px solid rgba(0,0,0,0.08);
+        border-top:1px solid rgba(0,0,0,0.08);
+        padding:10px 8px;
+        display:block;
+        box-shadow:0 2px 4px rgba(0,0,0,0.04);
+      }
+      /* Adjust layout wrapper to account for header (140px) + category bar (~55px) = 195px top, 90px cart bottom */
+      .layout-wrapper{
+        flex:1;
+        min-height:0;
+        overflow:hidden;
+        display:flex;
+        flex-direction:column;
+        padding-top:0;
+        margin-top:195px;
+        height:calc(100vh - 285px)
+      }
+      .menu-col{padding:12px 8px;padding-bottom:20px;padding-top:12px}
+      .header h2{font-size:1.15rem;margin-bottom:8px}
+      .controls{flex-direction:column;align-items:stretch;gap:6px;width:100%}
+      .time-select{width:100%;min-width:100%;max-width:100%}
+      .time-select .form-select{
+        font-size:14px;
+        padding:8px 32px 8px 10px;
+        width:100%;
+        background-position:right 10px center;
+        border-radius:6px;
+      }
+      .time-select .form-select option{
+        color:var(--text);
+        background:white;
+      }
+      .time-select .form-select option:disabled{
+        color:rgba(34, 34, 34, 0.5);
+        font-weight:500;
+      }
+      .btn-group{width:100%}
+      .btn-group .btn{font-size:0.85rem;padding:8px 12px;flex:1}
+      .controls .flex-grow-1{text-align:left;width:100%}
+      .controls .flex-grow-1 small{font-size:0.75rem}
+      .layout{display:flex;flex-direction:column;height:100%;min-height:0}
+      /* Adjust menu col padding-top to account for fixed category bar */
+      .menu-col{
+        flex:1;
+        overflow-y:auto;
+        overflow-x:hidden;
+        min-height:0;
+        -webkit-overflow-scrolling:touch;
+        padding-bottom:100px;
+        padding-top:50px;
+        height:100%
+      }
+      .menu-item{padding:12px;gap:10px}
+      .menu-item img{width:80px;height:70px}
+      .menu-item-title{font-size:1.1rem}
+      .menu-item-price{font-size:1rem}
+      .menu-item-description{font-size:0.8rem}
+      .qty-controls button{width:36px;height:36px;font-size:1rem}
+      .qty-display{min-width:36px;font-size:0.9rem}
+      .btn-add{font-size:0.85rem;padding:6px 12px}
+      .cart-fixed{height:90px;padding:10px 0;bottom:0;position:fixed}
+      .cart-content{padding:0 8px;flex-wrap:wrap;gap:8px}
+      .cart-total{font-size:1.1rem}
+      .cart-total strong{font-size:1.1rem}
+      #cartTotal{font-size:1.1rem}
+      #checkoutBtn{font-size:0.85rem;padding:8px 16px;width:100%;min-height:44px}
+      .menu-item-title{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .menu-item-description{overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;white-space:normal}
+      .time-select .form-select{min-height:44px}
+      .btn-group .btn{min-height:44px}
+      .qty-controls button{min-width:44px;min-height:44px}
+      .btn-add{min-height:44px}
+      .confirmation-popup{min-width:320px;padding:20px}
+      .notification-popup{min-width:320px;padding:20px}
     }
   </style>
 </head>
@@ -175,6 +342,7 @@
       </div>
     </div>
 
+    <div class="category-bar-horizontal" id="categoryBarHorizontal" aria-label="Menu categories"></div>
     <div class="layout-wrapper">
       <div class="layout">
         <aside class="left-rail" id="categoryRail" aria-label="Menu categories"></aside>
@@ -400,6 +568,12 @@
       const rail = document.getElementById('categoryRail');
       rail.innerHTML = categories.map((c,i)=>`<div class="category-pill ${i===0?'active':''}" data-cat="${c}" tabindex="0">${c}</div>`).join('');
       
+      // Also populate horizontal category bar for mobile
+      const horizontalBar = document.getElementById('categoryBarHorizontal');
+      if(horizontalBar){
+        horizontalBar.innerHTML = categories.map((c,i)=>`<div class="category-pill-horizontal ${i===0?'active':''}" data-cat="${c}" tabindex="0">${c}</div>`).join('');
+      }
+      
       const menuHtml = categories.map(cat=>{
         const items = menuItems.filter(m=> (m.category||'Others')===cat);
         return `<section class="menu-section" data-cat="${cat}">
@@ -429,8 +603,25 @@
       document.querySelectorAll('.category-pill').forEach(p=>{
         p.onclick = ()=> {
           document.querySelectorAll('.category-pill').forEach(x=>x.classList.remove('active'));
+          document.querySelectorAll('.category-pill-horizontal').forEach(x=>x.classList.remove('active'));
           p.classList.add('active');
           const cat = p.dataset.cat;
+          const horizontalPill = document.querySelector(`.category-pill-horizontal[data-cat="${CSS.escape(cat)}"]`);
+          if(horizontalPill) horizontalPill.classList.add('active');
+          const el = document.querySelector(`.menu-section[data-cat="${CSS.escape(cat)}"]`);
+          if (el) el.scrollIntoView({behavior:'smooth',block:'start'});
+        };
+      });
+      
+      // Handle clicks on horizontal category pills
+      document.querySelectorAll('.category-pill-horizontal').forEach(p=>{
+        p.onclick = ()=> {
+          document.querySelectorAll('.category-pill').forEach(x=>x.classList.remove('active'));
+          document.querySelectorAll('.category-pill-horizontal').forEach(x=>x.classList.remove('active'));
+          p.classList.add('active');
+          const cat = p.dataset.cat;
+          const railPill = document.querySelector(`.category-pill[data-cat="${CSS.escape(cat)}"]`);
+          if(railPill) railPill.classList.add('active');
           const el = document.querySelector(`.menu-section[data-cat="${CSS.escape(cat)}"]`);
           if (el) el.scrollIntoView({behavior:'smooth',block:'start'});
         };
@@ -455,6 +646,9 @@
           const lastSection = sections[sections.length - 1];
           const cat = lastSection.dataset.cat;
           document.querySelectorAll('.category-pill').forEach(p => {
+            p.classList.toggle('active', p.dataset.cat === cat);
+          });
+          document.querySelectorAll('.category-pill-horizontal').forEach(p => {
             p.classList.toggle('active', p.dataset.cat === cat);
           });
           return;
@@ -509,6 +703,9 @@
         if (finalSection) {
           const cat = finalSection.dataset.cat;
           document.querySelectorAll('.category-pill').forEach(p => {
+            p.classList.toggle('active', p.dataset.cat === cat);
+          });
+          document.querySelectorAll('.category-pill-horizontal').forEach(p => {
             p.classList.toggle('active', p.dataset.cat === cat);
           });
         }

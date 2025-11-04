@@ -32,6 +32,7 @@
       height: 100%;
       width: 100%;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      overflow-x: hidden;
     }
 
     body {
@@ -39,6 +40,7 @@
       color: var(--text);
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
     }
 
     .main-content {
@@ -548,6 +550,149 @@
       .btn-pay,
       .btn-order-more {
         width: 100%;
+      }
+    }
+
+    /* iPhone SE and small devices */
+    @media (max-width: 390px) {
+      .main-content {
+        margin-bottom: 120px;
+      }
+
+      .checkout-container {
+        padding: 12px 8px;
+        padding-bottom: 130px;
+      }
+      
+      .page-title {
+        font-size: 1.3rem;
+        margin-bottom: 8px;
+      }
+
+      .page-subtitle {
+        font-size: 0.85rem;
+        margin-bottom: 16px;
+      }
+
+      .section-title {
+        font-size: 1rem;
+        margin-bottom: 12px;
+      }
+
+      .cart-item {
+        padding: 10px;
+        gap: 8px;
+      }
+
+      .cart-item .details h6 {
+        font-size: 0.95rem;
+      }
+
+      .cart-item .price {
+        font-size: 0.8rem;
+      }
+
+      .qty-controls {
+        min-width: 100px;
+      }
+
+      .qty-controls button {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+      }
+
+      .qty-controls span {
+        min-width: 32px;
+        font-size: 0.9rem;
+      }
+
+      .item-subtotal {
+        min-width: 60px;
+        font-size: 0.9rem;
+      }
+
+      .total-row {
+        font-size: 1rem;
+        padding: 10px 0;
+      }
+
+      .total-row.final {
+        font-size: 1.1rem;
+      }
+
+      .payment-card {
+        padding: 12px;
+      }
+
+      .payment-card h5 {
+        font-size: 0.95rem;
+      }
+
+      .payment-card p {
+        font-size: 0.8rem;
+      }
+
+      .checkout-fixed {
+        height: 90px;
+        padding: 10px 0;
+      }
+
+      .checkout-fixed-content {
+        padding: 0 8px;
+        gap: 6px;
+      }
+
+      .btn-pay,
+      .btn-order-more {
+        font-size: 0.85rem;
+        padding: 10px 16px;
+      }
+
+      .order-details {
+        font-size: 0.8rem;
+      }
+
+      .detail-item {
+        font-size: 0.8rem;
+      }
+      
+      .cart-item .details h6 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 100%;
+      }
+      
+      .payment-card {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      
+      .payment-card h5 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      
+      .btn-pay,
+      .btn-order-more {
+        min-height: 44px;
+      }
+      
+      .qty-controls button {
+        min-width: 44px;
+        min-height: 44px;
+      }
+      
+      .page-subtitle {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+      }
+      
+      .order-details {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
       }
     }
   </style>

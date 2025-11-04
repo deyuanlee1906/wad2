@@ -33,6 +33,7 @@
       height: 100%;
       width: 100%;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      overflow-x: hidden;
     }
 
     body {
@@ -40,6 +41,7 @@
       color: var(--text);
       display: flex;
       flex-direction: column;
+      overflow-x: hidden;
     }
 
     .main-content {
@@ -375,6 +377,145 @@
 
       .order-total-row {
         font-size: 1.1rem;
+      }
+    }
+
+    /* iPhone SE and small devices */
+    @media (max-width: 390px) {
+      .confirmation-container {
+        padding: 12px 8px;
+        padding-bottom: 80px;
+      }
+
+      .success-icon-wrapper {
+        width: 56px;
+        height: 56px;
+        margin-bottom: 16px;
+      }
+
+      .success-icon-wrapper i {
+        font-size: 1.75rem;
+      }
+
+      .success-title {
+        font-size: 1.3rem;
+        margin-bottom: 6px;
+      }
+
+      .success-subtitle {
+        font-size: 0.85rem;
+        margin-bottom: 12px;
+        padding: 0 8px;
+      }
+
+      .order-number {
+        font-size: 1rem;
+        margin-bottom: 10px;
+      }
+
+      .payment-status {
+        font-size: 0.8rem;
+        padding: 5px 12px;
+        margin-bottom: 20px;
+      }
+
+      .order-card {
+        padding: 12px;
+        margin-bottom: 16px;
+      }
+
+      .order-card h6 {
+        font-size: 1rem;
+        margin-bottom: 12px;
+      }
+
+      .order-item {
+        padding: 10px 0;
+      }
+
+      .order-item-name {
+        font-size: 0.9rem;
+      }
+
+      .order-item-price {
+        font-size: 0.9rem;
+      }
+
+      .order-total-row {
+        font-size: 1rem;
+        padding-top: 12px;
+        margin-top: 12px;
+      }
+
+      .info-item {
+        gap: 3px;
+      }
+
+      .info-label {
+        font-size: 0.8rem;
+      }
+
+      .info-value {
+        font-size: 0.85rem;
+      }
+
+      .info-alert {
+        padding: 12px;
+        margin-bottom: 20px;
+      }
+
+      .info-alert i {
+        font-size: 1.3rem;
+      }
+
+      .info-alert strong {
+        font-size: 0.9rem;
+      }
+
+      .info-alert-text {
+        font-size: 0.8rem;
+      }
+
+      .action-buttons {
+        margin-top: 24px;
+        gap: 10px;
+      }
+
+      .btn-action {
+        font-size: 0.9rem;
+        padding: 10px 20px;
+        min-width: 120px;
+      }
+
+      .additional-info {
+        margin-top: 20px;
+        padding-top: 20px;
+      }
+
+      .additional-info small {
+        font-size: 0.8rem;
+      }
+      
+      .order-item-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 70%;
+      }
+      
+      .info-value {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        max-width: 100%;
+      }
+      
+      .btn-action {
+        min-height: 44px;
+      }
+      
+      .success-subtitle {
+        word-wrap: break-word;
+        overflow-wrap: break-word;
       }
     }
 

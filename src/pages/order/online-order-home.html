@@ -347,8 +347,103 @@
     @media (max-width: 767px) {
       body { padding-bottom: 120px; }
       .main-content { padding: 0 16px; }
-      .stall-card { height: 160px; }
-      .stall-img-wrap { width: 90px; height: 130px; }
+      .stall-card { 
+        height: 200px; 
+        align-items: center;
+      }
+      .stall-img-wrap { width: 100px; height: 170px; }
+      .stall-info {
+        justify-content: center;
+      }
+    }
+
+    /* iPhone SE and small devices */
+    @media (max-width: 390px) {
+      body { 
+        padding-bottom: 100px; 
+      }
+      
+      .main-content { 
+        padding: 0 12px; 
+      }
+      
+      .location-header {
+        margin: 12px 0 8px;
+        gap: 8px;
+      }
+      
+      .food-centre-select {
+        min-width: 180px;
+      }
+      
+      .food-centre-input {
+        font-size: 14px;
+        padding: 8px 32px 8px 10px;
+      }
+      
+      .stall-card {
+        height: 180px;
+        padding: 12px;
+        align-items: center;
+      }
+      
+      .stall-img-wrap {
+        width: 90px;
+        height: 155px;
+      }
+      
+      .stall-info {
+        min-width: 0;
+        overflow: hidden;
+        justify-content: center;
+        display: flex;
+        flex-direction: column;
+      }
+      
+      .stall-info h5 {
+        font-size: 1rem;
+      }
+      
+      .stall-info .text-muted {
+        font-size: 0.8rem;
+      }
+      
+      .search-wrap {
+        margin: 12px 0;
+      }
+      
+      .search-bar {
+        font-size: 14px;
+        padding: 10px 36px 10px 12px;
+      }
+      
+      .stall-info h5 {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      
+      .stall-info .text-muted {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        white-space: normal;
+      }
+      
+      .food-centre-input {
+        min-height: 44px;
+      }
+      
+      .search-bar {
+        min-height: 44px;
+      }
+      
+      .search-clear {
+        width: 44px;
+        height: 44px;
+      }
     }
 
   </style>
