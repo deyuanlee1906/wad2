@@ -450,8 +450,56 @@
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, collection, query, where, orderBy, limit, getDocs, documentId, addDoc, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 
-    const auth = getAuth();
-    const db = getFirestore();
+    // Wait for Firebase to initialize before using it
+    let auth, db;
+
+    // Initialize Firebase instances - wait for firebaseauth.js to finish
+    async function initFirebase() {
+      try {
+        // Wait for Firebase to be initialized by firebaseauth.js
+        if (window.firebaseInitPromise) {
+          await window.firebaseInitPromise;
+          console.log('Firebase initialization promise resolved');
+        } else {
+          // If promise doesn't exist, wait a bit for firebaseauth.js to load
+          console.log('Waiting for firebaseauth.js to initialize...');
+          let attempts = 0;
+          while (!window.firebaseInitPromise && attempts < 20) {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            attempts++;
+          }
+          if (window.firebaseInitPromise) {
+            await window.firebaseInitPromise;
+          }
+        }
+        
+        // Use window.auth and window.db if available (set by firebaseauth.js)
+        if (window.auth && window.db) {
+          auth = window.auth;
+          db = window.db;
+          console.log('Using Firebase instances from firebaseauth.js');
+        } else {
+          // Fallback: try to get from default app
+          const { getApp } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js");
+          const app = getApp();
+          auth = getAuth(app);
+          db = getFirestore(app);
+          console.log('Created Firebase instances from default app');
+        }
+      } catch (error) {
+        console.error('Error initializing Firebase:', error);
+        // Try to continue with default app anyway
+        try {
+          const { getApp } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js");
+          const app = getApp();
+          auth = getAuth(app);
+          db = getFirestore(app);
+        } catch (e) {
+          console.error('Failed to initialize Firebase:', e);
+          throw e;
+        }
+      }
+    }
 
     const profileUsernameEl = document.getElementById('profileUsername');
     const profileNameEl = document.getElementById('profileName');
@@ -499,14 +547,29 @@
       }
     }
 
-    onAuthStateChanged(auth, (user) => {
-      if (user && user.uid) {
-        loadUserProfile(user.uid);
-        loadAllGrids(user.uid);
+    // Initialize Firebase and then set up auth state listener
+    initFirebase().then(() => {
+      if (auth) {
+        onAuthStateChanged(auth, (user) => {
+          if (user && user.uid) {
+            loadUserProfile(user.uid);
+            loadAllGrids(user.uid);
+          } else {
+            const uid = localStorage.getItem('loggedInUserId');
+            if (uid) { loadUserProfile(uid); loadAllGrids(uid); }
+          }
+        });
       } else {
+        console.error('Auth not available');
+        // Try to load with localStorage fallback
         const uid = localStorage.getItem('loggedInUserId');
         if (uid) { loadUserProfile(uid); loadAllGrids(uid); }
       }
+    }).catch(error => {
+      console.error('Failed to initialize Firebase:', error);
+      // Try to load with localStorage fallback
+      const uid = localStorage.getItem('loggedInUserId');
+      if (uid) { loadUserProfile(uid); loadAllGrids(uid); }
     });
 
     const tabs = document.querySelectorAll('.tab-btn');
@@ -619,7 +682,7 @@
             alert('Please enter some text for your post.');
             return;
           }
-          const user = getAuth().currentUser;
+          const user = auth ? auth.currentUser : null;
           if (!user) { alert('Please sign in to post.'); return; }
           const authorName = currentUserProfile.displayName || currentUserProfile.username || 'User';
           await addDoc(collection(db, 'posts'), {
