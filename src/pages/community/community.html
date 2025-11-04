@@ -116,6 +116,31 @@ window.__likeSync = { setUserLike, unsetUserLike };
 </script>
 
 <script src="/scripts/main.js"></script>
+<script>
+// Fallback: Ensure threads are available even if main.js hasn't loaded
+// This runs immediately to check if threads exist
+(function() {
+  // Wait a tiny bit for main.js to execute
+  setTimeout(function() {
+    if (!window.threads) {
+      console.warn('window.threads not set by main.js, trying localStorage...');
+      try {
+        const stored = localStorage.getItem('threads');
+        if (stored) {
+          window.threads = JSON.parse(stored);
+          console.log('Fallback: Loaded threads from localStorage:', window.threads.length);
+        } else {
+          console.error('No threads found in localStorage either!');
+        }
+      } catch (e) {
+        console.error('Error in fallback thread loading:', e);
+      }
+    } else {
+      console.log('Threads available from main.js:', window.threads.length);
+    }
+  }, 50);
+})();
+</script>
 <script type="module">
 import { getAuth } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 import { getFirestore, collection, query, orderBy, limit, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
@@ -131,18 +156,30 @@ let bookmarkStatus = {}; // Will be loaded from Firestore per user
 let userLikes = new Set();
 
 async function renderInstagramFeed() {
+  console.log('renderInstagramFeed called');
+  if (!feed) {
+    console.error('Feed element not found!');
+    return;
+  }
+  
   feed.innerHTML = '';
 
   // Load current user's likes, follows, and bookmarks from Firestore
-  await loadUserLikes();
-  await loadUserFollows();
-  await loadUserBookmarks();
+  try {
+    await loadUserLikes();
+    await loadUserFollows();
+    await loadUserBookmarks();
+  } catch (e) {
+    console.error('Error loading user data:', e);
+    // Continue anyway - we can still show posts
+  }
 
   // Render Firestore posts first (new, permanent posts)
   try {
     const postsRef = collection(db, 'posts');
     const qy = query(postsRef, orderBy('createdAt', 'desc'), limit(30));
     const snap = await getDocs(qy);
+    console.log(`Loaded ${snap.docs.length} posts from Firestore`);
     const firePosts = snap.docs.map(d => ({
       id: d.id,
       author: (d.data().authorName || 'User'),
@@ -153,17 +190,22 @@ async function renderInstagramFeed() {
     firePosts.forEach(renderOne);
   } catch (e) {
     console.error('Failed to load Firestore posts', e);
+    // Continue to load sample threads even if Firestore fails
   }
 
   // Then render local sample threads
   // Load threads from window (set by main.js) or localStorage as fallback
   let sampleThreads = window.threads;
+  console.log('window.threads available:', !!sampleThreads);
+  
   if (!sampleThreads) {
     try {
       const stored = localStorage.getItem('threads');
+      console.log('localStorage threads available:', !!stored);
       if (stored) {
         sampleThreads = JSON.parse(stored);
         window.threads = sampleThreads; // Cache for future use
+        console.log(`Loaded ${sampleThreads.length} threads from localStorage`);
       } else {
         console.warn('No threads found in localStorage or window.threads');
         sampleThreads = [];
@@ -172,12 +214,25 @@ async function renderInstagramFeed() {
       console.error('Failed to load threads from localStorage:', e);
       sampleThreads = [];
     }
+  } else {
+    console.log(`Using ${sampleThreads.length} threads from window.threads`);
   }
   
-  if (sampleThreads && Array.isArray(sampleThreads)) {
+  if (sampleThreads && Array.isArray(sampleThreads) && sampleThreads.length > 0) {
+    console.log(`Rendering ${sampleThreads.length} sample threads`);
     sampleThreads.forEach(renderOne);
   } else {
-    console.warn('threads is not a valid array, skipping sample threads');
+    console.warn('threads is not a valid array or is empty, skipping sample threads');
+    console.warn('sampleThreads value:', sampleThreads);
+  }
+  
+  // Check if any posts were rendered
+  const renderedPosts = document.querySelectorAll('.instagram-post');
+  console.log(`Total posts rendered: ${renderedPosts.length}`);
+  
+  if (renderedPosts.length === 0) {
+    console.warn('No posts were rendered!');
+    feed.innerHTML = '<div style="padding: 40px; text-align: center; color: #666;"><p>No posts to display.</p><p style="font-size: 0.9em; margin-top: 10px;">Check the console for details.</p></div>';
   }
 
   // Handle deep link: ?postId=...&open=comments
@@ -652,14 +707,95 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/fi
 
 let feedInitialized = false;
 
-onAuthStateChanged(getAuth(), async (user) => {
-  if (!feedInitialized) {
+// Function to initialize feed with proper error handling
+async function initializeFeed() {
+  if (feedInitialized) return;
+  
+  try {
+    // Ensure threads are loaded - wait a bit if main.js hasn't executed yet
+    if (!window.threads) {
+      // Try loading from localStorage immediately
+      try {
+        const stored = localStorage.getItem('threads');
+        if (stored) {
+          window.threads = JSON.parse(stored);
+          console.log('Loaded threads from localStorage:', window.threads.length);
+        }
+      } catch (e) {
+        console.error('Error loading from localStorage:', e);
+      }
+      
+      // If still not available, wait a bit for main.js to load
+      if (!window.threads) {
+        console.warn('window.threads not available, waiting for main.js...');
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        // Try localStorage again after wait
+        try {
+          const stored = localStorage.getItem('threads');
+          if (stored) {
+            window.threads = JSON.parse(stored);
+            console.log('Loaded threads from localStorage after wait:', window.threads.length);
+          }
+        } catch (e) {
+          console.error('Error loading from localStorage after wait:', e);
+        }
+      }
+    }
+    
     feedInitialized = true;
-    // Auth state is now ready (user logged in or not)
-    // Now we can safely load likes and render the feed
     await renderInstagramFeed();
+    console.log('Feed initialized successfully');
+  } catch (error) {
+    console.error('Error initializing feed:', error);
+    // Still try to render even if there's an error
+    if (!feedInitialized) {
+      feedInitialized = true;
+      try {
+        await renderInstagramFeed();
+      } catch (e) {
+        console.error('Failed to render feed after error:', e);
+        // Show error message to user
+        if (feed) {
+          feed.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">Unable to load feed. Please refresh the page.</div>';
+        }
+      }
+    }
   }
+}
+
+// Initialize when auth state changes
+onAuthStateChanged(getAuth(), async (user) => {
+  await initializeFeed();
 });
+
+// Fallback: Also try to initialize after a short delay in case auth is slow
+// This ensures the feed renders even if auth takes too long
+setTimeout(async () => {
+  if (!feedInitialized) {
+    console.log('Auth state change timeout, initializing feed anyway...');
+    await initializeFeed();
+  }
+}, 1000);
+
+// Additional fallback: Ensure DOM is ready and check if feed needs initialization
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', async () => {
+    console.log('DOMContentLoaded fired, checking feed initialization...');
+    if (!feedInitialized) {
+      console.log('Feed not initialized on DOMContentLoaded, initializing now...');
+      await initializeFeed();
+    }
+  });
+} else {
+  // DOM is already ready
+  setTimeout(async () => {
+    if (!feedInitialized) {
+      console.log('DOM already ready, but feed not initialized, trying again...');
+      await initializeFeed();
+    }
+  }, 500);
+}
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
