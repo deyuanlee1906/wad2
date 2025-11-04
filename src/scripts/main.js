@@ -210,6 +210,7 @@ var threads = [
   }
 ];
 
-// Persist this curated dataset each load so the feed is populated
+// Explicitly expose threads globally and persist to localStorage
+window.threads = threads;
 localStorage.setItem('threads', JSON.stringify(threads));
 

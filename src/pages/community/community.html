@@ -156,7 +156,29 @@ async function renderInstagramFeed() {
   }
 
   // Then render local sample threads
-  threads.forEach(renderOne);
+  // Load threads from window (set by main.js) or localStorage as fallback
+  let sampleThreads = window.threads;
+  if (!sampleThreads) {
+    try {
+      const stored = localStorage.getItem('threads');
+      if (stored) {
+        sampleThreads = JSON.parse(stored);
+        window.threads = sampleThreads; // Cache for future use
+      } else {
+        console.warn('No threads found in localStorage or window.threads');
+        sampleThreads = [];
+      }
+    } catch (e) {
+      console.error('Failed to load threads from localStorage:', e);
+      sampleThreads = [];
+    }
+  }
+  
+  if (sampleThreads && Array.isArray(sampleThreads)) {
+    sampleThreads.forEach(renderOne);
+  } else {
+    console.warn('threads is not a valid array, skipping sample threads');
+  }
 
   // Handle deep link: ?postId=...&open=comments
   try {
@@ -215,7 +237,8 @@ async function loadUserLikes() {
     }
     
     // Also check likes for sample threads (local data)
-    for (const thread of threads) {
+    const sampleThreads = window.threads || [];
+    for (const thread of sampleThreads) {
       if (!likeCounts[thread.id]) {
         const likesSubRef = collection(db, 'posts', thread.id, 'likes');
         const likesSubSnap = await getDocs(likesSubRef);
@@ -531,7 +554,14 @@ function setupPostInteractions(postElement, thread) {
     if (!commentText) return;
     
     thread.comments.push({author: 'You', date: Date.now(), content: commentText});
-    localStorage.setItem('threads', JSON.stringify(threads));
+    // Update threads in both window and localStorage
+    if (window.threads) {
+      const threadIndex = window.threads.findIndex(t => t.id === thread.id);
+      if (threadIndex !== -1) {
+        window.threads[threadIndex] = thread;
+      }
+      localStorage.setItem('threads', JSON.stringify(window.threads));
+    }
     
     const commentsList = postElement.querySelector('.comments-list');
     const newComment = document.createElement('div');
@@ -585,7 +615,14 @@ function setupCommentInteractions(commentItem, thread) {
     deleteBtn.addEventListener('click', function() {
       const commentIndex = parseInt(commentItem.dataset.commentIndex);
       thread.comments.splice(commentIndex, 1);
-      localStorage.setItem('threads', JSON.stringify(threads));
+      // Update threads in both window and localStorage
+      if (window.threads) {
+        const threadIndex = window.threads.findIndex(t => t.id === thread.id);
+        if (threadIndex !== -1) {
+          window.threads[threadIndex] = thread;
+        }
+        localStorage.setItem('threads', JSON.stringify(window.threads));
+      }
       commentItem.remove();
       
       // Update comment count
