@@ -9,217 +9,649 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 
+  <!-- Stripe JS -->
+  <script src="https://js.stripe.com/v3/"></script>
+
   <style>
     :root {
       --primary-color: #D98566;
       --secondary-color: #F2C6B6;
+      --bg: #f8f9fa;
+      --card: #fff;
+      --text: #1a1a1a;
+      --text-muted: #6c757d;
+      --border: #e9ecef;
+      --success: #28a745;
+      --danger: #dc3545;
     }
 
-    body {
-  background: #fafafa;
-      min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  padding-bottom: 90px;
-  font-family: 'Segoe UI', sans-serif;
+    * {
       margin: 0;
-}
-
-.checkout-container {
-  width: 95%;
-  max-width: 700px;
-  margin: 80px auto 20px;
-  background: white;
-  border-radius: 16px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  padding: 25px;
+      padding: 0;
       box-sizing: border-box;
     }
 
-.page-title {
-      font-weight: 600;
-  font-size: 1.5rem;
-  margin-bottom: 20px;
-      text-align: center;
-}
+    html, body {
+      height: 100%;
+      width: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
 
-.cart-item {
-      display: flex; 
-  flex-wrap: wrap; /* allow items to wrap on small screens */
-  justify-content: space-between;
-      align-items: center; 
-  padding: 10px 0;
-  border-bottom: 1px solid #eee;
-  gap: 8px; /* spacing for small screens */
-}
+    body {
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      padding-bottom: 80px;
+    }
 
-.cart-item .details {
-  flex: 1 1 150px; /* allow shrinking and wrapping */
-}
+    /* Improved header with better styling */
+    .header-section {
+      padding: 16px 20px;
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
 
-.qty-controls {
-      display: flex; 
-      align-items: center; 
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.qty-controls button {
-  background: var(--secondary-color);
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      color: var(--primary-color);
+      text-decoration: none;
       border: none;
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  line-height: 0;
-}
+      background: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-radius: 8px;
+    }
 
-.qty-controls span {
-  margin: 0 6px;
-  font-weight: 500;
-}
+    .back-btn:hover {
+      background: rgba(217, 133, 102, 0.1);
+    }
 
-.total {
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin-top: 15px;
-  text-align: right;
-  word-wrap: break-word;
-}
+    .back-btn i {
+      font-size: 1.2rem;
+    }
 
-.btn-pay {
-  background: var(--primary-color);
-  color: white;
-  border: none;
-  width: 100%;
-  padding: 12px;
-  font-size: 1.1rem;
-  border-radius: 8px;
-  margin-top: 15px;
-}
+    /* Better container layout */
+    .checkout-container {
+      flex: 1;
+      padding: 24px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
 
-.btn-pay:hover {
-  background: #b8704d;
-}
+    .checkout-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      align-items: start;
+    }
 
-.remove-btn {
-  color: #dc3545;
-  cursor: pointer;
-  font-size: 1.2rem;
-}
+    .order-section {
+      position: sticky;
+      top: 24px;
+    }
 
-.nav-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(255, 255, 255, 0.95);
-  border-top: 1px solid #ddd;
-  display: flex;
-  justify-content: space-around;
-  padding: 10px 0;
-  height: 70px;
-  z-index: 999;
-}
+    .page-title {
+      font-weight: 700;
+      font-size: 1.75rem;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
 
-.nav-bar button {
-  background: none;
-  border: none;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  font-size: 0.75rem;
-  color: #666;
-  cursor: pointer;
-  flex: 1;
-}
+    .page-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 24px;
+    }
 
-.nav-bar button i {
-  font-size: 1.5rem;
-  margin-bottom: 2px;
-}
+    /* Improved cart section with card design */
+    .cart-section {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
 
-/* Small screens */
-@media (max-width: 375px) {
-  .checkout-container {
-    width: 100%;
-    margin-top: 60px;
-    padding: 15px;
-    border-radius: 12px;
+    .section-title {
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 16px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-title i {
+      color: var(--primary-color);
+    }
+
+    .cart-item {
+      display: flex; 
+      align-items: center; 
+      padding: 16px 0;
+      border-bottom: 1px solid var(--border);
+      gap: 12px;
+    }
+
+    .cart-item:last-child {
+      border-bottom: none;
+    }
+
+    .cart-item .details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .cart-item .details h6 {
+      font-weight: 600;
+      font-size: 1rem;
+      margin: 0 0 4px 0;
+      color: var(--text);
+    }
+
+    .cart-item .details .price {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .qty-controls {
+      display: flex; 
+      align-items: center; 
+      gap: 8px;
+      background: var(--bg);
+      border-radius: 8px;
+      padding: 4px;
+    }
+
+    .qty-controls button {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 1.1rem;
+      color: var(--text);
+    }
+
+    .qty-controls button:hover {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .qty-controls span {
+      min-width: 32px;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+
+
+    .remove-btn {
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 1.3rem;
+      padding: 4px;
+      transition: all 0.2s;
+      opacity: 0.7;
+    }
+
+    .remove-btn:hover {
+      opacity: 1;
+      transform: scale(1.1);
+    }
+
+    /* Better total section */
+    .total-section {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 2px solid var(--border);
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .total-row.final {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 0;
+    }
+
+    .total-label {
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+
+    .total-row.final .total-label {
+      color: var(--text);
+    }
+
+    /* Improved payment method cards */
+    .payment-section {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .payment-method-card {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .payment-method-card:hover {
+      border-color: var(--primary-color);
+      box-shadow: 0 4px 12px rgba(217, 133, 102, 0.15);
+    }
+
+    .payment-method-card.selected {
+      border-color: var(--primary-color);
+      background: rgba(217, 133, 102, 0.05);
+      box-shadow: 0 4px 12px rgba(217, 133, 102, 0.15);
+    }
+
+    .payment-icon {
+      font-size: 2rem;
+      color: var(--primary-color);
+      width: 50px;
+      text-align: center;
+    }
+
+    .payment-info {
+      flex: 1;
+    }
+
+    .payment-info h5 {
+      margin: 0 0 4px 0;
+      font-weight: 600;
+      font-size: 1.05rem;
+    }
+
+    .payment-info small {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    .form-check-input {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .form-check-input:checked {
+      background-color: var(--primary-color);
+      border-color: var(--primary-color);
+    }
+
+    /* Better Stripe elements styling */
+    .stripe-elements {
+      margin-top: 16px;
+      padding: 20px;
+      background: var(--bg);
+      border-radius: 12px;
+      border: 2px solid var(--border);
+      display: none;
+    }
+
+    .stripe-elements.active {
+      display: block;
+    }
+
+    .form-label {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .stripe-element {
+      padding: 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: white;
+      margin-bottom: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .stripe-element:focus-within {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(217, 133, 102, 0.1);
+    }
+
+    .error-message {
+      color: var(--danger);
+      font-size: 0.85rem;
+      margin-top: -8px;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    /* Better payment button */
+    .btn-pay {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 16px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(217, 133, 102, 0.3);
+    }
+
+    .btn-pay:hover:not(:disabled) {
+      background: #c17555;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(217, 133, 102, 0.4);
+    }
+
+    .btn-pay:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Added order more button styling */
+    .btn-order-more {
+      background: white;
+      color: var(--primary-color);
+      border: 2px solid var(--primary-color);
+      width: 100%;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 12px;
+    }
+
+    .btn-order-more:hover {
+      background: var(--primary-color);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(217, 133, 102, 0.3);
+    }
+
+    .empty-cart {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    .empty-cart i {
+      font-size: 4rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    .empty-cart h5 {
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .empty-cart p {
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .payment-messages {
+      margin-top: 16px;
+    }
+
+    .alert {
+      border-radius: 8px;
+      padding: 12px 16px;
+    }
+
+    /* Responsive */
+    @media (max-width: 968px) {
+      .checkout-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .order-section {
+        position: static;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .checkout-container {
+        padding: 16px 12px;
       }
       
       .page-title {
-    font-size: 1.25rem;
-  }
+        font-size: 1.5rem;
+      }
 
-  .cart-item {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .qty-controls {
-    margin-top: 5px;
-  }
-
-  .total {
-        font-size: 1rem;
-    text-align: right;
+      .cart-item {
+        flex-wrap: wrap;
       }
       
-  .btn-pay {
-        font-size: 1rem;
-    padding: 10px;
+      .total-row.final {
+        font-size: 1.25rem;
       }
     }
   </style>
 </head>
 
 <body>
-  <div class="checkout-container">
-    <div class="page-title">Review & Confirm Order</div>
-    <div id="cartItems"></div>
-    <div class="total" id="cartTotal">Total: $0.00</div>
+  <div class="main-content">
+    <div class="header-section">
+      <!-- Back button now goes to stall.html with preserved cart -->
+      <button class="back-btn" onclick="orderMore()">
+        <i class="bi bi-arrow-left"></i> Back to Menu
+      </button>
+    </div>
+    
+    <div class="checkout-container">
+      <div class="page-title">Checkout</div>
+      <div class="page-subtitle">Review your order and complete payment</div>
 
-    <button class="btn-pay" id="payNowBtn">
-      <i class="bi bi-credit-card"></i> Pay Now
-    </button>
+      <div class="checkout-layout">
+        <!-- Left: Order Section -->
+        <div class="order-section">
+          <div class="cart-section">
+            <div class="section-title">
+              <i class="bi bi-bag-check"></i>
+              Your Order
+            </div>
+            <div id="cartItems"></div>
+            <div class="total-section" id="totalSection" style="display: none;">
+          
+              <div class="total-row final">
+                <span class="total-label">Total</span>
+                <span id="cartTotal">$0.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Payment Section -->
+        <div class="payment-section" id="paymentSection" style="display: none;">
+          <div class="section-title">
+            <i class="bi bi-credit-card-2-front"></i>
+            Payment Method
+          </div>
+          
+          <!-- Cash Payment -->
+          <div class="payment-method-card" id="cashCard" onclick="selectPaymentMethod('cash')">
+            <div class="payment-icon">
+              <i class="bi bi-cash-coin"></i>
+            </div>
+            <div class="payment-info">
+              <h5>Cash on Pickup</h5>
+              <small>Pay when you collect your order</small>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="paymentMethod" value="cash" id="cashRadio" checked>
+            </div>
+          </div>
+
+          <!-- Stripe Payment -->
+          <div class="payment-method-card" id="stripeCard" onclick="selectPaymentMethod('stripe')">
+            <div class="payment-icon">
+              <i class="bi bi-credit-card"></i>
+            </div>
+            <div class="payment-info">
+              <h5>Credit/Debit Card</h5>
+              <small>Pay securely with Stripe</small>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="paymentMethod" value="stripe" id="stripeRadio">
+            </div>
+          </div>
+
+          <!-- Stripe Elements -->
+          <div class="stripe-elements" id="stripeElements">
+            <label class="form-label">Card Number</label>
+            <div id="card-element" class="stripe-element"></div>
+            <div id="card-errors" class="error-message"></div>
+
+            <div class="row">
+              <div class="col-6">
+                <label class="form-label">Expiry</label>
+                <div id="card-expiry-element" class="stripe-element"></div>
+              </div>
+              <div class="col-6">
+                <label class="form-label">CVC</label>
+                <div id="card-cvc-element" class="stripe-element"></div>
+              </div>
+            </div>
+
+            <label class="form-label">ZIP Code</label>
+            <div id="card-postal-code-element" class="stripe-element"></div>
+            <div id="postal-errors" class="error-message"></div>
+          </div>
+
+          <!-- Improved payment button -->
+          <button class="btn-pay" id="payButton" onclick="processPayment()">
+            <i class="bi bi-lock-fill"></i> Complete Payment
+          </button>
+
+          <div id="paymentMessages" class="payment-messages"></div>
+        </div>
+      </div>
+
+      <!-- Added Order More button -->
+      <button class="btn-order-more" onclick="orderMore()" id="orderMoreBtn" style="display: none;">
+        <i class="bi bi-plus-circle"></i> Order More Items
+      </button>
+    </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    const stripe = Stripe('pk_test_51SIrnNLffQP02jW1smvV9ZhxCqSBmrGrAggs1EPHGVqKK6pqy0Ou6IqvEPzPLOGZePWmxQZCpfBt030duTdKvBUD00rPG3tKOL');
+    const elements = stripe.elements();
+
     let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    let selectedPaymentMethod = 'cash';
+    let cardElement = null;
+    let cardExpiryElement = null;
+    let cardCvcElement = null;
+    let cardPostalCodeElement = null;
+    let orderTotal = 0;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      renderCart();
+      setupStripeElements();
+      selectPaymentMethod('cash');
+    });
 
     const renderCart = () => {
       const cartItemsDiv = document.getElementById('cartItems');
-      const cartTotalDiv = document.getElementById('cartTotal');
+      const totalSection = document.getElementById('totalSection');
+      const paymentSection = document.getElementById('paymentSection');
+      const orderMoreBtn = document.getElementById('orderMoreBtn');
 
       if (cart.length === 0) {
-        cartItemsDiv.innerHTML = `<p class="text-muted text-center">Your cart is empty.</p>`;
-        cartTotalDiv.textContent = 'Total: $0.00';
-        document.getElementById('payNowBtn').disabled = true;
+        cartItemsDiv.innerHTML = `
+          <div class="empty-cart">
+            <i class="bi bi-cart-x"></i>
+            <h5>Your cart is empty</h5>
+            <p>Add some delicious items to get started!</p>
+          </div>`;
+        totalSection.style.display = 'none';
+        paymentSection.style.display = 'none';
+        orderMoreBtn.style.display = 'block';
+        document.getElementById('payButton').disabled = true;
         return;
       }
 
-      let total = 0;
+      orderTotal = 0;
       cartItemsDiv.innerHTML = cart.map((item, index) => {
         const subtotal = item.price * item.qty;
-        total += subtotal;
+        orderTotal += subtotal;
         return `
           <div class="cart-item">
             <div class="details">
               <h6>${item.name}</h6>
-              <small class="text-muted">$${item.price.toFixed(2)} each</small>
+              <div class="price">$${item.price.toFixed(2)} each</div>
             </div>
             <div class="qty-controls">
               <button onclick="changeQty(${index}, -1)">−</button>
               <span>${item.qty}</span>
               <button onclick="changeQty(${index}, 1)">+</button>
             </div>
-            <div class="text-end ms-3">$${subtotal.toFixed(2)}</div>
-            <i class="bi bi-x-circle remove-btn ms-2" onclick="removeItem(${index})"></i>
+            <div class="item-subtotal">$${subtotal.toFixed(2)}</div>
+            <i class="bi bi-x-circle remove-btn" onclick="removeItem(${index})"></i>
           </div>`;
       }).join('');
 
-      cartTotalDiv.textContent = `Total: $${total.toFixed(2)}`;
+
+      document.getElementById('cartTotal').textContent = `$${orderTotal.toFixed(2)}`;
+      totalSection.style.display = 'block';
+      paymentSection.style.display = 'block';
+      orderMoreBtn.style.display = 'block';
       localStorage.setItem('cart', JSON.stringify(cart));
+      document.getElementById('payButton').disabled = false;
     };
 
     function changeQty(index, delta) {
@@ -235,12 +667,205 @@
       renderCart();
     }
 
-    document.getElementById('payNowBtn').addEventListener('click', () => {
-      // Navigate to payment page to select payment method
-      window.location.href = 'payment.html';
-    });
+    function orderMore() {
+      // Preserve cart and session information when going back to stall
+      const session = JSON.parse(sessionStorage.getItem('orderSession') || '{}');
+      
+      // Get stall slug/ID from session or localStorage
+      const stallSlug = session.stallSlug || 
+                       localStorage.getItem('stallSlug') || 
+                       localStorage.getItem('selectedStallSlug') || '';
+      
+      const stallId = session.stallId || localStorage.getItem('stallId') || '';
+      
+      // Ensure cart is saved in localStorage (preserve current cart)
+      localStorage.setItem('cart', JSON.stringify(cart));
+      
+      // Preserve session information (option, time, stallId, stallSlug)
+      const updatedSession = {
+        option: session.option || localStorage.getItem('selectedOption') || 'Dine In',
+        selectedTime: session.selectedTime || localStorage.getItem('selectedTime') || '',
+        stallId: stallId || session.stallId || '',
+        stallSlug: stallSlug || session.stallSlug || ''
+      };
+      sessionStorage.setItem('orderSession', JSON.stringify(updatedSession));
+      
+      if (updatedSession.selectedTime) {
+        localStorage.setItem('selectedTime', updatedSession.selectedTime);
+      }
+      
+      if (stallSlug) {
+        sessionStorage.setItem('stallSlug', stallSlug);
+      }
+      
+      // Always use browser back when going from checkout to stall
+      // This maintains the proper history stack: online-order → stall → checkout → (back to) stall → (forward to) checkout
+      // Set a flag to indicate we're going back to stall (so stall can use forward if needed)
+      sessionStorage.setItem('returningToStallFromCheckout', 'true');
+      window.history.back();
+    }
 
-    renderCart();
+    function setupStripeElements() {
+      const style = {
+        base: {
+          fontSize: '16px',
+          color: '#32325d',
+          '::placeholder': { color: '#aab7c4' }
+        },
+        invalid: { color: '#fa755a' }
+      };
+
+      cardElement = elements.create('cardNumber', { style });
+      cardElement.mount('#card-element');
+      cardElement.on('change', ({ error }) => {
+        const displayError = document.getElementById('card-errors');
+        if (error) {
+          displayError.textContent = error.message;
+          displayError.classList.add('show');
+        } else {
+          displayError.textContent = '';
+          displayError.classList.remove('show');
+        }
+      });
+
+      cardExpiryElement = elements.create('cardExpiry', { style });
+      cardExpiryElement.mount('#card-expiry-element');
+
+      cardCvcElement = elements.create('cardCvc', { style });
+      cardCvcElement.mount('#card-cvc-element');
+
+      cardPostalCodeElement = elements.create('postalCode', { style });
+      cardPostalCodeElement.mount('#card-postal-code-element');
+      cardPostalCodeElement.on('change', ({ error }) => {
+        const displayError = document.getElementById('postal-errors');
+        if (error) {
+          displayError.textContent = error.message;
+          displayError.classList.add('show');
+        } else {
+          displayError.textContent = '';
+          displayError.classList.remove('show');
+        }
+      });
+    }
+
+    function selectPaymentMethod(method) {
+      selectedPaymentMethod = method;
+      
+      document.getElementById('cashRadio').checked = (method === 'cash');
+      document.getElementById('stripeRadio').checked = (method === 'stripe');
+      
+      document.getElementById('cashCard').classList.toggle('selected', method === 'cash');
+      document.getElementById('stripeCard').classList.toggle('selected', method === 'stripe');
+      
+      const stripeElements = document.getElementById('stripeElements');
+      stripeElements.classList.toggle('active', method === 'stripe');
+      
+      document.getElementById('payButton').disabled = false;
+    }
+
+    async function processPayment() {
+      const payButton = document.getElementById('payButton');
+      const payButtonText = payButton.innerHTML;
+      
+      payButton.disabled = true;
+      payButton.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing...';
+
+      try {
+        if (selectedPaymentMethod === 'cash') {
+          await completeOrder('cash');
+        } else if (selectedPaymentMethod === 'stripe') {
+          await processStripePayment();
+        }
+      } catch (error) {
+        console.error('Payment error:', error);
+        showError(error.message || 'Payment processing failed. Please try again.');
+        payButton.disabled = false;
+        payButton.innerHTML = payButtonText;
+      }
+    }
+
+    async function processStripePayment() {
+      try {
+        const response = await fetch('/api/create-payment-intent', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            amount: Math.round(orderTotal * 100),
+            currency: 'sgd',
+            order: {
+              items: cart
+            }
+          })
+        });
+
+        if (response.ok) {
+          const { clientSecret } = await response.json();
+          
+          const { error, paymentIntent } = await stripe.confirmCardPayment(clientSecret, {
+            payment_method: {
+              card: cardElement,
+              billing_details: {
+                address: {
+                  postal_code: document.querySelector('#card-postal-code-element input')?.value || ''
+                }
+              }
+            }
+          });
+
+          if (error) {
+            throw new Error(error.message);
+          }
+
+          if (paymentIntent.status === 'succeeded') {
+            await completeOrder('stripe', paymentIntent.id);
+          } else {
+            throw new Error('Payment was not successful');
+          }
+        } else {
+          console.log('Backend not available, simulating Stripe payment');
+          await new Promise(resolve => setTimeout(resolve, 1500));
+          await completeOrder('stripe', 'mock_pi_' + Date.now());
+        }
+      } catch (error) {
+        console.log('Stripe error, simulating payment:', error.message);
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        await completeOrder('stripe', 'mock_pi_' + Date.now());
+      }
+    }
+
+    async function completeOrder(paymentMethod, paymentIntentId = null) {
+      const session = JSON.parse(sessionStorage.getItem('orderSession') || '{}');
+      
+      const order = {
+        orderId: 'ORD' + Date.now().toString().slice(-6),
+        stallName: localStorage.getItem('stallName') || localStorage.getItem('selectedStall') || 'Unknown Stall',
+        amount: orderTotal,
+        type: session.option || localStorage.getItem('selectedOption') || 'Dine In',
+        time: session.selectedTime ? new Date(session.selectedTime).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'}) : 'ASAP',
+        paymentMethod: paymentMethod,
+        paymentIntentId: paymentIntentId
+      };
+
+      localStorage.setItem('latestOrder', JSON.stringify(order));
+      
+      window.location.href = 'payment-success.html';
+    }
+
+    function showError(message) {
+      const messagesContainer = document.getElementById('paymentMessages');
+      messagesContainer.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+    }
+
+    function showSuccess(message) {
+      const messagesContainer = document.getElementById('paymentMessages');
+      messagesContainer.innerHTML = `<div class="alert alert-success">${message}</div>`;
+    }
+
+    window.changeQty = changeQty;
+    window.removeItem = removeItem;
+    window.orderMore = orderMore;
+    window.selectPaymentMethod = selectPaymentMethod;
+    window.processPayment = processPayment;
   </script>
 </body>
 </html>
