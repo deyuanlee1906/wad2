@@ -144,13 +144,61 @@ window.__likeSync = { setUserLike, unsetUserLike };
 <script type="module">
 import { getAuth } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 import { getFirestore, collection, query, orderBy, limit, getDocs, doc, setDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-// Instagram-style feed functionality
-const auth = getAuth();
-const db = getFirestore();
+
+// Wait for Firebase to initialize before using it
+let auth, db;
 const feed = document.getElementById('instagramFeed');
 let likeCounts = {}; // Will be loaded from Firestore per user
 let followStatus = {}; // Will be loaded from Firestore per user
 let bookmarkStatus = {}; // Will be loaded from Firestore per user
+
+// Initialize Firebase instances - wait for firebaseauth.js to finish
+async function initFirebase() {
+  try {
+    // Wait for Firebase to be initialized by firebaseauth.js
+    if (window.firebaseInitPromise) {
+      await window.firebaseInitPromise;
+      console.log('Firebase initialization promise resolved');
+    } else {
+      // If promise doesn't exist, wait a bit for firebaseauth.js to load
+      console.log('Waiting for firebaseauth.js to initialize...');
+      let attempts = 0;
+      while (!window.firebaseInitPromise && attempts < 20) {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        attempts++;
+      }
+      if (window.firebaseInitPromise) {
+        await window.firebaseInitPromise;
+      }
+    }
+    
+    // Use window.auth and window.db if available (set by firebaseauth.js)
+    if (window.auth && window.db) {
+      auth = window.auth;
+      db = window.db;
+      console.log('Using Firebase instances from firebaseauth.js');
+    } else {
+      // Fallback: try to get from default app
+      const { getApp } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js");
+      const app = getApp();
+      auth = getAuth(app);
+      db = getFirestore(app);
+      console.log('Created Firebase instances from default app');
+    }
+  } catch (error) {
+    console.error('Error initializing Firebase:', error);
+    // Try to continue with default app anyway
+    try {
+      const { getApp } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js");
+      const app = getApp();
+      auth = getAuth(app);
+      db = getFirestore(app);
+    } catch (e) {
+      console.error('Failed to initialize Firebase:', e);
+      throw e;
+    }
+  }
+}
 
 // Track current user's likes from Firestore
 let userLikes = new Set();
@@ -712,6 +760,12 @@ async function initializeFeed() {
   if (feedInitialized) return;
   
   try {
+    // Ensure Firebase is initialized first
+    if (!auth || !db) {
+      console.log('Initializing Firebase...');
+      await initFirebase();
+    }
+    
     // Ensure threads are loaded - wait a bit if main.js hasn't executed yet
     if (!window.threads) {
       // Try loading from localStorage immediately
@@ -765,8 +819,19 @@ async function initializeFeed() {
 }
 
 // Initialize when auth state changes
-onAuthStateChanged(getAuth(), async (user) => {
-  await initializeFeed();
+// Wait for Firebase to be ready first
+initFirebase().then(() => {
+  if (auth) {
+    onAuthStateChanged(auth, async (user) => {
+      await initializeFeed();
+    });
+  } else {
+    console.error('Auth not available, initializing feed without auth...');
+    initializeFeed();
+  }
+}).catch(error => {
+  console.error('Failed to initialize Firebase, initializing feed anyway:', error);
+  initializeFeed();
 });
 
 // Fallback: Also try to initialize after a short delay in case auth is slow
