@@ -10,19 +10,20 @@
   <script type="module" src="/scripts/firebaseauth.js"></script>
 
   <style>
+    /* Applied cleaner styling from wait-for-db with coral accent color and improved spacing */
     :root{--bg:#f5f5f5;--card:#fff;--accent:#d98566;--text:#1a1a1a;--text-muted:#666}
-    *{margin:0;padding:0;box-sizing:border-box}
+    * {margin:0;padding:0;box-sizing:border-box}
     html,body{height:100%;width:100%;font-family:Inter,system-ui}
     body{background:var(--bg);color:var(--text);display:flex;flex-direction:column}
     
-    /* Full-screen layout using flexbox to maximize space */
-    .main-content{display:flex;flex-direction:column;flex:1;min-height:100vh;margin-bottom:80px}
-    /* added margin-bottom to main-content to prevent cart footer overlap */
+    /* Increased bottom margin to account for fixed footer height */
+    .main-content{display:flex;flex-direction:column;flex:1;min-height:100vh;margin-bottom:100px}
     .header-section{padding:20px 24px;border-bottom:1px solid rgba(0,0,0,0.06);background:var(--card);flex-shrink:0}
     .header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
     .header h2{margin:0;font-size:1.5rem;font-weight:600}
     .controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-    .time-select{min-width:160px}
+    .time-select{min-width:180px;flex-shrink:0;position:relative}
+    .time-select .form-select{width:100%;padding-right:40px;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231a1a1a' d='M6 9L1 4h10z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;background-size:12px}
     
     /* Full-height layout grid with improved spacing */
     .layout-wrapper{display:flex;flex:1;gap:0;min-height:0}
@@ -32,21 +33,21 @@
     .left-rail{position:sticky;top:0;height:100%;overflow-y:auto;padding:12px 8px;background:var(--card);border-right:1px solid rgba(0,0,0,0.06);flex-shrink:0}
     @media (max-width:768px){ .left-rail{display:none} }
     
-    .menu-col{flex:1;overflow-y:auto;min-height:0;padding:20px 24px;padding-bottom:40px}
-    /* added padding-bottom to menu-col to ensure content doesn't hide under fixed footer */
+    /* Increased padding-bottom to ensure last item is visible above fixed footer */
+    .menu-col{flex:1;overflow-y:auto;min-height:0;padding:20px 24px;padding-bottom:120px}
     .menu-list{max-width:100%}
     .menu-section{margin-bottom:28px}
-    .menu-section h4{margin-bottom:14px;font-size:1.1rem;font-weight:600;color:var(--text)}
+    .menu-section h4{margin-bottom:14px;font-size:1.3rem;font-weight:600;color:var(--text)}
     
     /* Enhanced menu item styling with better spacing and shadows */
     .menu-item{display:flex;gap:14px;background:var(--card);padding:14px;border-radius:12px;align-items:stretch;border:1px solid rgba(0,0,0,0.04);transition:all 0.2s ease;cursor:pointer}
     .menu-item:hover{box-shadow:0 4px 12px rgba(0,0,0,0.08);border-color:rgba(0,0,0,0.08)}
     .menu-item img{width:100px;height:80px;object-fit:cover;border-radius:10px;flex-shrink:0}
     .menu-item-content{flex:1;display:flex;flex-direction:column;justify-content:space-between}
-    .menu-item-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
-    .menu-item-title{font-weight:600;font-size:1rem;margin:0}
+    .menu-item-header{display:flex;flex-direction:column;gap:4px}
+    .menu-item-title{font-weight:600;font-size:1.3rem;margin:0}
+    .menu-item-price{font-weight:700;color:var(--accent);font-size:1.1rem;margin-top:2px}
     .menu-item-description{font-size:0.875rem;color:var(--text-muted);margin:4px 0 0 0}
-    .menu-item-price{font-weight:700;color:var(--accent);font-size:1.1rem}
     .menu-item-status{font-size:0.8rem;color:var(--text-muted);margin-top:4px}
     
     /* Modern quantity controls with refined styling */
@@ -60,15 +61,15 @@
     .btn-add:active{transform:translateY(0)}
     
     /* Full-screen cart footer with improved styling */
-    .cart-fixed{position:fixed;bottom:0;left:0;right:0;background:var(--card);padding:14px 24px;border-top:1px solid rgba(0,0,0,0.08);z-index:1000;box-shadow:0 -2px 8px rgba(0,0,0,0.04);height:80px;display:flex;align-items:center}
-    /* adjusted cart-fixed to have fixed height and flex centering */
-    .cart-content{display:flex;justify-content:space-between;align-items:center;max-width:1200px;margin:0 auto;width:100%}
-    .cart-total{display:flex;align-items:center;gap:12px;font-size:1rem}
-    .cart-total strong{font-size:1.1rem;color:var(--text)}
+    .cart-fixed{position:fixed;bottom:0;left:0;right:0;background:var(--card);padding:14px 0;border-top:1px solid rgba(0,0,0,0.08);z-index:1000;box-shadow:0 -2px 8px rgba(0,0,0,0.04);height:80px;display:flex;align-items:center}
+    .cart-content{display:flex;justify-content:space-between;align-items:center;max-width:100%;padding:0 24px;width:100%}
+    .cart-total{display:flex;align-items:center;gap:12px;font-size:1.3rem}
+    .cart-total strong{font-size:1.3rem;font-weight:600;color:var(--text)}
     #cartTotal{font-weight:700;color:var(--accent);font-size:1.3rem}
     .checkout-section{display:flex;gap:12px;align-items:center}
-    #checkoutBtn{background:var(--accent);color:#fff;border:none;padding:10px 24px;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.2s ease;min-width:200px}
+    #checkoutBtn{background:var(--accent);color:#fff;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.2s ease;font-size:0.95rem;display:inline-flex;align-items:center;justify-content:center}
     #checkoutBtn:hover:not(:disabled){background:#c66d52;transform:translateY(-1px);box-shadow:0 2px 8px rgba(217,133,102,0.3)}
+    #checkoutBtn:active:not(:disabled){transform:translateY(0)}
     #checkoutBtn:disabled{opacity:0.5;cursor:not-allowed}
     
     /* Improved category pills with better contrast */
@@ -76,12 +77,77 @@
     .category-pill:hover{border-color:var(--accent);background:#fafafa}
     .category-pill.active{background:var(--accent);color:#fff;border-color:var(--accent);box-shadow:0 2px 8px rgba(217,133,102,0.2)}
     
+    /* Notification popup - matching confirmation popup styling */
+    .notification-popup{position:fixed;top:50%;left:50%;transform:translate(-50%, -50%) scale(0.8);background:var(--card);padding:32px;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.2);border:1px solid rgba(0,0,0,0.08);z-index:10001;min-width:400px;max-width:90%;opacity:0;transition:all 0.3s ease;pointer-events:none;text-align:center}
+    .notification-popup.show{opacity:1;transform:translate(-50%, -50%) scale(1);pointer-events:auto}
+    .notification-popup .notification-icon{width:48px;height:48px;margin:0 auto 16px;font-size:3rem;display:flex;align-items:center;justify-content:center;line-height:1}
+    .notification-popup .notification-message{font-size:1rem;color:var(--text-muted);margin-bottom:24px;line-height:1.5}
+    .notification-popup .notification-button{display:flex;gap:12px;justify-content:center}
+    .notification-popup .notification-btn{padding:10px 24px;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.2s ease;font-size:1rem;border:none;min-width:100px;background:var(--accent);color:#fff}
+    .notification-popup .notification-btn:hover{background:#c66d52;transform:translateY(-1px);box-shadow:0 2px 8px rgba(217,133,102,0.3)}
+    
+    /* Backdrop overlay */
+    .notification-backdrop{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.4);z-index:9999;opacity:0;transition:opacity 0.3s ease;pointer-events:none}
+    .notification-backdrop.show{opacity:1;pointer-events:auto}
+    
+    /* Confirmation popup */
+    .confirmation-popup{position:fixed;top:50%;left:50%;transform:translate(-50%, -50%) scale(0.8);background:var(--card);padding:32px;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.2);border:1px solid rgba(0,0,0,0.08);z-index:10001;min-width:400px;max-width:90%;opacity:0;transition:all 0.3s ease;pointer-events:none;text-align:center}
+    .confirmation-popup.show{opacity:1;transform:translate(-50%, -50%) scale(1);pointer-events:auto}
+    .confirmation-popup .confirmation-icon{width:48px;height:48px;margin:0 auto 16px;font-size:3rem;display:flex;align-items:center;justify-content:center;line-height:1}
+    .confirmation-popup .confirmation-title{font-size:1.3rem;font-weight:600;color:var(--text);margin-bottom:12px}
+    .confirmation-popup .confirmation-message{font-size:1rem;color:var(--text-muted);margin-bottom:24px;line-height:1.5}
+    .confirmation-popup .confirmation-buttons{display:flex;gap:12px;justify-content:center}
+    .confirmation-popup .confirmation-btn{padding:10px 24px;border-radius:8px;font-weight:600;cursor:pointer;transition:all 0.2s ease;font-size:1rem;border:none;min-width:100px}
+    .confirmation-popup .confirmation-btn-yes{background:var(--accent);color:#fff}
+    .confirmation-popup .confirmation-btn-yes:hover{background:#c66d52;transform:translateY(-1px);box-shadow:0 2px 8px rgba(217,133,102,0.3)}
+    .confirmation-popup .confirmation-btn-no{background:var(--bg);color:var(--text);border:1px solid rgba(0,0,0,0.1)}
+    .confirmation-popup .confirmation-btn-no:hover{background:#f1f3f5;border-color:var(--accent)}
+    
+    /* Enhanced button group styling to match new accent color */
+    .btn-group .btn{
+      font-weight:600;
+      border-radius:10px;
+      padding:10px 20px;
+      transition:all 0.2s ease;
+    }
+    .btn-group .btn-outline-primary{
+      border-color:var(--accent);
+      color:var(--accent);
+      background:transparent;
+    }
+    .btn-group .btn-outline-primary:hover:not(.active){
+      background:transparent;
+      border-color:var(--accent);
+      color:var(--accent);
+      box-shadow:none;
+    }
+    .btn-group .btn.active{
+      background:var(--accent);
+      border-color:var(--accent);
+      color:white;
+      box-shadow:0 2px 8px rgba(217,133,102,0.3);
+    }
+    
+    /* Enhanced form select styling */
+    .form-select{
+      border-radius:10px;
+      border:2px solid rgba(0,0,0,0.08);
+      padding:10px 16px;
+      font-weight:500;
+      transition:all 0.2s ease;
+    }
+    .form-select:focus{
+      border-color:var(--accent);
+      box-shadow:0 0 0 3px rgba(217,133,102,0.1);
+    }
+    
     @media (max-width:768px){ 
-      .main-content{margin-bottom:100px}
-      /* increased bottom margin for mobile due to taller footer */
-      .menu-col{padding:16px 12px;padding-bottom:20px}
+      /* Increased mobile bottom margin and padding for taller footer */
+      .main-content{margin-bottom:130px}
+      .menu-col{padding:16px 12px;padding-bottom:140px}
       .header-section{padding:16px 12px}
-      .cart-fixed{height:100px;padding:12px 16px}
+      .cart-fixed{height:100px;padding:12px 0}
+      .cart-content{padding:0 12px}
     }
   </style>
 </head>
@@ -100,7 +166,7 @@
         </div>
 
         <div class="time-select">
-          <select id="timeSelect" class="form-select"></select>
+          <select id="timeSelect" class="form-select" aria-label="Select pickup time"></select>
         </div>
 
         <div class="flex-grow-1 text-end">
@@ -136,6 +202,8 @@
     let currentStall = null;
     let menuItems = [];
     let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    let isNavigating = false;
+    let navigationDestination = null;
 
     function setOption(opt){
       selectedOption = opt;
@@ -148,19 +216,127 @@
       return d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
     }
 
-    function buildTimeOptions(){
+    // Store the change handler function to avoid duplicate listeners
+    let timeSelectChangeHandler = null;
+    let timeSelectInitialized = false;
+
+    function buildTimeOptions(shouldRestoreTime = false){
       const sel = document.getElementById('timeSelect');
-      sel.innerHTML = '';
-      const now = new Date();
-      const remainder = (15 - (now.getMinutes() % 15)) % 15;
-      now.setMinutes(now.getMinutes() + remainder);
-      for(let i=0;i<24;i++){
-        const opt = new Date(now.getTime() + i*15*60000);
-        const label = formatTime(opt);
-        sel.innerHTML += `<option value="${opt.toISOString()}">${label}</option>`;
+      if (!sel) {
+        console.log('timeSelect element not found');
+        return;
       }
-      sel.addEventListener('change', ()=>{ selectedTime = sel.value; saveSession(); });
-      selectedTime = sel.value || sel.options[0]?.value || '';
+      
+      // Restore saved time if explicitly requested (e.g., returning from checkout)
+      let savedTime = '';
+      if (shouldRestoreTime) {
+        savedTime = selectedTime;
+        if (!savedTime) {
+          try {
+            const session = JSON.parse(sessionStorage.getItem('orderSession') || '{}');
+            savedTime = session.selectedTime || localStorage.getItem('selectedTime') || '';
+          } catch (e) {
+            savedTime = localStorage.getItem('selectedTime') || '';
+          }
+        }
+      }
+      
+      // Remove old event listener if it exists
+      if (timeSelectChangeHandler && timeSelectInitialized) {
+        sel.removeEventListener('change', timeSelectChangeHandler);
+      }
+      
+      // Clear existing options
+      sel.innerHTML = '';
+      
+      // Add placeholder option
+      const placeholderOption = document.createElement('option');
+      placeholderOption.value = '';
+      placeholderOption.textContent = 'Please select a time';
+      placeholderOption.disabled = true;
+      placeholderOption.selected = !savedTime;
+      sel.appendChild(placeholderOption);
+      
+      // Add ASAP option
+      const asapOption = document.createElement('option');
+      asapOption.value = 'asap';
+      asapOption.textContent = 'ASAP';
+      if (savedTime === 'asap') {
+        asapOption.selected = true;
+        placeholderOption.selected = false;
+      }
+      sel.appendChild(asapOption);
+      
+      // Ensure placeholder is selected if no saved time
+      if (!savedTime) {
+        placeholderOption.selected = true;
+      }
+      
+      // Add time intervals starting from current time
+      const now = new Date();
+      const currentMinutes = now.getMinutes();
+      const remainder = (15 - (currentMinutes % 15)) % 15;
+      const startTime = new Date(now);
+      startTime.setMinutes(currentMinutes + remainder);
+      
+      // Generate options for the next 24 intervals (6 hours)
+      for(let i=0;i<24;i++){
+        const opt = new Date(startTime.getTime() + i*15*60000);
+        const label = formatTime(opt);
+        const timeOption = document.createElement('option');
+        timeOption.value = opt.toISOString();
+        timeOption.textContent = label;
+        // Check if this option matches the saved time
+        if (savedTime && savedTime === opt.toISOString()) {
+          timeOption.selected = true;
+          placeholderOption.selected = false;
+        }
+        sel.appendChild(timeOption);
+      }
+      
+      // Create and add event listener for time selection (only once)
+      if (!timeSelectInitialized) {
+        timeSelectChangeHandler = function(){
+          const currentSelect = document.getElementById('timeSelect');
+          if (currentSelect) {
+            selectedTime = currentSelect.value;
+            saveSession();
+          }
+        };
+        sel.addEventListener('change', timeSelectChangeHandler);
+        timeSelectInitialized = true;
+      }
+      
+      // Restore saved time if it exists
+      if (savedTime) {
+        selectedTime = savedTime;
+        sel.value = savedTime;
+        // If value didn't match exactly, try to find a close match
+        if (sel.value !== savedTime && savedTime !== 'asap') {
+          try {
+            const savedDate = new Date(savedTime);
+            if (!isNaN(savedDate.getTime())) {
+              for (let option of sel.options) {
+                if (option.value && option.value !== '') {
+                  const optionDate = new Date(option.value);
+                  if (!isNaN(optionDate.getTime())) {
+                    const timeDiff = Math.abs(savedDate.getTime() - optionDate.getTime());
+                    if (timeDiff < 15 * 60 * 1000) {
+                      option.selected = true;
+                      selectedTime = option.value;
+                      sel.value = option.value;
+                      saveSession();
+                      break;
+                    }
+                  }
+                }
+              }
+            }
+          } catch (e) {
+            // Ignore parse errors
+          }
+        }
+      }
     }
 
     async function loadStallAndMenu(){
@@ -178,7 +354,26 @@
       
       document.getElementById('stallName').textContent = currentStall.name || '';
       document.getElementById('stallMeta').textContent = `${currentStall.cuisine || ''} • ${currentStall.foodCentre || ''}`;
-      buildTimeOptions();
+      
+      // Check if returning from checkout - use flag (set by checkout when using history.back) or referrer
+      const returningToStallFromCheckout = sessionStorage.getItem('returningToStallFromCheckout') === 'true';
+      const isReturningFromCheckout = returningToStallFromCheckout || document.referrer.includes('checkout.html');
+      
+      // If returning from checkout or on refresh, ensure selectedTime is loaded
+      if (!selectedTime) {
+        if (isReturningFromCheckout) {
+          // Clear the flag after using it
+          if (returningToStallFromCheckout) {
+            sessionStorage.removeItem('returningToStallFromCheckout');
+          }
+        }
+        const savedSession = JSON.parse(sessionStorage.getItem('orderSession') || '{}');
+        selectedTime = savedSession.selectedTime || localStorage.getItem('selectedTime') || '';
+      }
+      
+      // Build time options (restore time if we have a saved time)
+      const hasSavedTime = selectedTime && selectedTime !== '';
+      buildTimeOptions(hasSavedTime);
 
       const menuRef = window.collection(window.db,'menuItems');
       const mq = window.query(menuRef, window.where('stallId','==',stallDoc.id));
@@ -208,11 +403,9 @@
               <div class="menu-item-content">
                 <div>
                   <div class="menu-item-header">
-                    <div>
-                      <p class="menu-item-title">${it.name}</p>
-                      <p class="menu-item-description">${it.description||''}</p>
-                    </div>
+                    <p class="menu-item-title">${it.name}</p>
                     <div class="menu-item-price">$${(Number(it.price)||0).toFixed(2)}</div>
+                    <p class="menu-item-description">${it.description||''}</p>
                   </div>
                   <div class="menu-item-status">${it.available === false ? 'Unavailable' : ''}</div>
                 </div>
@@ -236,16 +429,104 @@
         };
       });
 
-      const observer = new IntersectionObserver(entries=>{
-        entries.forEach(en=>{
-          if(en.isIntersecting){
-            const cat = en.target.dataset.cat;
-            document.querySelectorAll('.category-pill').forEach(p=>p.classList.toggle('active', p.dataset.cat===cat));
+      const menuCol = document.querySelector('.menu-col');
+      const sections = document.querySelectorAll('.menu-section');
+      
+      // Function to update active category based on scroll position
+      function updateActiveCategory() {
+        const scrollTop = menuCol.scrollTop;
+        const menuColRect = menuCol.getBoundingClientRect();
+        const viewportTop = menuColRect.top;
+        const scrollHeight = menuCol.scrollHeight;
+        const clientHeight = menuCol.clientHeight;
+        
+        // Check if we're at the bottom
+        const isAtBottom = scrollTop + clientHeight >= scrollHeight - 10;
+        
+        if (isAtBottom && sections.length > 0) {
+          // At bottom, highlight last section
+          const lastSection = sections[sections.length - 1];
+          const cat = lastSection.dataset.cat;
+          document.querySelectorAll('.category-pill').forEach(p => {
+            p.classList.toggle('active', p.dataset.cat === cat);
+          });
+          return;
+        }
+        
+        let activeSection = null;
+        let bestSection = null;
+        let bestDistance = Infinity;
+        
+        sections.forEach(section => {
+          // Get section position relative to menu container
+          const sectionTop = section.offsetTop;
+          const sectionRect = section.getBoundingClientRect();
+          
+          // Calculate distance from section top to current scroll position
+          const distanceFromScrollTop = scrollTop - sectionTop;
+          
+          // Check if section is visible in viewport
+          const isVisible = sectionRect.top <= menuColRect.bottom && sectionRect.bottom >= menuColRect.top;
+          
+          if (isVisible) {
+            // Calculate distance from section top to viewport top
+            const distanceFromViewportTop = Math.abs(sectionRect.top - viewportTop);
+            
+            // Track the section closest to viewport top
+            if (distanceFromViewportTop < bestDistance) {
+              bestDistance = distanceFromViewportTop;
+              bestSection = section;
+            }
+            
+            // Prefer sections whose top is at or just above the scroll position
+            if (sectionTop <= scrollTop + 50 && sectionTop >= scrollTop - 100) {
+              if (!activeSection || sectionTop > activeSection.offsetTop) {
+                activeSection = section;
+              }
+            }
+          }
+          
+          // Also consider sections just above viewport
+          if (sectionTop < scrollTop && sectionTop >= scrollTop - 200) {
+            const distance = scrollTop - sectionTop;
+            if (distance < bestDistance) {
+              bestDistance = distance;
+              bestSection = section;
+            }
           }
         });
-      }, {root: document.querySelector('.menu-col'), rootMargin: '0px 0px -60% 0px', threshold: 0.1});
+        
+        // Use activeSection if found, otherwise use bestSection
+        const finalSection = activeSection || bestSection;
+        
+        if (finalSection) {
+          const cat = finalSection.dataset.cat;
+          document.querySelectorAll('.category-pill').forEach(p => {
+            p.classList.toggle('active', p.dataset.cat === cat);
+          });
+        }
+      }
+      
+      // Use IntersectionObserver for better performance
+      const observer = new IntersectionObserver(entries => {
+        updateActiveCategory();
+      }, {
+        root: menuCol,
+        rootMargin: '-80px 0px -60% 0px',
+        threshold: [0, 0.1, 0.25, 0.5, 0.75, 1]
+      });
 
-      document.querySelectorAll('.menu-section').forEach(s=>observer.observe(s));
+      sections.forEach(s => observer.observe(s));
+      
+      // Throttled scroll handler for better performance
+      let scrollTimeout;
+      menuCol.addEventListener('scroll', () => {
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(updateActiveCategory, 50);
+      });
+      
+      // Initial update
+      updateActiveCategory();
     }
 
     function renderQtyControls(itemId){
@@ -297,29 +578,307 @@
     }
 
     function saveSession(){
-      const session = { option: selectedOption, selectedTime, stallId: currentStall?.id || '' };
+      const session = { 
+        option: selectedOption, 
+        selectedTime, 
+        stallId: currentStall?.id || '', 
+        stallSlug: currentStall?.slug || '',
+        foodCentre: currentStall?.foodCentre || sessionStorage.getItem('selectedFoodCentre') || ''
+      };
       sessionStorage.setItem('orderSession', JSON.stringify(session));
       localStorage.setItem('cart', JSON.stringify(cart));
+      if (selectedTime) {
+        localStorage.setItem('selectedTime', selectedTime);
+      }
+      if (currentStall) {
+        localStorage.setItem('stallName', currentStall.name || '');
+        localStorage.setItem('stallSlug', currentStall.slug || '');
+        localStorage.setItem('stallId', currentStall.id || '');
+        // Save food centre for navigation back to online-order-home
+        if (currentStall.foodCentre) {
+          sessionStorage.setItem('selectedFoodCentre', currentStall.foodCentre);
+        }
+      }
     }
 
+    function showConfirmation(onConfirm, title = 'Leave Page?', message = 'All changes will be discarded. Your cart will be cleared. Do you want to leave?') {
+      const confirmation = document.getElementById('confirmationPopup');
+      const backdrop = document.getElementById('notificationBackdrop');
+      
+      // Update title and message
+      const titleEl = confirmation.querySelector('.confirmation-title');
+      const messageEl = confirmation.querySelector('.confirmation-message');
+      if (titleEl) titleEl.textContent = title;
+      if (messageEl) messageEl.textContent = message;
+      
+      backdrop.classList.add('show');
+      confirmation.classList.add('show');
+      
+      // Store the confirm callback
+      window.confirmCallback = onConfirm;
+    }
+    
+    function hideConfirmation() {
+      const confirmation = document.getElementById('confirmationPopup');
+      const backdrop = document.getElementById('notificationBackdrop');
+      confirmation.classList.remove('show');
+      backdrop.classList.remove('show');
+      window.confirmCallback = null;
+    }
+    
+    function confirmLeave() {
+      hideConfirmation();
+      
+      // Clear cart and time completely (both localStorage and sessionStorage)
+      cart = [];
+      localStorage.setItem('cart', JSON.stringify(cart));
+      selectedTime = '';
+      localStorage.removeItem('selectedTime');
+      
+      // Clear from sessionStorage as well
+      const session = JSON.parse(sessionStorage.getItem('orderSession') || '{}');
+      session.selectedTime = '';
+      sessionStorage.setItem('orderSession', JSON.stringify(session));
+      
+      // Set navigation flag immediately
+      isNavigating = true;
+      
+      // Save food centre before navigating
+      if (currentStall?.foodCentre) {
+        sessionStorage.setItem('selectedFoodCentre', currentStall.foodCentre);
+        sessionStorage.setItem('navigatedToStall', 'true');
+      }
+      
+      // Navigate directly based on destination
+      if (navigationDestination === 'online-order-home') {
+        navigationDestination = null;
+        window.location.href = 'online-order-home.html';
+        return;
+      }
+      
+      // Execute callback for other cases (like popstate)
+      if (window.confirmCallback) {
+        const callback = window.confirmCallback;
+        window.confirmCallback = null;
+        callback();
+      }
+    }
+    
+    function cancelLeave() {
+      hideConfirmation();
+      navigationDestination = null;
+    }
+    
     function goBack() {
-      history.back();
+      const hasItems = cart && cart.length > 0;
+
+      if (hasItems) {
+        // Set destination so confirmLeave knows where to navigate
+        navigationDestination = 'online-order-home';
+        showConfirmation(() => {
+          // This callback is a fallback, but confirmLeave will handle navigation directly
+          if (currentStall?.foodCentre) {
+            sessionStorage.setItem('selectedFoodCentre', currentStall.foodCentre);
+            sessionStorage.setItem('navigatedToStall', 'true');
+          }
+          window.location.href = 'online-order-home.html';
+        });
+      } else {
+        // Ensure food centre is saved before navigating
+        if (currentStall?.foodCentre) {
+          sessionStorage.setItem('selectedFoodCentre', currentStall.foodCentre);
+          sessionStorage.setItem('navigatedToStall', 'true');
+        }
+        // Clear time and cart completely when going back
+        selectedTime = '';
+        localStorage.removeItem('selectedTime');
+        cart = [];
+        localStorage.setItem('cart', JSON.stringify(cart));
+        
+        // Clear from sessionStorage as well
+        const session = JSON.parse(sessionStorage.getItem('orderSession') || '{}');
+        session.selectedTime = '';
+        sessionStorage.setItem('orderSession', JSON.stringify(session));
+        
+        isNavigating = true;
+        window.location.href = 'online-order-home.html';
+      }
     }
 
     window.addToCart = addToCart;
     window.changeQty = changeQty;
     window.setOption = setOption;
     window.goBack = goBack;
+    window.confirmLeave = confirmLeave;
+    window.cancelLeave = cancelLeave;
 
-    function goToCheckout(){
-      saveSession();
-      window.location.href = '/pages/order/checkout.html';
+    function showNotification(message) {
+      const notification = document.getElementById('notificationPopup');
+      const backdrop = document.getElementById('notificationBackdrop');
+      const messageEl = document.getElementById('notificationMessage');
+      messageEl.textContent = message;
+      backdrop.classList.add('show');
+      notification.classList.add('show');
+      
+      // Auto-hide after 5 seconds
+      setTimeout(() => {
+        hideNotification();
+      }, 5000);
     }
+    
+    function hideNotification() {
+      const notification = document.getElementById('notificationPopup');
+      const backdrop = document.getElementById('notificationBackdrop');
+      notification.classList.remove('show');
+      backdrop.classList.remove('show');
+    }
+    
+    function goToCheckout(){
+      // Set navigation flag immediately to prevent any prompts
+      isNavigating = true;
+      
+      // Check if time has been selected
+      const timeSelect = document.getElementById('timeSelect');
+      const selectedTimeValue = timeSelect ? timeSelect.value : '';
+      
+      if (!selectedTimeValue || selectedTimeValue === '') {
+        // Reset flag if validation fails
+        isNavigating = false;
+        showNotification('Please select a time before proceeding to checkout.');
+        if (timeSelect) timeSelect.focus();
+        return;
+      }
+      
+      // Sync selectedTime with dropdown value before saving
+      selectedTime = selectedTimeValue;
+      saveSession();
+      window.location.href = 'checkout.html';
+    }
+    
     window.goToCheckout = goToCheckout;
+    window.hideNotification = hideNotification;
+
+    // Removed beforeunload handler - no refresh alerts, page remains the same on refresh
+    
+    window.addEventListener("popstate", () => {
+      const hasItems = cart && cart.length > 0;
+      
+      // Only intercept if we have items and not already navigating
+      if (hasItems && !isNavigating) {
+        // Push state back to stay on current page
+        history.pushState(null, null, window.location.href);
+        
+        navigationDestination = null;
+        
+        // Show confirmation
+        showConfirmation(() => {
+          // Navigate back - isNavigating is already set in confirmLeave
+          history.back();
+        });
+      }
+    });
 
     (async ()=>{
-      buildTimeOptions(); 
-      loadStallAndMenu().then(() => updateCartUI());
+      const savedSession = JSON.parse(sessionStorage.getItem('orderSession') || '{}');
+      if (savedSession.option) {
+        selectedOption = savedSession.option;
+        setOption(selectedOption);
+      }
+      
+      // Check if returning from checkout - use flag (set by checkout when using history.back) or referrer
+      const returningToStallFromCheckout = sessionStorage.getItem('returningToStallFromCheckout') === 'true';
+      const isReturningFromCheckout = returningToStallFromCheckout || document.referrer.includes('checkout.html');
+      
+      // Check if coming from online-order-home (should clear time)
+      const comingFromOnlineOrder = document.referrer.includes('online-order-home.html');
+      
+      // Load selectedTime - restore on refresh or when returning from checkout, but not when coming from online-order-home
+      if (comingFromOnlineOrder) {
+        // Coming from online-order-home - clear time
+        selectedTime = '';
+        sessionStorage.setItem('orderSession', JSON.stringify({...savedSession, selectedTime: ''}));
+        localStorage.removeItem('selectedTime');
+      } else if (isReturningFromCheckout) {
+        // Returning from checkout - restore time
+        // Clear the flag after using it
+        if (returningToStallFromCheckout) {
+          sessionStorage.removeItem('returningToStallFromCheckout');
+        }
+        
+        if (savedSession.selectedTime) {
+          selectedTime = savedSession.selectedTime;
+        } else {
+          const savedTime = localStorage.getItem('selectedTime');
+          if (savedTime) {
+            selectedTime = savedTime;
+          }
+        }
+      } else {
+        // Page refresh or other navigation - restore saved time if it exists
+        if (savedSession.selectedTime) {
+          selectedTime = savedSession.selectedTime;
+        } else {
+          const savedTime = localStorage.getItem('selectedTime');
+          if (savedTime) {
+            selectedTime = savedTime;
+          }
+        }
+      }
+      
+      // Build time options - restore time if we have a saved time (refresh or returning from checkout)
+      const hasSavedTime = selectedTime && selectedTime !== '';
+      buildTimeOptions(hasSavedTime);
+      
+      loadStallAndMenu().then(() => {
+        cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        updateCartUI();
+        // Restore time if we have a saved time (on refresh or returning from checkout)
+        if (selectedTime) {
+          setTimeout(() => {
+            const savedSession = JSON.parse(sessionStorage.getItem('orderSession') || '{}');
+            const savedTime = savedSession.selectedTime || localStorage.getItem('selectedTime');
+            if (savedTime) {
+              selectedTime = savedTime;
+              const timeSelect = document.getElementById('timeSelect');
+              if (timeSelect) {
+                timeSelect.value = savedTime;
+                // If value didn't match exactly, try to find a close match
+                if (timeSelect.value !== savedTime && savedTime !== 'asap') {
+                  try {
+                    const savedDate = new Date(savedTime);
+                    if (!isNaN(savedDate.getTime())) {
+                      for (let option of timeSelect.options) {
+                        if (option.value && option.value !== '') {
+                          const optionDate = new Date(option.value);
+                          if (!isNaN(optionDate.getTime())) {
+                            const timeDiff = Math.abs(savedDate.getTime() - optionDate.getTime());
+                            if (timeDiff < 15 * 60 * 1000) {
+                              option.selected = true;
+                              selectedTime = option.value;
+                              timeSelect.value = option.value;
+                              saveSession();
+                              break;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  } catch (e) {
+                    // Ignore parse errors
+                  }
+                }
+              }
+            }
+          }, 100);
+        } else {
+          // First visit - ensure no time is selected
+          selectedTime = '';
+          const timeSelect = document.getElementById('timeSelect');
+          if (timeSelect) {
+            timeSelect.value = '';
+          }
+        }
+      });
     })();
   </script>
 
@@ -332,6 +891,29 @@
       <div class="checkout-section">
         <button id="checkoutBtn" onclick="goToCheckout()" disabled>View Cart & Checkout</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Notification Backdrop (shared for both notification and confirmation) -->
+  <div id="notificationBackdrop" class="notification-backdrop" onclick="hideNotification(); cancelLeave();"></div>
+  
+  <!-- Notification Popup -->
+  <div id="notificationPopup" class="notification-popup">
+    <div class="notification-icon">⚠️</div>
+    <div class="notification-message" id="notificationMessage">Please select a time before proceeding to checkout.</div>
+    <div class="notification-button">
+      <button class="notification-btn" onclick="hideNotification()">OK</button>
+    </div>
+  </div>
+
+  <!-- Confirmation Popup -->
+  <div id="confirmationPopup" class="confirmation-popup">
+    <div class="confirmation-icon">⚠️</div>
+    <div class="confirmation-title">Leave Page?</div>
+    <div class="confirmation-message">All changes will be discarded. Your cart will be cleared. Do you want to leave?</div>
+    <div class="confirmation-buttons">
+      <button class="confirmation-btn confirmation-btn-yes" onclick="confirmLeave()">Yes</button>
+      <button class="confirmation-btn confirmation-btn-no" onclick="cancelLeave()">No</button>
     </div>
   </div>
 

@@ -402,7 +402,6 @@
         </svg>
         <h3 style="font-size: 24px; font-weight: 600; margin-bottom: 12px; color: #333;">Select a Food Centre</h3>
         <p style="font-size: 16px; margin-bottom: 8px; color: #666;">To view available stalls and start ordering, please select a food centre from the dropdown above.</p>
-        <p style="font-size: 14px; color: #999;">Available options: Maxwell Food Centre, Newton Food Centre, or Changi Village Food Centre</p>
       </div>
     </div>
 
@@ -520,6 +519,13 @@
             return;
           }
           
+          // Save food centre selection before navigating to stall
+          if (selectedFoodCentre) {
+            sessionStorage.setItem('selectedFoodCentre', selectedFoodCentre);
+            // Set a flag to indicate we're navigating to stall
+            sessionStorage.setItem('navigatedToStall', 'true');
+          }
+          
           const url = new URL('stall.html', window.location.href);
           url.searchParams.set('slug', slug);
           sessionStorage.setItem('stallSlug', slug);
@@ -612,12 +618,22 @@
         });
       }
       
-      // Check if we're coming back from stall page (has navigation history)
-      const isReturningFromStall = performance.getEntriesByType('navigation')[0]?.type === 'back_forward';
+      // Check if returning from stall page
+      const navigatedToStall = sessionStorage.getItem('navigatedToStall') === 'true';
       const previouslySelected = sessionStorage.getItem('selectedFoodCentre');
       
-      if (isReturningFromStall && previouslySelected && foodCentres.includes(previouslySelected)) {
-        // Restore selection when coming back from stall page
+      // Always clear cart and selected time when coming to online-order-home (refresh everything)
+      localStorage.setItem('cart', JSON.stringify([]));
+      localStorage.removeItem('selectedTime');
+      const session = JSON.parse(sessionStorage.getItem('orderSession') || '{}');
+      session.selectedTime = '';
+      sessionStorage.setItem('orderSession', JSON.stringify(session));
+      
+      if (navigatedToStall && previouslySelected && foodCentres.includes(previouslySelected)) {
+        // Clear the flag
+        sessionStorage.removeItem('navigatedToStall');
+        
+        // Restore selection when coming back from stall page (but cart and time are cleared)
         input.value = previouslySelected;
         selectedFoodCentre = previouslySelected;
         updateSelectedOption(previouslySelected);
@@ -626,7 +642,7 @@
         document.getElementById('emptyState').style.display = 'none';
         document.getElementById('availableStallsTitle').style.display = 'block';
         document.getElementById('closedStallsTitle').style.display = 'block';
-        // Trigger stall loading immediately (don't wait)
+        // Trigger stall loading immediately
         loadStalls();
       } else {
         // Fresh page load - clear everything
@@ -634,6 +650,7 @@
         input.placeholder = 'Please select a food centre';
         selectedFoodCentre = null;
         sessionStorage.removeItem('selectedFoodCentre');
+        sessionStorage.removeItem('navigatedToStall');
         document.getElementById('stallSearch').disabled = true;
         document.getElementById('availableStallsTitle').style.display = 'none';
         document.getElementById('closedStallsTitle').style.display = 'none';
@@ -652,10 +669,6 @@
         wrapper.classList.add('open');
         dropdownSearch.focus();
         filterOptions();
-      });
-      
-      input.addEventListener('input', (e) => {
-        // Don't filter on main input anymore
       });
       
       dropdownSearch.addEventListener('input', (e) => {
