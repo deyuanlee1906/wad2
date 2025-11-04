@@ -1,167 +1,130 @@
-const express = require('express');
-const stripe = require('../external/stripeClient');
-const router = express.Router();
+const express = require("express")
+const stripe = require("../external/stripeClient")
+const router = express.Router()
 
-// Create Payment Intent
-router.post('/create-payment-intent', async (req, res) => {
+router.post("/create-checkout-session", async (req, res) => {
   try {
-    const { amount, currency = 'sgd', order } = req.body;
+    const { items } = req.body
 
-    // Validate required fields
-    if (!amount || amount <= 0) {
-      return res.status(400).json({ 
-        error: 'Invalid amount. Amount must be greater than 0.' 
-      });
+    if (!items || items.length === 0) {
+      return res.status(400).json({
+        error: "Cart is empty",
+      })
     }
 
-    // Create payment intent
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
-      currency: currency.toLowerCase(),
+    // Convert cart items to Stripe line items with stall name in description
+    const lineItems = items.map((item) => ({
+      price_data: {
+        currency: "sgd",
+        product_data: {
+          name: item.name,
+          description: item.description || "",
+        },
+        unit_amount: Math.round(item.price * 100), // Convert to cents
+      },
+      quantity: item.quantity,
+    }))
+
+    // Build base URL
+    const baseUrl = req.headers.origin || "http://localhost:10000";
+    
+    // Calculate total for description
+    const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    
+    // Create Checkout Session using Stripe API
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      line_items: lineItems,
+      mode: "payment",
+      success_url: `${baseUrl}/pages/order/orderconfirmed.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/pages/order/checkout.html`,
       metadata: {
-        orderId: order?.id || `order_${Date.now()}`,
-        customerEmail: order?.customer?.email || 'unknown',
-        foodCentre: order?.info?.foodCentre || 'unknown',
-        stall: order?.info?.stall || 'unknown'
+        orderId: `order_${Date.now()}`,
+        items: JSON.stringify(items),
+        total: total.toFixed(2),
       },
-      description: `Food order from ${order?.info?.stall || 'Unknown Stall'}`,
-      automatic_payment_methods: {
-        enabled: true,
-      },
-    });
+    })
 
-    console.log('✅ Payment Intent Created:', {
-      id: paymentIntent.id,
-      amount: paymentIntent.amount,
-      currency: paymentIntent.currency,
-      orderId: paymentIntent.metadata.orderId
-    });
+    console.log("✅ Checkout Session Created:", {
+      id: session.id,
+      url: session.url,
+    })
 
-    res.json({
-      clientSecret: paymentIntent.client_secret,
-      paymentIntentId: paymentIntent.id
-    });
-
+    res.json({ url: session.url })
   } catch (error) {
-    console.error('❌ Error creating payment intent:', error);
-    res.status(500).json({ 
-      error: 'Failed to create payment intent',
-      details: error.message 
-    });
+    console.error("❌ Error creating checkout session:", error)
+    res.status(500).json({
+      error: "Failed to create checkout session",
+      details: error.message,
+    })
   }
-});
+})
 
-// Confirm Payment Intent
-router.post('/confirm-payment', async (req, res) => {
+// Endpoint to verify Stripe checkout session
+router.get("/verify-checkout-session/:sessionId", async (req, res) => {
   try {
-    const { paymentIntentId } = req.body;
+    const { sessionId } = req.params
 
-    if (!paymentIntentId) {
-      return res.status(400).json({ 
-        error: 'Payment Intent ID is required' 
-      });
+    if (!sessionId || !sessionId.startsWith("cs_")) {
+      return res.status(400).json({
+        error: "Invalid session ID",
+      })
     }
 
-    // Retrieve payment intent
-    const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+    // Retrieve the checkout session from Stripe
+    const session = await stripe.checkout.sessions.retrieve(sessionId, {
+      expand: ["payment_intent", "line_items"],
+    })
 
-    console.log('📊 Payment Intent Status:', {
-      id: paymentIntent.id,
-      status: paymentIntent.status,
-      amount: paymentIntent.amount,
-      currency: paymentIntent.currency
-    });
-
-    res.json({
-      status: paymentIntent.status,
-      paymentIntent: {
-        id: paymentIntent.id,
-        amount: paymentIntent.amount,
-        currency: paymentIntent.currency,
-        status: paymentIntent.status,
-        metadata: paymentIntent.metadata
+    // Check if payment was successful
+    if (session.payment_status === "paid") {
+      // Retrieve payment intent details
+      let paymentIntent = null
+      if (session.payment_intent) {
+        if (typeof session.payment_intent === "string") {
+          paymentIntent = await stripe.paymentIntents.retrieve(session.payment_intent)
+        } else {
+          paymentIntent = session.payment_intent
+        }
       }
-    });
 
+      // Return session and payment details
+      res.json({
+        success: true,
+        session: {
+          id: session.id,
+          payment_status: session.payment_status,
+          amount_total: session.amount_total,
+          currency: session.currency,
+          customer_email: session.customer_email,
+          metadata: session.metadata,
+        },
+        payment: paymentIntent
+          ? {
+              id: paymentIntent.id,
+              status: paymentIntent.status,
+              amount: paymentIntent.amount,
+              currency: paymentIntent.currency,
+            }
+          : null,
+      })
+    } else {
+      res.json({
+        success: false,
+        session: {
+          id: session.id,
+          payment_status: session.payment_status,
+        },
+        message: "Payment not completed",
+      })
+    }
   } catch (error) {
-    console.error('❌ Error confirming payment:', error);
-    res.status(500).json({ 
-      error: 'Failed to confirm payment',
-      details: error.message 
-    });
+    console.error("❌ Error verifying checkout session:", error)
+    res.status(500).json({
+      error: "Failed to verify checkout session",
+      details: error.message,
+    })
   }
-});
+})
 
-// Get Payment Intent Details
-router.get('/payment-intent/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const paymentIntent = await stripe.paymentIntents.retrieve(id);
-
-    res.json({
-      id: paymentIntent.id,
-      amount: paymentIntent.amount,
-      currency: paymentIntent.currency,
-      status: paymentIntent.status,
-      metadata: paymentIntent.metadata,
-      created: paymentIntent.created
-    });
-
-  } catch (error) {
-    console.error('❌ Error retrieving payment intent:', error);
-    res.status(500).json({ 
-      error: 'Failed to retrieve payment intent',
-      details: error.message 
-    });
-  }
-});
-
-// Webhook endpoint for Stripe events
-router.post('/webhook', express.raw({type: 'application/json'}), async (req, res) => {
-  const sig = req.headers['stripe-signature'];
-  let event;
-
-  try {
-    event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
-  } catch (err) {
-    console.error('❌ Webhook signature verification failed:', err.message);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
-
-  // Handle the event
-  switch (event.type) {
-    case 'payment_intent.succeeded':
-      const paymentIntent = event.data.object;
-      console.log('✅ Payment succeeded:', {
-        id: paymentIntent.id,
-        amount: paymentIntent.amount,
-        currency: paymentIntent.currency,
-        orderId: paymentIntent.metadata.orderId
-      });
-      
-      // Here you can add logic to:
-      // - Update order status in your database
-      // - Send confirmation email
-      // - Update inventory
-      // - etc.
-      break;
-
-    case 'payment_intent.payment_failed':
-      const failedPayment = event.data.object;
-      console.log('❌ Payment failed:', {
-        id: failedPayment.id,
-        amount: failedPayment.amount,
-        currency: failedPayment.currency,
-        orderId: failedPayment.metadata.orderId
-      });
-      break;
-
-    default:
-      console.log(`Unhandled event type ${event.type}`);
-  }
-
-  res.json({received: true});
-});
-
-module.exports = router;
+module.exports = router

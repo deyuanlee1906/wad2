@@ -44,9 +44,9 @@
             </button>
         </div>
         <div class="nav-right">
-            <button class="notification-btn" onclick="alert('No new notifications')">
+            <button class="notification-btn" onclick="toggleOrderNotification()">
                 <i class="bi bi-bell"></i>
-                <span class="notification-badge">3</span>
+                <span class="notification-badge" style="display: none;">1</span>
             </button>
             <button onclick="location.href='/pages/profile/profile.html'">
                 <i class="bi bi-person"></i>
@@ -113,9 +113,10 @@ async function unsetUserLike(postId) {
 }
 
 window.__likeSync = { setUserLike, unsetUserLike };
-</script>
+  </script>
 
-<script src="/scripts/main.js"></script>
+  <script src="/scripts/main.js"></script>
+  <script src="/scripts/notification.js"></script>
 <script>
 // Fallback: Ensure threads are available even if main.js hasn't loaded
 // This runs immediately to check if threads exist

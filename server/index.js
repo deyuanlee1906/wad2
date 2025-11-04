@@ -37,6 +37,23 @@ app.get('/api/firebase-config', (req, res) => {
   });
 });
 
+// Stripe config endpoint (serves publishable key securely)
+app.get('/api/stripe-config', (req, res) => {
+  const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+  
+  if (!publishableKey) {
+    console.warn('⚠️  STRIPE_PUBLISHABLE_KEY not set in environment variables');
+    return res.status(500).json({ 
+      error: 'Stripe publishable key not configured',
+      message: 'Please set STRIPE_PUBLISHABLE_KEY in your .env file'
+    });
+  }
+  
+  res.json({
+    publishableKey: publishableKey
+  });
+});
+
 // Serve static files from src directory
 // This MUST come before the catch-all route to serve JS, CSS, images, etc.
 const staticPath = path.join(__dirname, '../src');

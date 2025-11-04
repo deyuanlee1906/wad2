@@ -213,7 +213,14 @@
     }
 
     function formatTime(d){
-      return d.toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+      // Format as "9:00AM" (no space, 12-hour format)
+      let hours = d.getHours();
+      const minutes = d.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12; // the hour '0' should be '12'
+      const minutesStr = minutes < 10 ? '0' + minutes : minutes;
+      return `${hours}:${minutesStr}${ampm}`;
     }
 
     // Store the change handler function to avoid duplicate listeners

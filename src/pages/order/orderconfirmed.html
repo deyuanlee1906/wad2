@@ -1,91 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Order Confirmed - Online Order</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
-  <link rel="stylesheet" href="/styles/main.css" />
-  <link rel="stylesheet" href="/styles/components.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Order Confirmed</title>
+
+  <!-- Bootstrap & Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
   <script type="module" src="/scripts/firebaseauth.js"></script>
-  <script src="/scripts/orderSession.js"></script>
+
   <style>
     :root {
-      --clr-cloud: #f8f9fa;
-      --clr-ink: #222;
-      --clr-sand: #f1f3f5;
-      --clr-clay: #D98566;
+      --primary-color: #D98566;
+      --secondary-color: #F2C6B6;
+      --bg: #f8f9fa;
+      --card: #fff;
+      --text: #1a1a1a;
+      --text-muted: #6c757d;
+      --border: #e9ecef;
+      --success: #28a745;
+      --danger: #dc3545;
     }
 
-    body {
-      background: var(--clr-cloud);
-      color: var(--clr-ink);
-      min-height: 100vh;
-      padding: 70px 0 100px 0;
+    * {
       margin: 0;
-      overflow-x: hidden;
-    }
-    
-    @media (max-width: 768px) {
-      body {
-        padding: 0 0 100px 0;
-      }
-    }
-
-    .confirmation-container {
-      max-width: 100%;
-      margin: 0 auto;
-      padding: 20px;
-      text-align: center;
+      padding: 0;
       box-sizing: border-box;
     }
 
-    .success-icon {
-      font-size: 3rem;
-      color: #28a745;
+    html, body {
+      height: 100%;
+      width: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-content {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 100vh;
+      margin-bottom: 100px;
+    }
+
+
+
+    /* Main container */
+    .confirmation-container {
+      flex: 1;
+      padding: 24px 20px;
+      padding-bottom: 120px;
+      max-width: 800px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Success header */
+    .success-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .success-icon-wrapper {
+      width: 80px;
+      height: 80px;
+      background: var(--success);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      animation: scaleIn 0.5s ease;
+    }
+
+    @keyframes scaleIn {
+      from {
+        transform: scale(0);
+      }
+      to {
+        transform: scale(1);
+      }
+    }
+
+    .success-icon-wrapper i {
+      font-size: 2.5rem;
+      color: white;
+    }
+
+    .success-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .success-subtitle {
+      color: var(--text-muted);
+      font-size: 0.95rem;
       margin-bottom: 16px;
     }
 
     .order-number {
-      font-size: 1.3rem;
-      font-weight: bold;
-      color: var(--clr-clay);
-      margin-bottom: 16px;
-    }
-
-    .order-details {
-      background: #f8f9fa;
-      border-radius: 12px;
-      padding: 16px;
-      margin: 16px 0;
-      text-align: left;
-    }
-
-    .order-item {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 6px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid #e9ecef;
-    }
-
-    .order-item:last-child {
-      border-bottom: none;
-    }
-
-    .order-total {
-      font-weight: bold;
-      font-size: 1rem;
-      color: var(--clr-clay);
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--primary-color);
+      margin-bottom: 12px;
     }
 
     .payment-status {
-      padding: 6px 12px;
+      display: inline-block;
+      padding: 6px 16px;
       border-radius: 20px;
       font-weight: 500;
-      margin: 8px 0;
-      font-size: 0.9em;
+      font-size: 0.9rem;
+      margin-bottom: 24px;
     }
 
     .payment-status.paid {
@@ -98,520 +133,611 @@
       color: #856404;
     }
 
+    /* Card sections */
+    .order-card {
+      background: var(--card);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .order-card h6 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    /* Order items */
+    .order-items-list {
+      margin-bottom: 16px;
+    }
+
+    .order-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .order-item:last-child {
+      border-bottom: none;
+    }
+
+    .order-item-name {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .order-item-price {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .order-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 16px;
+      margin-top: 16px;
+      border-top: 2px solid var(--border);
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    /* Order info */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .info-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .info-value {
+      font-size: 0.95rem;
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Alert box */
+    .info-alert {
+      background: #e3f2fd;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .info-alert i {
+      font-size: 1.5rem;
+      color: #1976d2;
+    }
+
+    .info-alert-content {
+      flex: 1;
+    }
+
+    .info-alert strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--text);
+    }
+
+    .info-alert-text {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    /* Action buttons */
     .action-buttons {
-      margin-top: 24px;
+      display: flex;
+      gap: 12px;
+      margin-top: 32px;
+      flex-wrap: wrap;
     }
 
     .btn-action {
-      margin: 4px;
-      min-width: 100px;
-      padding: 8px 16px;
-    }
-
-    .order-info {
-      background: #e3f2fd;
+      flex: 1;
+      min-width: 150px;
+      padding: 12px 24px;
       border-radius: 8px;
-      padding: 12px;
-      margin: 12px 0;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
 
-    .info-row {
+    .btn-primary-action {
+      background: var(--primary-color);
+      color: white;
+    }
+
+    .btn-primary-action:hover {
+      background: #c66d52;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(217, 133, 102, 0.3);
+    }
+
+    .btn-secondary-action {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .btn-secondary-action:hover {
+      background: #f1f3f5;
+      border-color: var(--primary-color);
+    }
+
+    /* Additional info */
+    .additional-info {
+      text-align: center;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .additional-info small {
+      color: var(--text-muted);
+      font-size: 0.85rem;
       display: flex;
-      justify-content: space-between;
-      margin-bottom: 6px;
-      font-size: 0.9em;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
     }
 
-    .info-row:last-child {
-      margin-bottom: 0;
+    /* Error state */
+    .error-container {
+      text-align: center;
+      padding: 40px 20px;
     }
 
-    /* Desktop Layout */
-    @media (min-width: 1200px) {
+    .error-icon {
+      font-size: 4rem;
+      color: var(--danger);
+      margin-bottom: 16px;
+    }
+
+    .error-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--danger);
+      margin-bottom: 12px;
+    }
+
+    .error-message {
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .main-content {
+        margin-bottom: 0;
+      }
+
       .confirmation-container {
-        max-width: 600px;
-        padding: 40px;
+        padding: 16px 12px;
+        padding-bottom: 100px;
       }
-      
-      .success-icon {
-        font-size: 4rem;
-        margin-bottom: 20px;
+
+      .success-icon-wrapper {
+        width: 64px;
+        height: 64px;
       }
-      
-      .order-number {
+
+      .success-icon-wrapper i {
+        font-size: 2rem;
+      }
+
+      .success-title {
         font-size: 1.5rem;
-        margin-bottom: 20px;
       }
-      
-      .order-details {
-        padding: 20px;
-        margin: 20px 0;
+
+      .info-grid {
+        grid-template-columns: 1fr;
       }
-      
-      .order-item {
-        margin-bottom: 8px;
-        padding-bottom: 8px;
-      }
-      
-      .order-total {
-        font-size: 1.1rem;
-      }
-      
-      .payment-status {
-        padding: 8px 16px;
-        margin: 10px 0;
-        font-size: 1em;
-      }
-      
+
       .action-buttons {
-        margin-top: 30px;
+        flex-direction: column;
       }
-      
+
       .btn-action {
-        margin: 5px;
-        min-width: 120px;
-        padding: 10px 20px;
-      }
-      
-      .order-info {
-        padding: 15px;
-        margin: 15px 0;
-      }
-      
-      .info-row {
-        margin-bottom: 8px;
-        font-size: 1em;
+        width: 100%;
       }
     }
 
-    /* Tablet Layout */
-    @media (min-width: 768px) and (max-width: 1199px) {
-      .confirmation-container {
-        max-width: 500px;
-        padding: 24px;
-      }
-      
-      .success-icon {
-        font-size: 3.5rem;
-        margin-bottom: 18px;
-      }
-      
-      .order-number {
-        font-size: 1.4rem;
-        margin-bottom: 18px;
-      }
-      
-      .order-details {
-        padding: 18px;
-        margin: 18px 0;
-      }
-      
-      .order-total {
-        font-size: 1.05rem;
-      }
-      
-      .payment-status {
-        padding: 7px 14px;
-        margin: 9px 0;
-        font-size: 0.95em;
-      }
-      
-      .action-buttons {
-        margin-top: 27px;
-      }
-      
-      .btn-action {
-        margin: 4px;
-        min-width: 110px;
-        padding: 9px 18px;
-      }
-      
-      .order-info {
-        padding: 14px;
-        margin: 14px 0;
-      }
-      
-      .info-row {
-        margin-bottom: 7px;
-        font-size: 0.95em;
-      }
-    }
-
-    /* Mobile Layout */
-    @media (max-width: 767px) {
-      .confirmation-container {
+    @media (max-width: 480px) {
+      .order-card {
         padding: 16px;
       }
-      
-      .success-icon {
-        font-size: 2.5rem;
-        margin-bottom: 12px;
-      }
-      
-      .order-number {
+
+      .order-total-row {
         font-size: 1.1rem;
-        margin-bottom: 12px;
-      }
-      
-      .order-details {
-        padding: 12px;
-        margin: 12px 0;
-      }
-      
-      .order-item {
-        margin-bottom: 4px;
-        padding-bottom: 4px;
-        font-size: 0.9em;
-      }
-      
-      .order-total {
-        font-size: 0.95rem;
-      }
-      
-      .payment-status {
-        padding: 5px 10px;
-        margin: 6px 0;
-        font-size: 0.85em;
-      }
-      
-      .action-buttons {
-        margin-top: 20px;
-      }
-      
-      .btn-action {
-        margin: 3px;
-        min-width: 90px;
-        padding: 6px 12px;
-        font-size: 0.9em;
-      }
-      
-      .order-info {
-        padding: 10px;
-        margin: 10px 0;
-      }
-      
-      .info-row {
-        margin-bottom: 4px;
-        font-size: 0.85em;
       }
     }
 
-    /* iPhone SE Specific (375px width) */
-    @media (max-width: 375px) {
-      .confirmation-container {
-        padding: 12px;
-      }
-      
-      .success-icon {
-        font-size: 2rem;
-        margin-bottom: 10px;
-      }
-      
-      .order-number {
-        font-size: 1rem;
-        margin-bottom: 10px;
-      }
-      
-      .order-details {
-        padding: 10px;
-        margin: 10px 0;
-      }
-      
-      .order-item {
-        margin-bottom: 3px;
-        padding-bottom: 3px;
-        font-size: 0.85em;
-      }
-      
-      .order-total {
-        font-size: 0.9rem;
-      }
-      
-      .payment-status {
-        padding: 4px 8px;
-        margin: 5px 0;
-        font-size: 0.8em;
-      }
-      
-      .action-buttons {
-        margin-top: 16px;
-      }
-      
-      .btn-action {
-        margin: 2px;
-        min-width: 80px;
-        padding: 5px 10px;
-        font-size: 0.85em;
-      }
-      
-      .order-info {
-        padding: 8px;
-        margin: 8px 0;
-      }
-      
-      .info-row {
-        margin-bottom: 3px;
-        font-size: 0.8em;
-      }
-    }
 
-    /* Extra Small Screens */
-    @media (max-width: 320px) {
-      .confirmation-container {
-        padding: 8px;
-      }
-      
-      .success-icon {
-        font-size: 1.8rem;
-        margin-bottom: 8px;
-      }
-      
-      .order-number {
-        font-size: 0.9rem;
-        margin-bottom: 8px;
-      }
-      
-      .order-details {
-        padding: 8px;
-        margin: 8px 0;
-      }
-      
-      .order-item {
-        margin-bottom: 2px;
-        padding-bottom: 2px;
-        font-size: 0.8em;
-      }
-      
-      .order-total {
-        font-size: 0.85rem;
-      }
-      
-      .payment-status {
-        padding: 3px 6px;
-        margin: 4px 0;
-        font-size: 0.75em;
-      }
-      
-      .action-buttons {
-        margin-top: 12px;
-      }
-      
-      .btn-action {
-        margin: 1px;
-        min-width: 70px;
-        padding: 4px 8px;
-        font-size: 0.8em;
-      }
-      
-      .order-info {
-        padding: 6px;
-        margin: 6px 0;
-      }
-      
-      .info-row {
-        margin-bottom: 2px;
-        font-size: 0.75em;
-      }
-    }
-
-    /* Navigation Bar */
-    .nav-bar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: #fff;
-      border-top: 1px solid rgba(38,38,38,0.1);
-      display: flex;
-      justify-content: space-around;
-      padding: 12px 0 8px 0;
-      z-index: 1000;
-      height: 80px;
-      box-sizing: border-box;
-      width: 100%;
-    }
-    
-    .nav-bar button {
-      background: none;
-      border: none;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      font-size: 0.8em;
-      color: var(--clr-ink);
-      cursor: pointer;
-      transition: color 0.2s ease;
-      min-width: 0;
-      flex: 1;
-    }
-    
-    .nav-bar button:hover {
-      color: var(--clr-clay);
-    }
-    
-    .nav-bar i {
-      font-size: 1.3em;
-      margin-bottom: 2px;
-    }
-    
-    /* Desktop Navigation */
-    @media (min-width: 992px) {
-      .nav-bar {
-        height: 90px;
-        padding: 16px 0 12px 0;
-      }
-      
-      .nav-bar button {
-        font-size: 0.9em;
-      }
-      
-      .nav-bar i {
-        font-size: 1.5em;
-        margin-bottom: 4px;
-      }
-    }
-
-    /* iPhone SE Navigation */
-    @media (max-width: 375px) {
-      .nav-bar {
-        height: 70px;
-        padding: 8px 0 6px 0;
-      }
-      
-      .nav-bar button {
-        font-size: 0.7em;
-      }
-      
-      .nav-bar i {
-        font-size: 1.1em;
-      }
-    }
   </style>
 </head>
 <body>
-  <div class="confirmation-container">
-    <!-- Success Icon -->
-    <div class="success-icon">
-      <i class="bi bi-check-circle-fill"></i>
-    </div>
 
-    <!-- Confirmation Message -->
-    <h2 class="mb-3 text-success">Order Confirmed!</h2>
-    <p class="text-muted mb-4">Thank you for your order. We've received your payment and will prepare your food shortly.</p>
 
-    <!-- Order Number -->
-    <div class="order-number" id="orderNumber">
-      Order #ORD-123456
-    </div>
-
-    <!-- Payment Status -->
-    <div id="paymentStatus" class="payment-status paid">
-      Payment Completed
-    </div>
-
-    <!-- Order Details -->
-    <div class="order-details">
-      <h6 class="mb-3"><b>Order Summary</b></h6>
-      <div id="orderItems">
-        <!-- Order items will be populated here -->
+  <div class="main-content">
+    <!-- Main Content -->
+    <div class="confirmation-container" id="confirmationContainer">
+      <!-- Success Header -->
+      <div class="success-header">
+        <div class="success-icon-wrapper">
+          <i class="bi bi-check-lg"></i>
+        </div>
+        <h1 class="success-title">Order Confirmed!</h1>
+        <p class="success-subtitle">Thank you for your order. We've received your payment and will prepare your food shortly.</p>
+        <div class="order-number" id="orderNumber">Order #Loading...</div>
+        <div class="payment-status paid" id="paymentStatus">Payment Completed</div>
       </div>
-      <div class="order-total mt-3 pt-3 border-top">
-        <div class="d-flex justify-content-between">
+
+      <!-- Order Summary Card -->
+      <div class="order-card">
+        <h6><i class="bi bi-receipt me-2"></i>Order Summary</h6>
+        <div class="order-items-list" id="orderItems">
+          <!-- Order items will be populated here -->
+        </div>
+        <div class="order-total-row">
           <span>Total:</span>
           <span id="orderTotal">$0.00</span>
         </div>
       </div>
-    </div>
 
-    <!-- Order Information -->
-    <div class="order-info">
-      <h6 class="mb-3"><b>Order Information</b></h6>
-      <div class="info-row">
-        <span>Food Centre:</span>
-        <span id="foodCentre">-</span>
+      <!-- Order Information Card -->
+      <div class="order-card">
+        <h6><i class="bi bi-info-circle me-2"></i>Order Information</h6>
+        <div class="info-grid">
+          <div class="info-item">
+            <span class="info-label">Food Centre</span>
+            <span class="info-value" id="foodCentre">-</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Stall</span>
+            <span class="info-value" id="stall">-</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Option</span>
+            <span class="info-value" id="option">-</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Date & Time</span>
+            <span class="info-value" id="dateTime">-</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Payment Method</span>
+            <span class="info-value" id="paymentMethod">-</span>
+          </div>
+        </div>
       </div>
-      <div class="info-row">
-        <span>Stall:</span>
-        <span id="stall">-</span>
-      </div>
-      <div class="info-row">
-        <span>Option:</span>
-        <span id="option">-</span>
-      </div>
-      <div class="info-row">
-        <span>Date & Time:</span>
-        <span id="dateTime">-</span>
-      </div>
-      <div class="info-row">
-        <span>Payment Method:</span>
-        <span id="paymentMethod">-</span>
-      </div>
-    </div>
 
-    <!-- Estimated Time -->
-    <div class="alert alert-info">
-      <i class="bi bi-clock me-2"></i>
-      <strong>Estimated Preparation Time:</strong> 15-20 minutes
-    </div>
+      <!-- Info Alert -->
+      <div class="info-alert">
+        <i class="bi bi-clock"></i>
+        <div class="info-alert-content">
+          <strong>Estimated Preparation Time</strong>
+          <span class="info-alert-text" id="waitTime">Loading...</span>
+        </div>
+      </div>
 
-    <!-- Action Buttons -->
-    <div class="action-buttons">
-      <button class="btn btn-primary btn-action" onclick="orderMore()">
-        <i class="bi bi-plus-circle me-2"></i>Order More
-      </button>
-      <button class="btn btn-outline-secondary btn-action" onclick="goHome()">
-        <i class="bi bi-house me-2"></i>Back to Home
-      </button>
-    </div>
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <button class="btn-action btn-primary-action" onclick="goHome()">
+          <i class="bi bi-house"></i>
+          Back to Home
+        </button>
+      </div>
 
-    <!-- Additional Information -->
-    <div class="mt-4">
-      <small class="text-muted">
-        <i class="bi bi-info-circle me-1"></i>
-        You will receive a notification when your order is ready for pickup.
-      </small>
+      <!-- Additional Info -->
+      <div class="additional-info">
+        <small>
+          <i class="bi bi-info-circle"></i>
+          You will receive a notification when your order is ready for pickup.
+        </small>
+      </div>
     </div>
   </div>
 
   <script>
     let orderData = null;
+    
+    // Store handler references for cleanup
+    let backPreventionHandler = null;
+    let keydownHandler = null;
+
+    // Wait for Firebase to initialize
+    async function waitForDb() {
+      if (typeof window.db !== 'undefined') {
+        return;
+      }
+      const start = Date.now();
+      while (typeof window.db === 'undefined') {
+        if (Date.now() - start > 7000) break;
+        await new Promise(r => setTimeout(r, 50));
+      }
+    }
+
+    // Fetch wait time from Firebase
+    async function fetchWaitTime(stallSlug, stallId) {
+      try {
+        await waitForDb();
+        
+        if (!window.db) {
+          console.warn('Firebase not available, using default wait time');
+          return '15-20 minutes';
+        }
+
+        // Try to fetch by slug first
+        if (stallSlug && window.collection && window.query && window.where && window.getDocs) {
+          const stallsRef = window.collection(window.db, 'stalls');
+          const q = window.query(stallsRef, window.where('slug', '==', stallSlug));
+          const stallSnap = await window.getDocs(q);
+          
+          if (!stallSnap.empty) {
+            const stallData = stallSnap.docs[0].data();
+            const waitTime = stallData.waitTime;
+            return waitTime && waitTime !== 'N/A' ? waitTime : '15-20 minutes';
+          }
+        }
+        
+        // If no slug or slug query failed, try to get by ID directly
+        if (stallId) {
+          try {
+            const { doc: docFn, getDoc: getDocFn } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js");
+            const stallDoc = await getDocFn(docFn(window.db, 'stalls', stallId));
+            if (stallDoc.exists()) {
+              const waitTime = stallDoc.data().waitTime;
+              return waitTime && waitTime !== 'N/A' ? waitTime : '15-20 minutes';
+            }
+          } catch (importError) {
+            console.warn('Could not import Firebase Firestore for direct doc fetch:', importError);
+          }
+        }
+        
+        return '15-20 minutes';
+      } catch (error) {
+        console.error('Error fetching wait time:', error);
+        return '15-20 minutes';
+      }
+    }
 
     // Initialize the page
     document.addEventListener('DOMContentLoaded', function() {
+      // Prevent browser back navigation
+      preventBackNavigation();
       loadOrderData();
     });
 
-    // Load order data from localStorage
-    function loadOrderData() {
+    // Prevent user from going back from order confirmation page
+    function preventBackNavigation() {
+      // Replace current history entry so there's no page to go back to
+      window.history.replaceState(null, '', window.location.href);
+      
+      // Push a new state to history
+      window.history.pushState(null, '', window.location.href);
+      
+      // Listen for back button attempts
+      backPreventionHandler = function(event) {
+        // Push the state back to prevent navigation
+        window.history.pushState(null, '', window.location.href);
+        
+        // Optional: Show a message to the user
+        // You can uncomment this if you want to notify the user
+        // alert('Please use the "Back to Home" button to navigate.');
+      };
+      window.addEventListener('popstate', backPreventionHandler);
+      
+      // Also prevent if user tries to navigate back via keyboard shortcuts
+      keydownHandler = function(event) {
+        // Prevent Alt+Left arrow (back) and Backspace (if not in input)
+        if ((event.altKey && event.key === 'ArrowLeft') || 
+            (event.key === 'Backspace' && !event.target.matches('input, textarea, [contenteditable]'))) {
+          event.preventDefault();
+          window.history.pushState(null, '', window.location.href);
+        }
+      };
+      window.addEventListener('keydown', keydownHandler);
+    }
+
+    // Load order data from localStorage or Stripe session
+    async function loadOrderData() {
+      try {
+        // Check if we have a Stripe session_id in the URL (coming from Stripe checkout)
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+
+        if (sessionId) {
+          // Verify Stripe checkout session
+          await verifyStripeSession(sessionId);
+        } else {
+          // Regular flow: cash payment or pending order from sessionStorage
+          await loadLocalOrderData();
+        }
+      } catch (error) {
+        console.error('Error loading order data:', error);
+        showError('Error loading order data. Please try again.');
+      }
+    }
+
+    // Verify Stripe checkout session with backend
+    async function verifyStripeSession(sessionId) {
+      try {
+        const response = await fetch(`/api/verify-checkout-session/${sessionId}`);
+        
+        if (!response.ok) {
+          throw new Error('Failed to verify payment session');
+        }
+
+        const data = await response.json();
+
+        if (data.success && data.session.payment_status === 'paid') {
+          // Payment successful - retrieve order details from pendingOrder
+          const pendingOrder = JSON.parse(sessionStorage.getItem('pendingOrder') || '{}');
+          
+          // Build order data from Stripe session and pending order
+          orderData = {
+            id: data.session.metadata?.orderId || pendingOrder.orderId || `ORD-${Date.now().toString().slice(-8)}`,
+            items: pendingOrder.items || JSON.parse(data.session.metadata?.items || '[]'),
+            total: (data.session.amount_total / 100).toFixed(2), // Convert from cents
+            status: 'paid',
+            paymentMethod: 'stripe',
+            stripeSessionId: sessionId,
+            stripePaymentId: data.payment?.id || null,
+            timestamp: new Date().toISOString(),
+            info: {
+              foodCentre: sessionStorage.getItem('selectedFoodCentre') || localStorage.getItem('selectedFoodCentre') || pendingOrder.foodCentre || 'Unknown',
+              stall: localStorage.getItem('stallName') || pendingOrder.stallName || 'Unknown Stall',
+              stallSlug: localStorage.getItem('stallSlug') || '',
+              stallId: localStorage.getItem('stallId') || '',
+              option: pendingOrder.type || localStorage.getItem('selectedOption') || 'Dine In',
+              dateTime: pendingOrder.time || localStorage.getItem('selectedTime') || new Date().toLocaleString(),
+            }
+          };
+
+          // Save to latestOrder for persistence
+          localStorage.setItem('latestOrder', JSON.stringify({
+            orderId: orderData.id,
+            items: orderData.items,
+            total: orderData.total,
+            stallName: orderData.info.stall,
+            type: orderData.info.option,
+            time: orderData.info.dateTime,
+            paymentMethod: 'stripe',
+            amount: parseFloat(orderData.total),
+            stripeSessionId: sessionId,
+            stripePaymentId: data.payment?.id,
+            timestamp: orderData.timestamp
+          }));
+
+          // Clear pending order and cart
+          sessionStorage.removeItem('pendingOrder');
+          localStorage.removeItem('cart');
+
+          console.log('✅ Stripe payment verified and saved:', {
+            sessionId,
+            paymentId: data.payment?.id,
+            amount: orderData.total
+          });
+
+          renderOrderConfirmation();
+          updateWaitTime();
+          // Save order notification data to localStorage for navbar notification
+          await saveOrderNotification(orderData);
+        } else {
+          throw new Error('Payment not completed');
+        }
+      } catch (error) {
+        console.error('Error verifying Stripe session:', error);
+        showError('Payment verification failed. Please contact support if payment was processed.');
+      }
+    }
+
+    // Load order data from localStorage (for cash payments or fallback)
+    async function loadLocalOrderData() {
       try {
         // Try to get latest order from payment completion
-        const latestOrder = localStorage.getItem('latestOrder');
-        
-        if (latestOrder) {
-          orderData = JSON.parse(latestOrder);
+        const pendingOrderStr = sessionStorage.getItem('pendingOrder');
+        const latestOrderStr = localStorage.getItem('latestOrder');
+
+        let order = {};
+        let cart = [];
+
+        if (pendingOrderStr) {
+          // Coming back from Stripe Payment Link (old flow)
+          const pendingOrder = JSON.parse(pendingOrderStr);
+          order = {
+            orderId: pendingOrder.orderId,
+            stallName: pendingOrder.stallName,
+            type: pendingOrder.type,
+            time: pendingOrder.time,
+            amount: pendingOrder.amount || pendingOrder.total,
+            paymentMethod: pendingOrder.paymentMethod || 'stripe',
+          };
+          cart = pendingOrder.items || [];
+
+          // Save to latestOrder and clear pendingOrder
+          localStorage.setItem('latestOrder', JSON.stringify(order));
+          sessionStorage.removeItem('pendingOrder');
+        } else if (latestOrderStr) {
+          // Regular flow (cash or old Stripe flow)
+          order = JSON.parse(latestOrderStr);
+          cart = order.items || JSON.parse(localStorage.getItem('cart') || '[]');
         } else {
           // Fallback: construct from current session data
-          const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+          const cartData = JSON.parse(localStorage.getItem('cart') || '[]');
           const orderInfo = {
             foodCentre: localStorage.getItem('selectedFoodCentre') || 'Maxwell Food Centre',
             stall: localStorage.getItem('stallName') || 'Peanuts Soup',
             option: localStorage.getItem('selectedOption') || 'Dine In',
-            dateTime: localStorage.getItem('selectedTime') || ''
+            dateTime: localStorage.getItem('selectedTime') || new Date().toLocaleString()
           };
-          
-          orderData = {
+
+          order = {
             id: 'ord_' + Date.now(),
-            items: cart,
-            info: orderInfo,
-            total: cart.reduce((sum, item) => sum + ((item.price || 0) * (item.qty || 0)), 0),
+            items: cartData,
+            info: {
+              ...orderInfo,
+              stallSlug: localStorage.getItem('stallSlug') || '',
+              stallId: localStorage.getItem('stallId') || '',
+            },
+            total: cartData.reduce((sum, item) => sum + ((item.price || 0) * (item.qty || 0)), 0),
             status: 'paid',
-            paymentMethod: 'card'
+            paymentMethod: 'cash'
           };
         }
-        
+
+        // Build orderData object
+        orderData = {
+          id: order.orderId || order.id || `ORD-${Date.now().toString().slice(-8)}`,
+          items: cart.length > 0 ? cart : order.items || [],
+          total: order.amount || order.total || 0,
+          status: 'paid',
+          paymentMethod: order.paymentMethod || 'cash',
+          info: {
+            foodCentre: order.foodCentre || order.info?.foodCentre || sessionStorage.getItem('selectedFoodCentre') || localStorage.getItem('selectedFoodCentre') || 'Unknown',
+            stall: order.stallName || order.stall || order.info?.stall || localStorage.getItem('stallName') || 'Unknown Stall',
+            stallSlug: order.info?.stallSlug || localStorage.getItem('stallSlug') || '',
+            stallId: order.info?.stallId || localStorage.getItem('stallId') || '',
+            option: order.type || order.info?.option || localStorage.getItem('selectedOption') || 'Dine In',
+            dateTime: order.time || order.info?.dateTime || localStorage.getItem('selectedTime') || new Date().toLocaleString(),
+          }
+        };
+
+        // Clear cart after loading
+        localStorage.removeItem('cart');
+
         renderOrderConfirmation();
+        updateWaitTime();
+        // Save order notification data to localStorage for navbar notification
+        await saveOrderNotification(orderData);
       } catch (error) {
-        console.error('Error loading order data:', error);
+        console.error('Error loading local order data:', error);
         showError('Error loading order data. Please try again.');
       }
     }
@@ -645,55 +771,191 @@
       // Render order items
       const orderItemsContainer = document.getElementById('orderItems');
       let html = '';
-      orderData.items.forEach(item => {
-        html += `
-          <div class="order-item">
-            <span>${item.name} x${item.qty}</span>
-            <span>$${(item.price * item.qty).toFixed(2)}</span>
-          </div>
-        `;
-      });
-      orderItemsContainer.innerHTML = html;
+      if (orderData.items && orderData.items.length > 0) {
+        orderData.items.forEach(item => {
+          const qty = item.qty || item.quantity || 1;
+          const price = item.price || 0;
+          html += `
+            <div class="order-item">
+              <span class="order-item-name">${item.name || 'Food Item'} x${qty}</span>
+              <span class="order-item-price">$${(price * qty).toFixed(2)}</span>
+            </div>
+          `;
+        });
+      }
+      orderItemsContainer.innerHTML = html || '<div class="order-item"><span class="order-item-name">No items</span></div>';
 
       // Update total
-      document.getElementById('orderTotal').textContent = `$${orderData.total.toFixed(2)}`;
+      const total = typeof orderData.total === 'number' ? orderData.total : parseFloat(orderData.total) || 0;
+      document.getElementById('orderTotal').textContent = `$${total.toFixed(2)}`;
 
       // Update order information
       if (orderData.info) {
-        document.getElementById('foodCentre').textContent = orderData.info.foodCentre || '-';
+        // Get food centre from sessionStorage (user's selection)
+        const foodCentre = sessionStorage.getItem('selectedFoodCentre') || orderData.info.foodCentre || '-';
+        document.getElementById('foodCentre').textContent = foodCentre;
         document.getElementById('stall').textContent = orderData.info.stall || '-';
         document.getElementById('option').textContent = orderData.info.option || '-';
-        document.getElementById('dateTime').textContent = orderData.info.dateTime || '-';
+        
+        // Format date and time based on ASAP vs selected time
+        const formattedDateTime = formatOrderDateTime();
+        document.getElementById('dateTime').textContent = formattedDateTime;
+      }
+    }
+    
+    // Format date and time for display
+    function formatOrderDateTime() {
+      // Get selectedTime from localStorage or sessionStorage
+      const session = JSON.parse(sessionStorage.getItem('orderSession') || '{}');
+      const selectedTime = session.selectedTime || localStorage.getItem('selectedTime') || 'asap';
+      
+      // Determine if it's ASAP or scheduled
+      const isASAP = selectedTime === 'asap' || selectedTime === '' || !selectedTime;
+      
+      // Get current date for formatting
+      const now = new Date();
+      
+      if (isASAP) {
+        // Format: "12 September 2025, ASAP"
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+        const day = now.getDate();
+        const month = months[now.getMonth()];
+        const year = now.getFullYear();
+        return `${day} ${month} ${year}, ASAP`;
+      } else {
+        // Format: "12 September 2025, 9:00AM"
+        try {
+          const timeDate = new Date(selectedTime);
+          if (!isNaN(timeDate.getTime())) {
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+            const day = timeDate.getDate();
+            const month = months[timeDate.getMonth()];
+            const year = timeDate.getFullYear();
+            
+            // Format time as "9:00AM" (12-hour format with AM/PM, no leading zero on hour if single digit)
+            let hours = timeDate.getHours();
+            const minutes = timeDate.getMinutes();
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12; // the hour '0' should be '12'
+            const minutesStr = minutes < 10 ? '0' + minutes : minutes;
+            
+            return `${day} ${month} ${year}, ${hours}:${minutesStr}${ampm}`;
+          } else {
+            // Fallback: use current date with provided time string
+            const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                           'July', 'August', 'September', 'October', 'November', 'December'];
+            const day = now.getDate();
+            const month = months[now.getMonth()];
+            const year = now.getFullYear();
+            return `${day} ${month} ${year}, ${selectedTime}`;
+          }
+        } catch (error) {
+          console.error('Error formatting date/time:', error);
+          // Fallback to current date with ASAP
+          const months = ['January', 'February', 'March', 'April', 'May', 'June', 
+                         'July', 'August', 'September', 'October', 'November', 'December'];
+          const day = now.getDate();
+          const month = months[now.getMonth()];
+          const year = now.getFullYear();
+          return `${day} ${month} ${year}, ASAP`;
+        }
+      }
+    }
+
+    // Format time as "9:00AM" (no space, 12-hour format)
+    function formatTime(d) {
+      let hours = d.getHours();
+      const minutes = d.getMinutes();
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12; // the hour '0' should be '12'
+      const minutesStr = minutes < 10 ? '0' + minutes : minutes;
+      return `${hours}:${minutesStr}${ampm}`;
+    }
+
+    // Update wait time from Firebase or show scheduled time
+    async function updateWaitTime() {
+      if (!orderData || !orderData.info) {
+        return;
+      }
+
+      const waitTimeEl = document.getElementById('waitTime');
+      if (!waitTimeEl) {
+        return;
+      }
+
+      // Get selectedTime from localStorage or sessionStorage
+      const session = JSON.parse(sessionStorage.getItem('orderSession') || '{}');
+      const selectedTime = session.selectedTime || localStorage.getItem('selectedTime') || 'asap';
+      
+      // Determine if it's ASAP or scheduled
+      const isASAP = selectedTime === 'asap' || selectedTime === '' || !selectedTime;
+
+      if (isASAP) {
+        // For ASAP orders, show waitTime from Firebase
+        try {
+          const stallSlug = orderData.info.stallSlug || localStorage.getItem('stallSlug');
+          const stallId = orderData.info.stallId || localStorage.getItem('stallId');
+          
+          const waitTime = await fetchWaitTime(stallSlug, stallId);
+          waitTimeEl.textContent = waitTime;
+        } catch (error) {
+          console.error('Error updating wait time:', error);
+          waitTimeEl.textContent = '15-20 minutes';
+        }
+      } else {
+        // For scheduled orders, show "Your order will be ready at [time]"
+        try {
+          const timeDate = new Date(selectedTime);
+          if (!isNaN(timeDate.getTime())) {
+            const formattedTime = formatTime(timeDate);
+            waitTimeEl.textContent = `Your order will be ready at ${formattedTime}`;
+          } else {
+            // Fallback if date parsing fails
+            waitTimeEl.textContent = `Your order will be ready at ${selectedTime}`;
+          }
+        } catch (error) {
+          console.error('Error formatting scheduled time:', error);
+          waitTimeEl.textContent = `Your order will be ready at ${selectedTime}`;
+        }
       }
     }
 
     // Show error message
     function showError(message) {
-      const container = document.querySelector('.confirmation-container');
+      const container = document.getElementById('confirmationContainer');
       container.innerHTML = `
-        <div class="text-center">
-          <div class="text-danger mb-3">
-            <i class="bi bi-exclamation-triangle" style="font-size: 3rem;"></i>
+        <div class="error-container">
+          <div class="error-icon">
+            <i class="bi bi-exclamation-triangle"></i>
           </div>
-          <h4 class="text-danger">Error</h4>
-          <p class="text-muted">${message}</p>
-          <button class="btn btn-primary" onclick="goHome()">Go Home</button>
+          <h2 class="error-title">Error</h2>
+          <p class="error-message">${message}</p>
+          <button class="btn-action btn-primary-action" onclick="goHome()">
+            <i class="bi bi-house"></i>
+            Go Home
+          </button>
         </div>
       `;
     }
 
     // Navigation functions
-    function orderMore() {
-      // Clear cart and go back to selection to start fresh
-      localStorage.removeItem('cart');
-      window.location.href = 'selection.html';
-    }
-    
     function goHome() {
-      // Clear cart and go back to order home
+      // Remove the event listeners before navigating
+      if (backPreventionHandler) {
+        window.removeEventListener('popstate', backPreventionHandler);
+      }
+      if (keydownHandler) {
+        window.removeEventListener('keydown', keydownHandler);
+      }
+      
+      // Clear cart and go back to order home using replace to prevent back navigation
       localStorage.removeItem('cart');
       localStorage.removeItem('latestOrder');
-      window.location.href = 'online-order-home.html';
+      window.location.replace('online-order-home.html');
     }
 
     // Auto-refresh order status (simulate real-time updates)
@@ -703,13 +965,128 @@
       console.log('Order tracking started for:', orderData?.id);
     }
 
+    // Save order notification data to localStorage for navbar notification
+    async function saveOrderNotification(orderData) {
+      if (!orderData) return;
+      
+      const foodCentre = sessionStorage.getItem('selectedFoodCentre') || orderData.info?.foodCentre || '-';
+      
+      // Get selectedTime from localStorage or sessionStorage
+      const session = JSON.parse(sessionStorage.getItem('orderSession') || '{}');
+      const selectedTime = session.selectedTime || localStorage.getItem('selectedTime') || 'asap';
+      
+      // Determine if it's ASAP or scheduled
+      const isASAP = selectedTime === 'asap' || selectedTime === '' || !selectedTime;
+      
+      // Fetch waitTime for ASAP orders
+      let waitTime = null;
+      let notificationTime = null;
+      let estimatedPrepTime = null;
+      
+      if (isASAP) {
+        // For ASAP orders, notification appears after waitTime
+        try {
+          const stallSlug = orderData.info?.stallSlug || localStorage.getItem('stallSlug');
+          const stallId = orderData.info?.stallId || localStorage.getItem('stallId');
+          waitTime = await fetchWaitTime(stallSlug, stallId);
+          
+          // Parse waitTime (e.g., "15-20 minutes" or "30 minutes")
+          const waitTimeMinutes = parseWaitTimeToMinutes(waitTime);
+          notificationTime = new Date(Date.now() + waitTimeMinutes * 60 * 1000).toISOString();
+          estimatedPrepTime = waitTime;
+        } catch (error) {
+          console.error('Error fetching wait time for notification:', error);
+          // Default to 15 minutes if error
+          waitTime = '15-20 minutes';
+          const waitTimeMinutes = 15;
+          notificationTime = new Date(Date.now() + waitTimeMinutes * 60 * 1000).toISOString();
+          estimatedPrepTime = waitTime;
+        }
+      } else {
+        // For scheduled orders, notification appears at the chosen time
+        try {
+          const timeDate = new Date(selectedTime);
+          if (!isNaN(timeDate.getTime())) {
+            notificationTime = timeDate.toISOString();
+            estimatedPrepTime = `Please collect at ${timeDate.toLocaleTimeString([], {hour: 'numeric', minute: '2-digit'})}`;
+          } else {
+            // Fallback if date parsing fails
+            notificationTime = selectedTime;
+            estimatedPrepTime = `Please collect at ${selectedTime}`;
+          }
+        } catch (error) {
+          console.error('Error parsing selected time:', error);
+          notificationTime = selectedTime;
+          estimatedPrepTime = `Please collect at ${selectedTime}`;
+        }
+      }
+      
+      const notificationData = {
+        orderId: orderData.id,
+        stall: orderData.info?.stall || '-',
+        foodCentre: foodCentre,
+        total: typeof orderData.total === 'number' ? orderData.total : parseFloat(orderData.total) || 0,
+        items: orderData.items || [],
+        timestamp: new Date().toISOString(),
+        selectedTime: selectedTime,
+        isASAP: isASAP,
+        waitTime: waitTime,
+        notificationTime: notificationTime,
+        estimatedPrepTime: estimatedPrepTime
+      };
+      
+      // Get existing notifications
+      let notifications = [];
+      try {
+        const existing = localStorage.getItem('orderNotifications');
+        if (existing) {
+          notifications = JSON.parse(existing);
+        }
+      } catch (e) {
+        console.error('Error loading existing notifications:', e);
+      }
+      
+      // Check if this order already exists, if so update it, otherwise add it
+      const existingIndex = notifications.findIndex(n => n.orderId === notificationData.orderId);
+      if (existingIndex >= 0) {
+        notifications[existingIndex] = notificationData;
+      } else {
+        notifications.push(notificationData);
+      }
+      
+      // Save to localStorage
+      localStorage.setItem('orderNotifications', JSON.stringify(notifications));
+      
+      // Trigger a custom event that the notification script can listen to
+      window.dispatchEvent(new CustomEvent('orderNotificationUpdated', { detail: notificationData }));
+    }
+    
+    // Helper function to parse waitTime string to minutes
+    function parseWaitTimeToMinutes(waitTimeStr) {
+      if (!waitTimeStr) return 15; // Default 15 minutes
+      
+      // Handle formats like "15-20 minutes", "30 minutes", "45 mins", etc.
+      const match = waitTimeStr.match(/(\d+)(?:\s*-\s*(\d+))?\s*(?:minutes?|mins?)/i);
+      if (match) {
+        const min = parseInt(match[1], 10);
+        const max = match[2] ? parseInt(match[2], 10) : null;
+        // Return average if range, or single value
+        return max ? Math.round((min + max) / 2) : min;
+      }
+      
+      // Try to extract any number
+      const numberMatch = waitTimeStr.match(/(\d+)/);
+      if (numberMatch) {
+        return parseInt(numberMatch[1], 10);
+      }
+      
+      return 15; // Default fallback
+    }
+
     // Start tracking when page loads
     if (orderData) {
       startOrderTracking();
     }
   </script>
-
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-
 </body>
 </html>

@@ -785,12 +785,13 @@
       <button onclick="location.href='/pages/crowd/crowd-view.html'"><i class="bi bi-eye"></i><span>Crowd View</span></button>
     </div>
     <div class="nav-right">
-      <button class="notification-btn" onclick="alert('No new notifications')">
+      <button class="notification-btn" onclick="toggleOrderNotification()">
         <i class="bi bi-bell"></i>
-        <span class="notification-badge">3</span>
+        <span class="notification-badge" style="display: none;">1</span>
       </button>
       <button onclick="location.href='/pages/profile/profile.html'"><i class="bi bi-person"></i><span>Profile</span></button>
     </div>
   </div>
+  <script src="/scripts/notification.js"></script>
 </body>
 </html>
