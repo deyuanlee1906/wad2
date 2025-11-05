@@ -339,6 +339,11 @@ input:not(:placeholder-shown) ~ label {
   justify-content: center;
 }
 
+/* Hide notification label on desktop */
+.nav-bar .notification-btn .notification-label {
+  display: none;
+}
+
 .nav-bar .notification-btn:hover {
   background-color: #f5f5f5 !important;
   color: #1a1a1a !important;
@@ -371,15 +376,39 @@ input:not(:placeholder-shown) ~ label {
     box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.05);
   }
   
-  /* Hide logo, notification on mobile */
-  .nav-bar .nav-logo,
-  .nav-bar .notification-btn {
+  /* Hide logo on mobile */
+  .nav-bar .nav-logo {
     display: none !important;
   }
   
   .nav-bar .nav-items,
   .nav-bar .nav-right {
     display: contents;
+  }
+  
+  /* Hide all text labels on mobile - only show icons */
+  .nav-bar button span:not(.notification-badge) {
+    display: none !important;
+  }
+  
+  /* Show notification button on mobile */
+  .nav-bar .notification-btn {
+    display: flex !important;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px !important;
+    border-radius: 6px !important;
+  }
+  
+  .nav-bar .notification-btn i {
+    font-size: 24px;
+  }
+  
+  /* Adjust notification badge position for mobile */
+  .nav-bar .notification-badge {
+    top: 4px;
+    right: 4px;
   }
 }
 
@@ -419,18 +448,18 @@ input:not(:placeholder-shown) ~ label {
   font-size: 18px;
 }
 
-/* Mobile view - vertical layout with icons on top */
+/* Mobile view - icon-only layout */
 @media (max-width: 768px) {
   .nav-bar button {
     flex-direction: column;
-    gap: 4px;
-    padding: 8px 4px !important;
-    font-size: 11px !important;
-    min-width: 60px;
+    align-items: center;
+    justify-content: center;
+    padding: 8px !important;
+    min-width: auto;
   }
   
   .nav-bar button i {
-    font-size: 20px;
+    font-size: 24px;
   }
 }
 
