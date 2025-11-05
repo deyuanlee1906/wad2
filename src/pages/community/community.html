@@ -89,6 +89,8 @@ async function setUserLike(postId, postSnapshot) {
     base.caption = postSnapshot.caption || postSnapshot.content || '';
     base.mediaUrl = postSnapshot.mediaUrl || null;
     base.authorName = postSnapshot.authorName || postSnapshot.author || '';
+    base.authorPhotoURL = postSnapshot.authorPhotoURL || null;
+    base.authorId = postSnapshot.authorId || null;
   }
   
   await Promise.all([
@@ -229,14 +231,20 @@ async function renderInstagramFeed() {
     const qy = query(postsRef, orderBy('createdAt', 'desc'), limit(30));
     const snap = await getDocs(qy);
     console.log(`Loaded ${snap.docs.length} posts from Firestore`);
-    const firePosts = snap.docs.map(d => ({
-      id: d.id,
-      author: (d.data().authorName || 'User'),
-      content: (d.data().caption || ''),
-      mediaUrl: (d.data().mediaUrl || null),
-      comments: []
-    }));
-    firePosts.forEach(renderOne);
+    const firePosts = snap.docs.map(d => {
+      const data = d.data();
+      return {
+        id: d.id,
+        author: (data.authorName || 'User'),
+        authorPhotoURL: data.authorPhotoURL || null, // Profile picture URL from post
+        authorId: data.authorId || null, // User ID for loading profile if needed
+        content: (data.caption || ''),
+        mediaUrl: (data.mediaUrl || null),
+        comments: []
+      };
+    });
+    // Render posts (renderOne is async but we don't need to wait)
+    firePosts.forEach(thread => renderOne(thread).catch(e => console.error('Error rendering post:', e)));
   } catch (e) {
     console.error('Failed to load Firestore posts', e);
     // Continue to load sample threads even if Firestore fails
@@ -269,7 +277,8 @@ async function renderInstagramFeed() {
   
   if (sampleThreads && Array.isArray(sampleThreads) && sampleThreads.length > 0) {
     console.log(`Rendering ${sampleThreads.length} sample threads`);
-    sampleThreads.forEach(renderOne);
+    // Render sample threads (renderOne is async but we don't need to wait)
+    sampleThreads.forEach(thread => renderOne(thread).catch(e => console.error('Error rendering post:', e)));
   } else {
     console.warn('threads is not a valid array or is empty, skipping sample threads');
     console.warn('sampleThreads value:', sampleThreads);
@@ -416,7 +425,7 @@ async function loadUserBookmarks() {
   }
 }
 
-function renderOne(thread) {
+async function renderOne(thread) {
   const postElement = document.createElement('div');
   postElement.className = 'instagram-post fade-in';
   postElement.id = `post-${thread.id}`;
@@ -426,11 +435,36 @@ function renderOne(thread) {
   const likeCount = likeCounts[thread.id] || 0;
   const isFollowing = followStatus[thread.author] || false;
   const isBookmarked = bookmarkStatus[thread.id] || false;
+  
+  // Load profile picture - use authorPhotoURL from post if available, otherwise try to load from user document
+  let authorPhotoURL = thread.authorPhotoURL || null;
+  if (!authorPhotoURL && thread.authorId && db) {
+    try {
+      const userDocRef = doc(db, 'users', thread.authorId);
+      const userDocSnap = await getDoc(userDocRef);
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        authorPhotoURL = userData.photoURL || null;
+        // Also update author name if username is available
+        if (userData.username && !thread.author.startsWith('@')) {
+          thread.author = userData.username;
+        }
+      }
+    } catch (e) {
+      console.warn('Failed to load author profile picture:', e);
+    }
+  }
+  
+  // Create avatar HTML - show profile picture if available, otherwise show initial
+  const avatarInitial = thread.author.charAt(0).toUpperCase();
+  const avatarHTML = authorPhotoURL 
+    ? `<div class="avatar" style="background-image: url('${authorPhotoURL}'); background-size: cover; background-position: center; background-repeat: no-repeat; color: transparent; text-indent: -9999px;">${avatarInitial}</div>`
+    : `<div class="avatar">${avatarInitial}</div>`;
     
     postElement.innerHTML = `
       <div class="post-header">
         <div class="user-info">
-          <div class="avatar">${thread.author.charAt(0).toUpperCase()}</div>
+          ${avatarHTML}
           <div class="user-details">
             <span class="username">${thread.author}</span>
             <span class="location">Community</span>
@@ -539,7 +573,13 @@ function setupPostInteractions(postElement, thread) {
     // Sync to Firestore likes so it appears in Profile > Liked
     if (window.__likeSync) {
       const op = isLiked ? window.__likeSync.unsetUserLike : window.__likeSync.setUserLike;
-      const snapshot = { authorName: thread.author, caption: thread.content || '', mediaUrl: thread.mediaUrl || null };
+      const snapshot = { 
+        authorName: thread.author, 
+        caption: thread.content || '', 
+        mediaUrl: thread.mediaUrl || null,
+        authorPhotoURL: thread.authorPhotoURL || null,
+        authorId: thread.authorId || null
+      };
       try {
         await op(postId, snapshot);
       } catch (e) {

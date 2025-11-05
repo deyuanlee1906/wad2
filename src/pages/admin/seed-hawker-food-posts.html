@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Seed Hawker Food Posts to Firebase</title>
+  <script type="module" src="/scripts/firebaseauth.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 16px;
+      background: #C9784F;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-right: 10px;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background: #b36a43;
+    }
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    #status {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      max-height: 500px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+    }
+    .progress {
+      margin-top: 10px;
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: #C9784F;
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌶️ Seed Hawker Food Posts to Firebase</h1>
+    <p class="subtitle">Upload food images to Firebase Storage and create posts with food-related comments</p>
+    
+    <button id="seedBtn">Upload Images & Create Posts</button>
+    <button id="clearBtn" style="background: #dc3545;">Clear All Sample Posts</button>
+    
+    <div class="progress" id="progressBar" style="display: none;">
+      <div class="progress-bar" id="progressFill"></div>
+    </div>
+    
+    <div id="status"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, deleteDoc, collection, getDocs, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-storage.js";
+
+    // Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyApmvl3E-sbQMZfadYGfa4P0EJ6N7IEZmo",
+      authDomain: "wad2-login-5799b.firebaseapp.com",
+      projectId: "wad2-login-5799b",
+      storageBucket: "wad2-login-5799b.firebasestorage.app",
+      messagingSenderId: "148986270821",
+      appId: "1:148986270821:web:fc17df5adf49b464a1628c"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const storage = getStorage(app);
+
+    const statusDiv = document.getElementById('status');
+    const seedBtn = document.getElementById('seedBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const progressBar = document.getElementById('progressBar');
+    const progressFill = document.getElementById('progressFill');
+
+    // Hawker food posts with diverse food images and comments
+    const hawkerFoodPosts = [
+      {
+        id: "hawker-1",
+        author: "Marcus",
+        foodImage: "/img/food1.jpg",
+        caption: "Just had the best Hainanese Chicken Rice at Maxwell! The rice was perfectly fragrant and the chicken was so tender. The chili sauce had the perfect balance of heat and tanginess. 🍗✨",
+        comments: [
+          { author: "Claire", content: "Which stall? I've been looking for good chicken rice!" },
+          { author: "Marcus", content: "Tian Tian Chicken Rice - the queue is worth it!" },
+          { author: "Ivy", content: "The soup there is also amazing! So comforting." }
+        ]
+      },
+      {
+        id: "hawker-2",
+        author: "Claire",
+        foodImage: "/img/food2.jpg",
+        caption: "Laksa at Newton Food Centre hits different! The coconut curry broth is rich and creamy, with a nice kick from the chili. The cockles and prawns were fresh. 😋",
+        comments: [
+          { author: "Zack", content: "Love the tau pok (fried beancurd) in laksa!" },
+          { author: "Claire", content: "Yes! It soaks up the broth so well." },
+          { author: "Dylan", content: "Is it spicy? I can't handle too much heat." }
+        ]
+      },
+      {
+        id: "hawker-3",
+        author: "Aaron",
+        foodImage: "/img/food3.jpg",
+        caption: "Char Kway Teow from Changi Village - wok hei on point! The noodles were smoky and charred perfectly. The cockles and Chinese sausage added great texture. 🔥",
+        comments: [
+          { author: "Wen", content: "The charred bits are the best part!" },
+          { author: "Marcus", content: "Did you get extra cockles? Worth it!" }
+        ]
+      },
+      {
+        id: "hawker-4",
+        author: "Ivy",
+        foodImage: "/img/food4.jpg",
+        caption: "Satay at Newton! The meat was perfectly marinated and grilled. The peanut sauce was thick, creamy, and had a hint of sweetness. 10/10 would recommend! 🍢",
+        comments: [
+          { author: "Claire", content: "Beef or chicken? I prefer mutton!" },
+          { author: "Ivy", content: "I got the combo - all three! The mutton was my favorite too." },
+          { author: "Aaron", content: "The ketupat (rice cakes) are essential with satay!" }
+        ]
+      },
+      {
+        id: "hawker-5",
+        author: "Zack",
+        foodImage: "/img/food5.jpg",
+        caption: "Bak Kut Teh at Maxwell - the peppery soup was so warming! The pork ribs were fall-off-the-bone tender. Perfect comfort food for a rainy day. ☔",
+        comments: [
+          { author: "Dylan", content: "Did you dip the youtiao (fried dough) in the soup?" },
+          { author: "Zack", content: "Of course! That's the best way to eat it." }
+        ]
+      },
+      {
+        id: "hawker-6",
+        author: "Wen",
+        foodImage: "/img/food6.jpg",
+        caption: "Nasi Lemak from Changi Village! The coconut rice was fragrant, the sambal had a nice kick, and the fried chicken wing was crispy. The ikan bilis (anchovies) added great crunch! 🍚",
+        comments: [
+          { author: "Ivy", content: "The runny egg is my favorite part!" },
+          { author: "Marcus", content: "Which stall? I want to try it!" }
+        ]
+      },
+      {
+        id: "hawker-7",
+        author: "Dylan",
+        foodImage: "/img/food7.jpg",
+        caption: "Oyster Omelette (Orh Luak) at Newton - crispy edges with gooey center! The oysters were plump and fresh. The chili sauce balanced everything perfectly. 🦪",
+        comments: [
+          { author: "Claire", content: "The crispy bits are everything!" },
+          { author: "Zack", content: "How many oysters did you get? Looks generous!" }
+        ]
+      },
+      {
+        id: "hawker-8",
+        author: "Marcus",
+        foodImage: "/img/food8.jpg",
+        caption: "Roti Prata for breakfast! The crispy, flaky layers with curry dip - nothing beats this combo. The egg prata was perfectly cooked. 🥞",
+        comments: [
+          { author: "Wen", content: "Did you get the paper prata? So crispy!" },
+          { author: "Marcus", content: "Next time! The egg prata was already amazing." }
+        ]
+      },
+      {
+        id: "hawker-9",
+        author: "Claire",
+        foodImage: "/img/food9.jpg",
+        caption: "Fish Soup at Maxwell - clean and light broth with fresh fish slices. The fried garlic bits on top added great flavor. So healthy and comforting! 🐟",
+        comments: [
+          { author: "Ivy", content: "Clear or milky broth? I prefer milky!" },
+          { author: "Claire", content: "Clear for me! But both are good." }
+        ]
+      },
+      {
+        id: "hawker-10",
+        author: "Aaron",
+        foodImage: "/img/food10.jpg",
+        caption: "Wanton Mee at Changi Village - springy noodles with plump wantons! The char siew was tender and the sauce was well-balanced. Classic comfort food! 🍜",
+        comments: [
+          { author: "Dylan", content: "Dry or soup? I'm team dry!" },
+          { author: "Aaron", content: "Dry all the way! The noodles stay chewy." }
+        ]
+      },
+      {
+        id: "hawker-11",
+        author: "Ivy",
+        foodImage: "/img/food11.jpg",
+        caption: "Chili Crab! The sauce was tangy, sweet, and spicy. The crab was fresh and the meat was sweet. Dipped mantou (fried buns) in the sauce - absolutely divine! 🦀",
+        comments: [
+          { author: "Zack", content: "This looks amazing! Where did you get it?" },
+          { author: "Ivy", content: "Newton Food Centre - the stall near the entrance!" },
+          { author: "Marcus", content: "The mantou is essential for soaking up the sauce!" }
+        ]
+      },
+      {
+        id: "hawker-12",
+        author: "Zack",
+        foodImage: "/img/food12.jpg",
+        caption: "Hokkien Mee at Maxwell - the wok hei is incredible! The prawns were huge and the noodles were perfectly charred. The chili lime dip elevated everything! 🍤",
+        comments: [
+          { author: "Wen", content: "The crispy pork lard bits are the best!" },
+          { author: "Claire", content: "I love squeezing extra lime on it!" }
+        ]
+      },
+      {
+        id: "hawker-13",
+        author: "Dylan",
+        foodImage: "/img/food13.jpg",
+        caption: "Popiah (Fresh Spring Rolls) at Newton - so fresh and healthy! The wrapper was thin and the filling was crunchy. The sweet sauce was perfect! 🌯",
+        comments: [
+          { author: "Marcus", content: "Did you get the fried popiah too? Both are good!" },
+          { author: "Dylan", content: "Just fresh today, but I'll try fried next time!" }
+        ]
+      },
+      {
+        id: "hawker-14",
+        author: "Wen",
+        foodImage: "/img/food14.jpg",
+        caption: "Ice Kacang (Shaved Ice) for dessert! The colorful syrups, red beans, and grass jelly - so refreshing on a hot day! The ice was shaved super fine. ❄️",
+        comments: [
+          { author: "Ivy", content: "The best dessert after spicy food!" },
+          { author: "Aaron", content: "Did you get the chendol version? It's my favorite!" }
+        ]
+      },
+      {
+        id: "hawker-15",
+        author: "Marcus",
+        foodImage: "/img/food15.jpg",
+        caption: "Chicken Curry at Changi Village - rich and creamy coconut curry! The chicken was tender and the potatoes were perfectly cooked. Best with rice or prata! 🍛",
+        comments: [
+          { author: "Claire", content: "The curry sauce is so good with rice!" },
+          { author: "Zack", content: "I'd dip prata in this any day!" }
+        ]
+      },
+      {
+        id: "hawker-16",
+        author: "Claire",
+        foodImage: "/img/food16.jpg",
+        caption: "Carrot Cake (Chai Tow Kway) - black version! The char on the radish cake was perfect, and there was plenty of egg and chye poh (preserved radish). So satisfying! 🥕",
+        comments: [
+          { author: "Dylan", content: "Team black or white? I'm team black!" },
+          { author: "Claire", content: "Black all the way! The caramelization is everything." }
+        ]
+      },
+      {
+        id: "hawker-17",
+        author: "Aaron",
+        foodImage: "/img/food17.jpg",
+        caption: "Mee Goreng at Newton - spicy and tangy! The noodles were perfectly cooked and the sauce had great depth of flavor. The fried egg on top was a nice touch! 🍝",
+        comments: [
+          { author: "Wen", content: "The runny egg yolk mixing with the noodles is perfection!" },
+          { author: "Ivy", content: "Is it very spicy? I can't handle too much heat." }
+        ]
+      },
+      {
+        id: "hawker-18",
+        author: "Ivy",
+        foodImage: "/img/food18.jpg",
+        caption: "Tau Huay (Soybean Pudding) at Maxwell - silky smooth! The syrup was not too sweet and the texture was perfect. Great light dessert after a heavy meal! 🥛",
+        comments: [
+          { author: "Marcus", content: "The texture is so smooth, like silk!" },
+          { author: "Zack", content: "Did you get the hot or cold version?" }
+        ]
+      },
+      {
+        id: "hawker-19",
+        author: "Zack",
+        foodImage: "/img/food19.jpg",
+        caption: "BBQ Stingray at Newton - smoky and spicy! The sambal had a nice kick and the fish was perfectly grilled. The lime cut through the richness beautifully! 🐟",
+        comments: [
+          { author: "Dylan", content: "The sambal is so good! Not too overpowering." },
+          { author: "Claire", content: "I always get extra lime with this!" }
+        ]
+      },
+      {
+        id: "hawker-20",
+        author: "Dylan",
+        foodImage: "/img/food20.jpg",
+        caption: "Kaya Toast with Soft-Boiled Eggs! The crispy toast with sweet kaya and thick butter, paired with runny eggs and soy sauce - the perfect breakfast combo! 🍞",
+        comments: [
+          { author: "Wen", content: "The kopi here is also amazing! Strong and aromatic." },
+          { author: "Aaron", content: "Classic Singapore breakfast! Can't go wrong." }
+        ]
+      }
+    ];
+
+    // Function to upload image to Firebase Storage
+    async function uploadImageToStorage(imagePath, storagePath) {
+      try {
+        // Fetch the image from the local path
+        const response = await fetch(imagePath);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch image: ${imagePath}`);
+        }
+        
+        const blob = await response.blob();
+        const storageRef = ref(storage, storagePath);
+        
+        // Upload to Firebase Storage
+        const uploadResult = await uploadBytes(storageRef, blob, {
+          contentType: blob.type || 'image/jpeg'
+        });
+        
+        // Get download URL
+        const downloadURL = await getDownloadURL(uploadResult.ref);
+        return downloadURL;
+      } catch (error) {
+        console.error(`Error uploading ${imagePath}:`, error);
+        throw error;
+      }
+    }
+
+    // Function to create post in Firestore
+    async function createPost(postData, imageURL) {
+      const postRef = doc(db, 'posts', postData.id);
+      
+      await setDoc(postRef, {
+        authorName: postData.author,
+        authorId: 'sample-user',
+        caption: postData.caption,
+        mediaUrl: imageURL,
+        comments: postData.comments || [],
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+    }
+
+    // Seed function
+    seedBtn.addEventListener('click', async () => {
+      seedBtn.disabled = true;
+      clearBtn.disabled = true;
+      progressBar.style.display = 'block';
+      progressFill.style.width = '0%';
+      
+      statusDiv.textContent = 'Starting seed process...\n';
+      statusDiv.textContent += `Total posts to create: ${hawkerFoodPosts.length}\n\n`;
+      
+      let uploaded = 0;
+      let created = 0;
+      let errors = 0;
+
+      for (let i = 0; i < hawkerFoodPosts.length; i++) {
+        const post = hawkerFoodPosts[i];
+        const progress = ((i + 1) / hawkerFoodPosts.length) * 100;
+        progressFill.style.width = `${progress}%`;
+        
+        try {
+          statusDiv.textContent += `\n[${i + 1}/${hawkerFoodPosts.length}] Processing: ${post.id}\n`;
+          
+          // Upload image to Firebase Storage
+          const storagePath = `community-posts/${post.id}.jpg`;
+          statusDiv.textContent += `  → Uploading image to Firebase Storage...\n`;
+          
+          const imageURL = await uploadImageToStorage(post.foodImage, storagePath);
+          uploaded++;
+          statusDiv.textContent += `  ✓ Image uploaded: ${imageURL.substring(0, 50)}...\n`;
+          
+          // Create post in Firestore
+          statusDiv.textContent += `  → Creating post in Firestore...\n`;
+          await createPost(post, imageURL);
+          created++;
+          statusDiv.textContent += `  ✓ Post created successfully!\n`;
+          
+          // Scroll to bottom
+          statusDiv.scrollTop = statusDiv.scrollHeight;
+          
+        } catch (error) {
+          errors++;
+          statusDiv.textContent += `  ✗ Error: ${error.message}\n`;
+          console.error(`Error processing ${post.id}:`, error);
+        }
+      }
+
+      statusDiv.textContent += `\n\n=== SUMMARY ===\n`;
+      statusDiv.textContent += `Images uploaded: ${uploaded}\n`;
+      statusDiv.textContent += `Posts created: ${created}\n`;
+      statusDiv.textContent += `Errors: ${errors}\n`;
+      statusDiv.textContent += `\n✓ Done! Refresh the community page to see the new posts!\n`;
+      
+      seedBtn.disabled = false;
+      clearBtn.disabled = false;
+      progressFill.style.width = '100%';
+    });
+
+    // Clear all sample posts
+    clearBtn.addEventListener('click', async () => {
+      if (!confirm('Are you sure you want to delete all sample posts? This cannot be undone.')) {
+        return;
+      }
+      
+      clearBtn.disabled = true;
+      seedBtn.disabled = true;
+      statusDiv.textContent = 'Deleting sample posts...\n';
+      
+      try {
+        // Get all posts with authorId 'sample-user'
+        const postsRef = collection(db, 'posts');
+        const q = query(postsRef, where('authorId', '==', 'sample-user'));
+        const snapshot = await getDocs(q);
+        
+        let deleted = 0;
+        for (const docSnap of snapshot.docs) {
+          await deleteDoc(doc(db, 'posts', docSnap.id));
+          deleted++;
+          statusDiv.textContent += `Deleted: ${docSnap.id}\n`;
+        }
+        
+        statusDiv.textContent += `\n✓ Deleted ${deleted} sample posts!\n`;
+      } catch (error) {
+        statusDiv.textContent += `\n✗ Error: ${error.message}\n`;
+        console.error('Error deleting posts:', error);
+      }
+      
+      clearBtn.disabled = false;
+      seedBtn.disabled = false;
+    });
+
+    // Check authentication
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        statusDiv.textContent = `✓ Logged in as: ${user.email}\n`;
+        statusDiv.textContent += `Ready to seed posts!\n`;
+      } else {
+        statusDiv.textContent = `⚠️ Please log in first to seed posts.\n`;
+        seedBtn.disabled = true;
+        clearBtn.disabled = true;
+      }
+    });
+  </script>
+</body>
+</html>
+

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Edit Profile</title>
+  <title>Edit Profile - ChopeLah</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
   <link rel="stylesheet" href="/styles/main.css">
@@ -90,6 +90,11 @@
     .avatar-upload-btn:hover {
       background-color: #b36a43;
       transform: scale(1.1);
+    }
+
+    .avatar-upload-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
     .avatar-upload-btn i {
@@ -188,6 +193,11 @@
       box-shadow: 0 0 0 3px rgba(201, 120, 79, 0.1);
     }
 
+    .form-control:disabled {
+      background-color: #f5f5f5;
+      cursor: not-allowed;
+    }
+
     .form-text {
       font-size: 13px;
       color: #666;
@@ -197,6 +207,12 @@
 
     .text-danger {
       color: #dc3545;
+      font-size: 13px;
+      margin-top: 6px;
+    }
+
+    .text-success {
+      color: #28a745;
       font-size: 13px;
       margin-top: 6px;
     }
@@ -213,6 +229,14 @@
       border: none;
       cursor: pointer;
       transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
     }
 
     .btn-primary {
@@ -220,7 +244,7 @@
       color: #ffffff;
     }
 
-    .btn-primary:hover {
+    .btn-primary:hover:not(:disabled) {
       background-color: #b36a43;
     }
 
@@ -230,7 +254,7 @@
       color: #666;
     }
 
-    .btn-outline-secondary:hover {
+    .btn-outline-secondary:hover:not(:disabled) {
       background-color: #f5f5f5;
       color: #1a1a1a;
     }
@@ -241,7 +265,7 @@
       color: #dc3545;
     }
 
-    .btn-outline-danger:hover {
+    .btn-outline-danger:hover:not(:disabled) {
       background-color: #dc3545;
       color: #ffffff;
     }
@@ -250,9 +274,25 @@
       padding: 12px 16px;
       border-radius: 6px;
       font-size: 14px;
+      margin-bottom: 16px;
+    }
+
+    .alert-info {
       background-color: #e7f3ff;
       border: 1px solid #b3d9ff;
       color: #004085;
+    }
+
+    .alert-warning {
+      background-color: #fff3cd;
+      border: 1px solid #ffc107;
+      color: #856404;
+    }
+
+    .spinner-border-sm {
+      width: 1rem;
+      height: 1rem;
+      border-width: 0.2em;
     }
 
     /* Mobile Responsive */
@@ -279,19 +319,9 @@
       }
     }
   </style>
-  <script type="module" src="/scripts/firebaseauth.js"></script>
 </head>
 <body>
   <div class="edit-profile-container">
-    <!-- Welcome Banner for New Users -->
-    <div id="welcomeBanner" class="alert alert-success" style="display: none; background-color: #d4edda; border-color: #c3e6cb; color: #155724;">
-      <i class="bi bi-check-circle-fill"></i> 
-      <strong>Welcome to ChopeLah!</strong> Your account has been created. Take a moment to customize your profile below, then click "Continue to App" when you're ready.
-      <button id="continueToAppBtn" class="btn btn-primary" style="margin-top: 8px;">
-        <i class="bi bi-arrow-right-circle"></i> Continue to App
-      </button>
-    </div>
-
     <!-- Header with Profile Preview -->
     <div class="edit-profile-header">
       <h3>Edit Profile</h3>
@@ -323,6 +353,7 @@
       <div class="form-group">
         <p class="form-text">Upload a profile picture. Supported formats: JPG, PNG, GIF (max 5MB)</p>
         <div id="profileImageError" class="text-danger hidden"></div>
+        <div id="profileImageSuccess" class="text-success hidden"></div>
       </div>
     </div>
 
@@ -332,9 +363,11 @@
         <i class="bi bi-at"></i> Username
       </div>
       <div class="form-group">
+        <label for="usernameInput" class="form-label">New Username</label>
         <input id="usernameInput" type="text" class="form-control" placeholder="Enter new username">
         <span class="form-text">Must be unique. Use lowercase letters, numbers, and underscores (3-20 characters)</span>
         <div id="usernameError" class="text-danger hidden"></div>
+        <div id="usernameSuccess" class="text-success hidden"></div>
       </div>
       <button id="saveUsernameBtn" class="btn btn-primary">
         <i class="bi bi-check-lg"></i> Save Username
@@ -347,9 +380,11 @@
         <i class="bi bi-chat-left-text"></i> Bio
       </div>
       <div class="form-group">
+        <label for="bioInput" class="form-label">Bio</label>
         <textarea id="bioInput" class="form-control" placeholder="Tell us about yourself..." rows="4"></textarea>
         <span class="form-text">Share your food interests or favorite hawker centers!</span>
         <div id="bioError" class="text-danger hidden"></div>
+        <div id="bioSuccess" class="text-success hidden"></div>
       </div>
       <button id="saveBioBtn" class="btn btn-primary">
         <i class="bi bi-check-lg"></i> Save Bio
@@ -362,8 +397,11 @@
         <i class="bi bi-envelope"></i> Email Address
       </div>
       <div class="form-group">
+        <label for="emailInput" class="form-label">New Email</label>
         <input id="emailInput" type="email" class="form-control" placeholder="Enter new email">
+        <span class="form-text">You may need to re-enter your password for security</span>
         <div id="emailError" class="text-danger hidden"></div>
+        <div id="emailSuccess" class="text-success hidden"></div>
       </div>
       <button id="saveEmailBtn" class="btn btn-primary">
         <i class="bi bi-check-lg"></i> Save Email
@@ -376,9 +414,11 @@
         <i class="bi bi-lock"></i> Password
       </div>
       <div class="form-group">
+        <label for="passwordInput" class="form-label">New Password</label>
         <input id="passwordInput" type="password" class="form-control" placeholder="Enter new password">
         <span class="form-text">Minimum 8 characters with uppercase, lowercase, number, and special character</span>
         <div id="passwordError" class="text-danger hidden"></div>
+        <div id="passwordSuccess" class="text-success hidden"></div>
       </div>
       <button id="savePasswordBtn" class="btn btn-primary">
         <i class="bi bi-check-lg"></i> Save Password
@@ -386,39 +426,14 @@
     </div>
 
     <!-- Info Alert -->
-    <div class="alert">
+    <div class="alert alert-info">
       <i class="bi bi-info-circle"></i> 
-      For security, you may need to re-enter your password when changing email or password.
-    </div>
-
-    <!-- Danger Zone -->
-    <div class="form-section" style="border: 2px solid #dc3545;">
-      <div class="form-section-title" style="color: #dc3545;">
-        <i class="bi bi-exclamation-triangle-fill"></i> Danger Zone
-      </div>
-      <div class="form-group">
-        <p class="text-muted" style="font-size: 14px; margin-bottom: 16px;">
-          <strong>Permanently delete your account and all associated data.</strong>
-        </p>
-        <p class="text-muted" style="font-size: 13px;">
-          This action cannot be undone. All your data will be removed:
-        </p>
-        <ul class="text-muted" style="font-size: 13px; margin-left: 20px;">
-          <li>All your posts</li>
-          <li>All your likes on posts (hearts will be removed from posts)</li>
-          <li>All your follows</li>
-          <li>All your saved/bookmarked posts</li>
-          <li>Your profile information</li>
-          <li>Your authentication account</li>
-        </ul>
-        <div id="deleteError" class="text-danger hidden" style="margin-top: 12px;"></div>
-      </div>
-      <button id="deleteAccountBtn" class="btn btn-danger">
-        <i class="bi bi-trash3"></i> Delete My Account
-      </button>
+      <strong>Note:</strong> For security, you may need to re-enter your password when changing email or password. 
+      If you encounter CORS errors, clear your browser cache or use incognito mode.
     </div>
   </div>
 
+  <!-- Navigation Bar -->
     <div class="nav-bar">
         <a href="/" class="nav-logo"><i class="bi bi-shop"></i>ChopeLah</a>
         <div class="nav-items">
@@ -452,118 +467,169 @@
     </div>
 
   <script type="module">
+    /**
+     * PROFILE EDITING PAGE - Firebase v9 Modular SDK
+     * 
+     * This page allows users to:
+     * 1. Upload and update profile picture (Firebase Storage)
+     * 2. Change username (Firestore)
+     * 3. Change bio (Firestore)
+     * 4. Change email address (Firebase Auth + Firestore)
+     * 5. Change password (Firebase Auth)
+     * 
+     * Storage: wad2-login-5799b.firebasestorage.app
+     * Profile picture path: profilePictures/{user.uid}/profile.jpg
+     */
+
+    // ============================================
+    // STEP 1: FIREBASE SDK IMPORTS (v9 Modular)
+    // ============================================
+    // Import Firebase App initialization
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
+    
     // Import Firebase Auth functions
-    import { getAuth, onAuthStateChanged, updateEmail, updatePassword, signOut, reauthenticateWithCredential, EmailAuthProvider, deleteUser } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+    import { 
+      getAuth, 
+      onAuthStateChanged, 
+      updateEmail, 
+      updatePassword, 
+      signOut, 
+      reauthenticateWithCredential, 
+      EmailAuthProvider 
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+    
     // Import Firestore functions
-    import { getFirestore, doc, getDoc, setDoc, collection, getDocs, deleteDoc, query, where } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    import { 
+      getFirestore, 
+      doc, 
+      getDoc, 
+      setDoc 
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    
     // Import Firebase Storage functions
-    import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-storage.js";
+    import { 
+      getStorage, 
+      ref, 
+      uploadBytes, 
+      getDownloadURL, 
+      deleteObject 
+    } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-storage.js";
 
-    // Wait for Firebase to initialize before using it
-    let auth, db, storage;
+    // ============================================
+    // STEP 2: FIREBASE CONFIGURATION
+    // ============================================
+    // Replace the API key with your actual Firebase API key
+    const firebaseConfig = {
+      apiKey: "AIzaSyApmvl3E-sbQMZfadYGfa4P0EJ6N7IEZmo", // Replace with your API key
+      authDomain: "wad2-login-5799b.firebaseapp.com",
+      projectId: "wad2-login-5799b",
+      storageBucket: "wad2-login-5799b.firebasestorage.app", // New default bucket
+      messagingSenderId: "148986270821",
+      appId: "1:148986270821:web:fc17df5adf49b464a1628c"
+    };
 
-    // Initialize Firebase instances - wait for firebaseauth.js to finish
-    async function initFirebase() {
-      try {
-        // Wait for Firebase to be initialized by firebaseauth.js
-        if (window.firebaseInitPromise) {
-          await window.firebaseInitPromise;
-          console.log('Firebase initialization promise resolved');
-        } else {
-          // If promise doesn't exist, wait a bit for firebaseauth.js to load
-          console.log('Waiting for firebaseauth.js to initialize...');
-          let attempts = 0;
-          while (!window.firebaseInitPromise && attempts < 20) {
-            await new Promise(resolve => setTimeout(resolve, 100));
-            attempts++;
-          }
-          if (window.firebaseInitPromise) {
-            await window.firebaseInitPromise;
-          }
-        }
-        
-        // Use window.auth and window.db if available (set by firebaseauth.js)
-        if (window.auth && window.db) {
-          auth = window.auth;
-          db = window.db;
-          // Initialize Storage using the same app instance
-          const { getApp } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js");
-          const app = window.app || getApp();
-          storage = getStorage(app);
-          console.log('✅ Using Firebase instances from firebaseauth.js (Auth, Firestore, Storage)');
-        } else {
-          // Fallback: try to get from default app
-          const { getApp } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js");
-          const app = getApp();
-          auth = getAuth(app);
-          db = getFirestore(app);
-          storage = getStorage(app);
-          console.log('Created Firebase instances from default app');
-        }
-      } catch (error) {
-        console.error('Error initializing Firebase:', error);
-        // Try to continue with default app anyway
-        try {
-          const { getApp } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js");
-          const app = getApp();
-          auth = getAuth(app);
-          db = getFirestore(app);
-        } catch (e) {
-          console.error('Failed to initialize Firebase:', e);
-          throw e;
+    // ============================================
+    // STEP 3: INITIALIZE FIREBASE SERVICES
+    // ============================================
+    // Initialize Firebase App
+    const app = initializeApp(firebaseConfig);
+    
+    // Initialize Firebase Auth
+    const auth = getAuth(app);
+    
+    // Initialize Firestore
+    const db = getFirestore(app);
+    
+    // Initialize Firebase Storage with the new bucket
+    // The bucket is specified in firebaseConfig.storageBucket
+    // If you need to use a different bucket, use: getStorage(app, "gs://bucket-name")
+    const storage = getStorage(app);
+
+    // ============================================
+    // STEP 4: DOM ELEMENT REFERENCES
+    // ============================================
+    const avatarPreview = document.getElementById('avatarPreview');
+    const currentUsernameEl = document.getElementById('currentUsername');
+    const currentEmailEl = document.getElementById('currentEmail');
+    const logoutBtn = document.getElementById('logoutBtn');
+
+    // Profile picture elements
+    const profileImageInput = document.getElementById('profileImageInput');
+    const profileImageError = document.getElementById('profileImageError');
+    const profileImageSuccess = document.getElementById('profileImageSuccess');
+    const profileImageStatus = document.getElementById('profileImageStatus');
+    const avatarUploadBtn = document.getElementById('avatarUploadBtn');
+
+    // Username elements
+    const usernameInput = document.getElementById('usernameInput');
+    const usernameError = document.getElementById('usernameError');
+    const usernameSuccess = document.getElementById('usernameSuccess');
+    const saveUsernameBtn = document.getElementById('saveUsernameBtn');
+
+    // Bio elements
+    const bioInput = document.getElementById('bioInput');
+    const bioError = document.getElementById('bioError');
+    const bioSuccess = document.getElementById('bioSuccess');
+    const saveBioBtn = document.getElementById('saveBioBtn');
+
+    // Email elements
+    const emailInput = document.getElementById('emailInput');
+    const emailError = document.getElementById('emailError');
+    const emailSuccess = document.getElementById('emailSuccess');
+    const saveEmailBtn = document.getElementById('saveEmailBtn');
+
+    // Password elements
+    const passwordInput = document.getElementById('passwordInput');
+    const passwordError = document.getElementById('passwordError');
+    const passwordSuccess = document.getElementById('passwordSuccess');
+    const savePasswordBtn = document.getElementById('savePasswordBtn');
+
+    // ============================================
+    // STEP 5: UTILITY FUNCTIONS
+    // ============================================
+    /**
+     * Show error message in an element
+     * @param {HTMLElement} el - Error element
+     * @param {string} message - Error message
+     */
+    function showError(el, message) {
+      if (el) {
+        el.textContent = message || '';
+        el.classList.toggle('hidden', !message);
+      }
+    }
+
+    /**
+     * Show success message in an element
+     * @param {HTMLElement} el - Success element
+     * @param {string} message - Success message
+     */
+    function showSuccess(el, message) {
+      if (el) {
+      el.textContent = message || '';
+      el.classList.toggle('hidden', !message);
+        // Auto-hide success message after 3 seconds
+        if (message) {
+          setTimeout(() => {
+            el.classList.add('hidden');
+            el.textContent = '';
+          }, 3000);
         }
       }
     }
 
-    const avatarPreview = document.getElementById('avatarPreview');
-    const currentUsernameEl = document.getElementById('currentUsername');
-    const currentEmailEl = document.getElementById('currentEmail');
-
-    const usernameInput = document.getElementById('usernameInput');
-    const usernameError = document.getElementById('usernameError');
-    const saveUsernameBtn = document.getElementById('saveUsernameBtn');
-
-    const bioInput = document.getElementById('bioInput');
-    const bioError = document.getElementById('bioError');
-    const saveBioBtn = document.getElementById('saveBioBtn');
-
-    const emailInput = document.getElementById('emailInput');
-    const emailError = document.getElementById('emailError');
-    const saveEmailBtn = document.getElementById('saveEmailBtn');
-
-    const passwordInput = document.getElementById('passwordInput');
-    const passwordError = document.getElementById('passwordError');
-    const savePasswordBtn = document.getElementById('savePasswordBtn');
-
-    const deleteError = document.getElementById('deleteError');
-    const deleteAccountBtn = document.getElementById('deleteAccountBtn');
-
-    const logoutBtn = document.getElementById('logoutBtn');
-    const welcomeBanner = document.getElementById('welcomeBanner');
-    const continueToAppBtn = document.getElementById('continueToAppBtn');
-    
-    // Profile picture upload elements
-    const profileImageInput = document.getElementById('profileImageInput');
-    const profileImageError = document.getElementById('profileImageError');
-    const profileImageStatus = document.getElementById('profileImageStatus');
-    const avatarUploadBtn = document.getElementById('avatarUploadBtn');
-
-    // Check if this is a new user (from URL parameter)
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('welcome') === 'true') {
-      welcomeBanner.style.display = 'block';
-    }
-
-    // Handle "Continue to App" button
-    if (continueToAppBtn) {
-      continueToAppBtn.addEventListener('click', () => {
-        window.location.href = '/pages/chope/chope.html';
+    /**
+     * Clear all error and success messages
+     */
+    function clearMessages() {
+      [usernameError, usernameSuccess, bioError, bioSuccess, emailError, 
+       emailSuccess, passwordError, passwordSuccess, profileImageError, 
+       profileImageSuccess].forEach(el => {
+        if (el) {
+          el.classList.add('hidden');
+          el.textContent = '';
+        }
       });
-    }
-
-    function showError(el, message) {
-      el.textContent = message || '';
-      el.classList.toggle('hidden', !message);
     }
 
     /**
@@ -572,6 +638,8 @@
      * @param {string|null} photoURL - URL of profile picture from Firebase Storage
      */
     function setAvatar(name, photoURL) {
+      if (!avatarPreview) return;
+      
       if (photoURL && photoURL.trim() !== '') {
         // Show uploaded profile picture from Firebase Storage
         avatarPreview.style.backgroundImage = `url(${photoURL})`;
@@ -589,180 +657,83 @@
       }
     }
 
+    // ============================================
+    // STEP 6: LOAD CURRENT USER DATA
+    // ============================================
     /**
      * Load current user's profile data from Firestore and prefill the form
      * @param {string} uid - User's Firebase Auth UID
      */
     async function loadCurrentUser(uid) {
       try {
-        const snap = await getDoc(doc(db, 'users', uid));
-        const data = snap.exists() ? snap.data() : {};
-        const username = data.username || (data.email ? data.email.split('@')[0] : 'user');
-        const photoURL = data.photoURL || null; // Get photoURL from Firestore
+        // Get user document from Firestore
+        const userDocRef = doc(db, 'users', uid);
+        const userDocSnap = await getDoc(userDocRef);
         
-        // Update UI elements
-        currentUsernameEl.textContent = `@${username}`;
-        const currentEmail = data.email || auth.currentUser?.email || '';
-        currentEmailEl.textContent = currentEmail;
-        bioInput.value = data.bio || '';
-        usernameInput.value = ''; // Clear input field
-        emailInput.placeholder = currentEmail || 'Enter new email'; // Show current email as placeholder
-        
-        // Update avatar with profile picture if available
-        setAvatar(username, photoURL);
-      } catch (error) {
-        console.error('Error loading user data:', error);
-      }
-    }
-
-    // Initialize Firebase and then set up auth state listener
-    initFirebase().then(() => {
-      if (auth) {
-        onAuthStateChanged(auth, async (user) => {
-          const uid = user?.uid || localStorage.getItem('loggedInUserId');
-          if (!uid) return;
-          await loadCurrentUser(uid);
-        });
-      } else {
-        console.error('Auth not available');
-        // Try to load with localStorage fallback
-        const uid = localStorage.getItem('loggedInUserId');
-        if (uid) loadCurrentUser(uid);
-      }
-    }).catch(error => {
-      console.error('Failed to initialize Firebase:', error);
-      // Try to load with localStorage fallback
-      const uid = localStorage.getItem('loggedInUserId');
-      if (uid) loadCurrentUser(uid);
-    });
-
-    // Username change with uniqueness via usernames collection
-    saveUsernameBtn.addEventListener('click', async () => {
-      showError(usernameError, '');
-      const user = auth.currentUser;
-      if (!user) return;
-      const desired = (usernameInput.value || '').trim().toLowerCase();
-      if (!desired) { showError(usernameError, 'Please enter a username.'); return; }
-      if (!/^[a-z0-9_]{3,20}$/.test(desired)) { showError(usernameError, '3-20 chars: a-z, 0-9, underscore.'); return; }
-
-      try {
-        const currentUserDoc = await getDoc(doc(db, 'users', user.uid));
-        const currentUsername = currentUserDoc.exists() ? (currentUserDoc.data().username || '').toLowerCase() : '';
-        if (currentUsername === desired) { showError(usernameError, 'This is already your username.'); return; }
-
-        const mappingDoc = await getDoc(doc(db, 'usernames', desired));
-        if (mappingDoc.exists()) { showError(usernameError, 'Username is taken.'); return; }
-
-        // Reserve new username
-        await setDoc(doc(db, 'usernames', desired), { uid: user.uid, email: user.email });
-        // Remove old mapping if exists and belongs to user
-        if (currentUsername) {
-          const oldRef = doc(db, 'usernames', currentUsername);
-          const oldSnap = await getDoc(oldRef);
-          if (oldSnap.exists() && oldSnap.data().uid === user.uid) {
-            // Soft-delete by overwriting with a placeholder UID could be an option, but we'll skip delete here for safety
-          }
+        if (!userDocSnap.exists()) {
+          console.warn('User document does not exist in Firestore');
+          return;
         }
-        await setDoc(doc(db, 'users', user.uid), { username: desired }, { merge: true });
-        await loadCurrentUser(user.uid);
+
+        const userData = userDocSnap.data();
+        const username = userData.username || (userData.email ? userData.email.split('@')[0] : 'user');
+        const photoURL = userData.photoURL || null;
+        const bio = userData.bio || '';
+        const email = userData.email || auth.currentUser?.email || '';
+
+        // Update UI elements
+        if (currentUsernameEl) {
+          currentUsernameEl.textContent = `@${username}`;
+        }
+        if (currentEmailEl) {
+          currentEmailEl.textContent = email;
+        }
+        if (bioInput) {
+          bioInput.value = bio;
+        }
+        if (usernameInput) {
         usernameInput.value = '';
-      } catch (e) {
-        console.error(e);
-        showError(usernameError, 'Could not change username. Try again.');
-      }
-    });
-
-    // Email change requires reauth when needed
-    saveEmailBtn.addEventListener('click', async () => {
-      showError(emailError, '');
-      const user = auth.currentUser;
-      if (!user) return;
-      const newEmail = (emailInput.value || '').trim().toLowerCase();
-      if (!newEmail) { showError(emailError, 'Please enter an email.'); return; }
-
-      async function doUpdate() {
-        await updateEmail(user, newEmail);
-        await setDoc(doc(db, 'users', user.uid), { email: newEmail }, { merge: true });
-        // Update username mapping email if one exists for user's current username
-        const userDoc = await getDoc(doc(db, 'users', user.uid));
-        const uname = userDoc.exists() ? (userDoc.data().username || '').toLowerCase() : '';
-        if (uname) { await setDoc(doc(db, 'usernames', uname), { uid: user.uid, email: newEmail }, { merge: true }); }
-        await loadCurrentUser(user.uid);
+        }
+        if (emailInput) {
+          emailInput.placeholder = email || 'Enter new email';
         emailInput.value = '';
       }
 
-      try {
-        await doUpdate();
-      } catch (e) {
-        if (e.code === 'auth/requires-recent-login') {
-          const currentEmail = auth.currentUser?.email || '';
-          const pw = window.prompt('For security, please re-enter your password:');
-          if (!pw) { showError(emailError, 'Reauthentication cancelled.'); return; }
-          try {
-            const cred = EmailAuthProvider.credential(currentEmail, pw);
-            await reauthenticateWithCredential(auth.currentUser, cred);
-            await doUpdate();
-          } catch (err) {
-            showError(emailError, 'Reauthentication failed.');
-          }
-        } else if (e.code === 'auth/email-already-in-use') {
-          showError(emailError, 'Email is already in use.');
-        } else if (e.code === 'auth/invalid-email') {
-          showError(emailError, 'Invalid email format.');
-        } else {
-          showError(emailError, 'Could not change email. Try again.');
-        }
+        // Update avatar with profile picture if available
+        setAvatar(username, photoURL);
+        
+        console.log('✅ User profile loaded successfully');
+      } catch (error) {
+        console.error('❌ Error loading user data:', error);
+        showError(profileImageError, 'Failed to load user profile. Please refresh the page.');
       }
-    });
-
-    // Password change with validation
-    function validatePassword(pw) {
-      const issues = [];
-      if (pw.length < 8) issues.push('8+ characters');
-      if (!/[A-Z]/.test(pw)) issues.push('1 uppercase');
-      if (!/[a-z]/.test(pw)) issues.push('1 lowercase');
-      if (!/[0-9]/.test(pw)) issues.push('1 number');
-      if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>\/?`~]/.test(pw)) issues.push('1 special');
-      return issues;
     }
 
-    savePasswordBtn.addEventListener('click', async () => {
-      showError(passwordError, '');
-      const user = auth.currentUser;
-      if (!user) return;
-      const newPw = passwordInput.value || '';
-      const issues = validatePassword(newPw);
-      if (issues.length) { showError(passwordError, 'Password must include: ' + issues.join(', ')); return; }
-
-      async function doUpdatePw() { await updatePassword(user, newPw); passwordInput.value=''; }
-
-      try {
-        await doUpdatePw();
-      } catch (e) {
-        if (e.code === 'auth/requires-recent-login') {
-          const currentEmail = auth.currentUser?.email || '';
-          const pw = window.prompt('For security, please re-enter your current password:');
-          if (!pw) { showError(passwordError, 'Reauthentication cancelled.'); return; }
-          try {
-            const cred = EmailAuthProvider.credential(currentEmail, pw);
-            await reauthenticateWithCredential(auth.currentUser, cred);
-            await doUpdatePw();
-          } catch (err) {
-            showError(passwordError, 'Reauthentication failed.');
-          }
-        } else if (e.code === 'auth/weak-password') {
-          showError(passwordError, 'Password is too weak.');
+    // ============================================
+    // STEP 7: AUTH STATE LISTENER
+    // ============================================
+    // Listen for authentication state changes
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        // User is signed in, load their profile
+        console.log('✅ User authenticated:', user.uid);
+        await loadCurrentUser(user.uid);
         } else {
-          showError(passwordError, 'Could not change password.');
-        }
+        // User is not signed in, redirect to login
+        console.log('❌ User not authenticated, redirecting to login...');
+        window.location.href = '/index.html';
       }
     });
 
+    // ============================================
+    // STEP 8: PROFILE PICTURE UPLOAD
+    // ============================================
     /**
      * Handle profile picture upload to Firebase Storage
      * Uploads image to profilePictures/{userId}/profile.jpg
      * Saves download URL to Firestore users/{userId}/photoURL
      */
+    
     // Trigger file input when camera button is clicked
     if (avatarUploadBtn && profileImageInput) {
       avatarUploadBtn.addEventListener('click', (e) => {
@@ -778,8 +749,9 @@
         const file = e.target.files[0];
         if (!file) return;
 
-        // Clear previous errors
+        // Clear previous messages
         showError(profileImageError, '');
+        showSuccess(profileImageSuccess, '');
         profileImageStatus.classList.add('hidden');
 
         // Validate file type
@@ -805,19 +777,14 @@
           return;
         }
 
-        if (!storage) {
-          showError(profileImageError, 'Storage not initialized. Please refresh the page.');
-          profileImageInput.value = '';
-          return;
-        }
-
         // Show loading state
         profileImageStatus.classList.remove('hidden');
         profileImageStatus.classList.remove('success', 'error');
         profileImageStatus.classList.add('loading');
         profileImageStatus.innerHTML = '<i class="bi bi-hourglass-split"></i> Uploading profile picture...';
-        profileImageInput.disabled = true;
-        avatarUploadBtn.disabled = true;
+        
+        if (avatarUploadBtn) avatarUploadBtn.disabled = true;
+        if (profileImageInput) profileImageInput.disabled = true;
 
         try {
           console.log('📤 Starting profile picture upload...');
@@ -825,8 +792,9 @@
           console.log('File:', file.name, file.type, file.size);
 
           // Step 1: Delete old profile picture if it exists in Firebase Storage
-          const userDoc = await getDoc(doc(db, 'users', user.uid));
-          const oldPhotoURL = userDoc.exists() ? userDoc.data().photoURL : null;
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          const oldPhotoURL = userDocSnap.exists() ? userDocSnap.data().photoURL : null;
           
           // Only delete if old photo is from Firebase Storage (not Google OAuth photo)
           if (oldPhotoURL && oldPhotoURL.includes('firebasestorage.googleapis.com')) {
@@ -857,18 +825,20 @@
           console.log('🔗 Download URL:', downloadURL);
 
           // Step 4: Save download URL to Firestore
-          await setDoc(doc(db, 'users', user.uid), { 
+          await setDoc(userDocRef, { 
             photoURL: downloadURL 
           }, { merge: true });
           console.log('💾 Saved photoURL to Firestore');
 
           // Step 5: Update avatar preview immediately
-          setAvatar(user.displayName || user.email?.split('@')[0] || 'User', downloadURL);
+          const username = userDocSnap.exists() ? (userDocSnap.data().username || user.displayName || user.email?.split('@')[0] || 'User') : 'User';
+          setAvatar(username, downloadURL);
 
           // Show success message
           profileImageStatus.classList.remove('loading');
           profileImageStatus.classList.add('success');
           profileImageStatus.innerHTML = '<i class="bi bi-check-circle"></i> Profile picture updated successfully!';
+          showSuccess(profileImageSuccess, 'Profile picture uploaded successfully!');
           
           // Hide success message after 3 seconds
           setTimeout(() => {
@@ -892,6 +862,10 @@
             errorMessage += 'Storage quota exceeded. Please contact support.';
           } else if (error.code === 'storage/unauthenticated') {
             errorMessage += 'Please sign in to upload a profile picture.';
+          } else if (error.code === 'storage/canceled') {
+            errorMessage += 'Upload was canceled.';
+          } else if (error.message && error.message.includes('CORS')) {
+            errorMessage += 'CORS error detected. Please clear your browser cache or use incognito mode.';
           } else if (error.message) {
             errorMessage += error.message;
           } else {
@@ -904,184 +878,377 @@
           profileImageStatus.innerHTML = '<i class="bi bi-x-circle"></i> Upload failed. Check error message below.';
         } finally {
           // Reset file input and enable buttons
+          if (profileImageInput) {
           profileImageInput.disabled = false;
-          avatarUploadBtn.disabled = false;
           profileImageInput.value = '';
+          }
+          if (avatarUploadBtn) avatarUploadBtn.disabled = false;
         }
       });
     }
 
-    // Bio change (no auth required, just update Firestore)
-    saveBioBtn.addEventListener('click', async () => {
-      showError(bioError, '');
+    // ============================================
+    // STEP 9: USERNAME CHANGE
+    // ============================================
+    /**
+     * Handle username change with uniqueness check via usernames collection
+     */
+    if (saveUsernameBtn) {
+      saveUsernameBtn.addEventListener('click', async () => {
+        showError(usernameError, '');
+        showSuccess(usernameSuccess, '');
+        
       const user = auth.currentUser;
-      if (!user) return;
-      const newBio = (bioInput.value || '').trim();
-      
-      // Bio can be empty - allow clearing it
-      try {
-        await setDoc(doc(db, 'users', user.uid), { bio: newBio || null }, { merge: true });
-        await loadCurrentUser(user.uid);
-        alert('Bio updated successfully!');
-      } catch (e) {
-        console.error(e);
-        showError(bioError, 'Could not update bio. Try again.');
-      }
-    });
-
-    // Delete Account with comprehensive cleanup
-    deleteAccountBtn.addEventListener('click', async () => {
-      const confirmation = window.prompt(
-        '⚠️ WARNING: This will permanently delete your account and ALL data.\n\n' +
-        'Type "DELETE" (in capitals) to confirm deletion:'
-      );
-      
-      if (confirmation !== 'DELETE') {
-        if (confirmation) {
-          showError(deleteError, 'Deletion cancelled. You must type "DELETE" exactly (in capitals).');
+        if (!user) {
+          showError(usernameError, 'Please sign in to change your username.');
+          return;
         }
-        return;
-      }
+
+        const desired = (usernameInput?.value || '').trim().toLowerCase();
+        
+        // Validation
+        if (!desired) {
+          showError(usernameError, 'Please enter a username.');
+          return;
+        }
+        
+        if (!/^[a-z0-9_]{3,20}$/.test(desired)) {
+          showError(usernameError, 'Username must be 3-20 characters: a-z, 0-9, underscore only.');
+          return;
+        }
+
+        if (saveUsernameBtn) saveUsernameBtn.disabled = true;
+
+        try {
+          // Check current username
+          const userDocRef = doc(db, 'users', user.uid);
+          const userDocSnap = await getDoc(userDocRef);
+          const currentUsername = userDocSnap.exists() ? (userDocSnap.data().username || '').toLowerCase() : '';
+          
+          if (currentUsername === desired) {
+            showError(usernameError, 'This is already your username.');
+            if (saveUsernameBtn) saveUsernameBtn.disabled = false;
+            return;
+          }
+
+          // Check if username is already taken
+          const usernameMappingRef = doc(db, 'usernames', desired);
+          const usernameMappingSnap = await getDoc(usernameMappingRef);
+          
+          if (usernameMappingSnap.exists()) {
+            showError(usernameError, 'Username is already taken. Please choose another.');
+            if (saveUsernameBtn) saveUsernameBtn.disabled = false;
+            return;
+          }
+
+          // Reserve new username
+          await setDoc(usernameMappingRef, { 
+            uid: user.uid, 
+            email: user.email 
+          });
+
+          // Remove old mapping if exists and belongs to user
+          if (currentUsername) {
+            const oldMappingRef = doc(db, 'usernames', currentUsername);
+            const oldMappingSnap = await getDoc(oldMappingRef);
+            if (oldMappingSnap.exists() && oldMappingSnap.data().uid === user.uid) {
+              // Note: We could delete the old mapping, but keeping it for safety
+              // You can uncomment this if you want to delete old mappings:
+              // await deleteDoc(oldMappingRef);
+            }
+          }
+
+          // Update user document
+          await setDoc(userDocRef, { 
+            username: desired 
+          }, { merge: true });
+
+          // Reload user data
+          await loadCurrentUser(user.uid);
+          
+          if (usernameInput) usernameInput.value = '';
+          showSuccess(usernameSuccess, 'Username updated successfully!');
+          console.log('✅ Username updated:', desired);
+
+        } catch (error) {
+          console.error('❌ Error changing username:', error);
+          showError(usernameError, 'Could not change username. Please try again.');
+        } finally {
+          if (saveUsernameBtn) saveUsernameBtn.disabled = false;
+        }
+      });
+    }
+
+    // ============================================
+    // STEP 10: BIO CHANGE
+    // ============================================
+    /**
+     * Handle bio change (no auth required, just update Firestore)
+     */
+    if (saveBioBtn) {
+      saveBioBtn.addEventListener('click', async () => {
+        showError(bioError, '');
+        showSuccess(bioSuccess, '');
 
       const user = auth.currentUser;
       if (!user) {
-        showError(deleteError, 'Not authenticated.');
+          showError(bioError, 'Please sign in to update your bio.');
         return;
       }
 
-      const uid = user.uid;
-      deleteAccountBtn.disabled = true;
-      deleteAccountBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Deleting...';
-      showError(deleteError, '');
-
-      try {
-        console.log('Starting account deletion for user:', uid);
-
-        // Step 1: Get user's username for cleanup
-        const userDoc = await getDoc(doc(db, 'users', uid));
-        const username = userDoc.exists() ? userDoc.data().username : null;
-        console.log('Username:', username);
-
-        // Step 2: Delete all user's posts and their likes
-        const postsQuery = query(collection(db, 'posts'), where('authorId', '==', uid));
-        const postsSnapshot = await getDocs(postsQuery);
-        console.log(`Deleting ${postsSnapshot.size} user posts...`);
+        const newBio = (bioInput?.value || '').trim();
         
-        for (const postDoc of postsSnapshot.docs) {
-          const postId = postDoc.id;
-          
-          // Delete all likes on this post
-          const postLikesSnapshot = await getDocs(collection(db, 'posts', postId, 'likes'));
-          for (const likeDoc of postLikesSnapshot.docs) {
-            await deleteDoc(likeDoc.ref);
-          }
-          
-          // Delete the post itself
-          await deleteDoc(doc(db, 'posts', postId));
-        }
+        if (saveBioBtn) saveBioBtn.disabled = true;
 
-        // Step 3: Remove user's likes from ALL posts (this resets hearts on other posts)
-        const userLikesSnapshot = await getDocs(collection(db, 'users', uid, 'likes'));
-        console.log(`Cleaning up ${userLikesSnapshot.size} likes from posts...`);
-        
-        for (const likeDoc of userLikesSnapshot.docs) {
-          const postId = likeDoc.id;
-          // Remove from post's likes subcollection (this decrements like count)
-          try {
-            await deleteDoc(doc(db, 'posts', postId, 'likes', uid));
-          } catch (e) {
-            console.warn(`Could not delete like from post ${postId}:`, e);
-          }
-          // Remove from user's likes subcollection
-          await deleteDoc(likeDoc.ref);
-        }
-
-        // Step 4: Delete user's bookmarks
-        const userBookmarksSnapshot = await getDocs(collection(db, 'users', uid, 'bookmarks'));
-        console.log(`Cleaning up ${userBookmarksSnapshot.size} bookmarks...`);
-        
-        for (const bookmarkDoc of userBookmarksSnapshot.docs) {
-          await deleteDoc(bookmarkDoc.ref);
-        }
-
-        // Step 5: Delete user's follows
-        const userFollowsSnapshot = await getDocs(collection(db, 'users', uid, 'follows'));
-        console.log(`Cleaning up ${userFollowsSnapshot.size} follows...`);
-        
-        for (const followDoc of userFollowsSnapshot.docs) {
-          await deleteDoc(followDoc.ref);
-        }
-
-        // Step 6: Delete profile picture from Storage (if exists)
         try {
-          const userDocSnapshot = await getDoc(doc(db, 'users', uid));
-          const photoURL = userDocSnapshot.exists() ? userDocSnapshot.data().photoURL : null;
+          // Bio can be empty - allow clearing it
+          const userDocRef = doc(db, 'users', user.uid);
+          await setDoc(userDocRef, { 
+            bio: newBio || null 
+          }, { merge: true });
           
-          // Only delete if photo is from Firebase Storage (not Google OAuth)
-          if (photoURL && photoURL.includes('firebasestorage.googleapis.com') && storage) {
-            try {
-              const storageRef = ref(storage, `profilePictures/${uid}/profile.jpg`);
-              await deleteObject(storageRef);
-              console.log('✅ Deleted profile picture from Storage');
-            } catch (storageError) {
-              console.warn('⚠️ Could not delete profile picture from Storage:', storageError);
-            }
-          }
-        } catch (storageError) {
-          console.warn('⚠️ Error checking for profile picture:', storageError);
+          // Reload user data
+          await loadCurrentUser(user.uid);
+          
+          showSuccess(bioSuccess, 'Bio updated successfully!');
+          console.log('✅ Bio updated');
+
+        } catch (error) {
+          console.error('❌ Error updating bio:', error);
+          showError(bioError, 'Could not update bio. Please try again.');
+        } finally {
+          if (saveBioBtn) saveBioBtn.disabled = false;
         }
+      });
+    }
 
-        // Step 7: Delete username reservation
-        if (username) {
-          try {
-            await deleteDoc(doc(db, 'usernames', username));
-            console.log(`Deleted username reservation: ${username}`);
-          } catch (e) {
-            console.warn('Could not delete username reservation:', e);
-          }
-        }
-
-        // Step 8: Delete user document
-        await deleteDoc(doc(db, 'users', uid));
-        console.log('Deleted user document');
-
-        // Step 9: Delete Firebase Auth account
-        await deleteUser(user);
-        console.log('Deleted Firebase Auth user');
-
-        // Step 10: Clear local storage
-        localStorage.removeItem('loggedInUserId');
-
-        // Success - redirect to home
-        alert('✅ Your account has been permanently deleted.\n\nAll your likes, follows, and bookmarks have been removed from all posts.');
-        window.location.href = '/index.html';
-
-      } catch (error) {
-        console.error('Account deletion error:', error);
-        deleteAccountBtn.disabled = false;
-        deleteAccountBtn.innerHTML = '<i class="bi bi-trash3"></i> Delete My Account';
+    // ============================================
+    // STEP 11: EMAIL CHANGE
+    // ============================================
+    /**
+     * Handle email change (requires reauthentication if needed)
+     */
+    if (saveEmailBtn) {
+      saveEmailBtn.addEventListener('click', async () => {
+        showError(emailError, '');
+        showSuccess(emailSuccess, '');
         
-        if (error.code === 'auth/requires-recent-login') {
-          showError(deleteError, 
-            '🔒 For security, please log out and log back in, then try deleting your account again.');
-        } else {
-          showError(deleteError, 
-            '❌ Could not delete account: ' + (error.message || 'Unknown error. Please try again.'));
+        const user = auth.currentUser;
+        if (!user) {
+          showError(emailError, 'Please sign in to change your email.');
+          return;
         }
-      }
-    });
 
-    // Logout
+        const newEmail = (emailInput?.value || '').trim().toLowerCase();
+        
+        // Validation
+        if (!newEmail) {
+          showError(emailError, 'Please enter an email address.');
+          return;
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(newEmail)) {
+          showError(emailError, 'Please enter a valid email address.');
+          return;
+        }
+
+        if (saveEmailBtn) saveEmailBtn.disabled = true;
+
+        // Function to perform email update
+        async function doUpdateEmail() {
+          // Update email in Firebase Auth
+          await updateEmail(user, newEmail);
+          
+          // Update email in Firestore
+          const userDocRef = doc(db, 'users', user.uid);
+          await setDoc(userDocRef, { 
+            email: newEmail 
+          }, { merge: true });
+
+          // Update username mapping email if one exists for user's current username
+          const userDocSnap = await getDoc(userDocRef);
+          const username = userDocSnap.exists() ? (userDocSnap.data().username || '').toLowerCase() : '';
+          if (username) {
+            const usernameMappingRef = doc(db, 'usernames', username);
+            await setDoc(usernameMappingRef, { 
+              uid: user.uid, 
+              email: newEmail 
+            }, { merge: true });
+          }
+
+          // Reload user data
+          await loadCurrentUser(user.uid);
+          
+          if (emailInput) emailInput.value = '';
+          showSuccess(emailSuccess, 'Email updated successfully!');
+          console.log('✅ Email updated:', newEmail);
+        }
+
+        try {
+          // Try to update email directly
+          await doUpdateEmail();
+        } catch (error) {
+          // If reauthentication is required
+          if (error.code === 'auth/requires-recent-login') {
+            const currentEmail = auth.currentUser?.email || '';
+            const password = window.prompt('For security, please re-enter your password:');
+            
+            if (!password) {
+              showError(emailError, 'Reauthentication cancelled.');
+              if (saveEmailBtn) saveEmailBtn.disabled = false;
+              return;
+            }
+
+            try {
+              // Reauthenticate user
+              const credential = EmailAuthProvider.credential(currentEmail, password);
+              await reauthenticateWithCredential(auth.currentUser, credential);
+              
+              // Try update again after reauthentication
+              await doUpdateEmail();
+            } catch (reauthError) {
+              console.error('❌ Reauthentication error:', reauthError);
+              if (reauthError.code === 'auth/wrong-password') {
+                showError(emailError, 'Incorrect password. Please try again.');
+              } else if (reauthError.code === 'auth/invalid-credential') {
+                showError(emailError, 'Invalid credentials. Please try again.');
+              } else {
+                showError(emailError, 'Reauthentication failed. Please try again.');
+              }
+            }
+          } else if (error.code === 'auth/email-already-in-use') {
+            showError(emailError, 'Email is already in use by another account.');
+          } else if (error.code === 'auth/invalid-email') {
+            showError(emailError, 'Invalid email format.');
+          } else {
+            console.error('❌ Error changing email:', error);
+            showError(emailError, 'Could not change email. Please try again.');
+          }
+        } finally {
+          if (saveEmailBtn) saveEmailBtn.disabled = false;
+        }
+      });
+    }
+
+    // ============================================
+    // STEP 12: PASSWORD CHANGE
+    // ============================================
+    /**
+     * Validate password strength
+     * @param {string} pw - Password to validate
+     * @returns {string[]} Array of validation issues
+     */
+    function validatePassword(pw) {
+      const issues = [];
+      if (pw.length < 8) issues.push('8+ characters');
+      if (!/[A-Z]/.test(pw)) issues.push('1 uppercase letter');
+      if (!/[a-z]/.test(pw)) issues.push('1 lowercase letter');
+      if (!/[0-9]/.test(pw)) issues.push('1 number');
+      if (!/[!@#$%^&*()_+\-=[\]{};':"\\|,.<>\/?`~]/.test(pw)) issues.push('1 special character');
+      return issues;
+    }
+
+    /**
+     * Handle password change (requires reauthentication)
+     */
+    if (savePasswordBtn) {
+      savePasswordBtn.addEventListener('click', async () => {
+        showError(passwordError, '');
+        showSuccess(passwordSuccess, '');
+        
+        const user = auth.currentUser;
+        if (!user) {
+          showError(passwordError, 'Please sign in to change your password.');
+          return;
+        }
+
+        const newPassword = passwordInput?.value || '';
+        
+        // Validate password strength
+        const issues = validatePassword(newPassword);
+        if (issues.length > 0) {
+          showError(passwordError, 'Password must include: ' + issues.join(', ') + '.');
+          return;
+        }
+
+        if (savePasswordBtn) savePasswordBtn.disabled = true;
+
+        // Function to perform password update
+        async function doUpdatePassword() {
+          await updatePassword(user, newPassword);
+          if (passwordInput) passwordInput.value = '';
+          showSuccess(passwordSuccess, 'Password updated successfully!');
+          console.log('✅ Password updated');
+        }
+
+        try {
+          // Try to update password directly
+          await doUpdatePassword();
+      } catch (error) {
+          // If reauthentication is required
+        if (error.code === 'auth/requires-recent-login') {
+            const currentEmail = auth.currentUser?.email || '';
+            const password = window.prompt('For security, please re-enter your current password:');
+            
+            if (!password) {
+              showError(passwordError, 'Reauthentication cancelled.');
+              if (savePasswordBtn) savePasswordBtn.disabled = false;
+              return;
+            }
+
+            try {
+              // Reauthenticate user
+              const credential = EmailAuthProvider.credential(currentEmail, password);
+              await reauthenticateWithCredential(auth.currentUser, credential);
+              
+              // Try update again after reauthentication
+              await doUpdatePassword();
+            } catch (reauthError) {
+              console.error('❌ Reauthentication error:', reauthError);
+              if (reauthError.code === 'auth/wrong-password') {
+                showError(passwordError, 'Incorrect password. Please try again.');
+              } else if (reauthError.code === 'auth/invalid-credential') {
+                showError(passwordError, 'Invalid credentials. Please try again.');
+        } else {
+                showError(passwordError, 'Reauthentication failed. Please try again.');
+              }
+            }
+          } else if (error.code === 'auth/weak-password') {
+            showError(passwordError, 'Password is too weak. Please choose a stronger password.');
+          } else {
+            console.error('❌ Error changing password:', error);
+            showError(passwordError, 'Could not change password. Please try again.');
+          }
+        } finally {
+          if (savePasswordBtn) savePasswordBtn.disabled = false;
+        }
+      });
+    }
+
+    // ============================================
+    // STEP 13: LOGOUT
+    // ============================================
+    if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
       try {
         await signOut(auth);
-      } catch (_) {}
       localStorage.removeItem('loggedInUserId');
       window.location.href = '/index.html';
-    });
+        } catch (error) {
+          console.error('❌ Logout error:', error);
+          // Still redirect even if logout fails
+          localStorage.removeItem('loggedInUserId');
+          window.location.href = '/index.html';
+        }
+      });
+    }
+
+    // ============================================
+    // INITIALIZATION COMPLETE
+    // ============================================
+    console.log('✅ Profile editing page initialized successfully');
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-

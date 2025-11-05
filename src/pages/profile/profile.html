@@ -984,11 +984,22 @@
     }
 
     function setAvatarFromNameOrPhoto(name, photoURL) {
-      // Always show default grey avatar with initial (no external photos)
-      const initial = (name || 'U').trim().charAt(0).toUpperCase() || 'U';
-      profileAvatarEl.textContent = initial;
-      profileAvatarEl.style.background = 'linear-gradient(135deg, #6c757d, #adb5bd)';
-      profileAvatarEl.style.color = '#ffffff';
+      // Show profile picture if available, otherwise show default grey avatar with initial
+      if (photoURL && photoURL.trim() !== '') {
+        // Show uploaded profile picture from Firebase Storage
+        profileAvatarEl.style.backgroundImage = `url(${photoURL})`;
+        profileAvatarEl.style.backgroundSize = 'cover';
+        profileAvatarEl.style.backgroundPosition = 'center';
+        profileAvatarEl.style.backgroundRepeat = 'no-repeat';
+        profileAvatarEl.textContent = '';
+      } else {
+        // Show default grey avatar with initial
+        const initial = (name || 'U').trim().charAt(0).toUpperCase() || 'U';
+        profileAvatarEl.textContent = initial;
+        profileAvatarEl.style.backgroundImage = 'none';
+        profileAvatarEl.style.background = 'linear-gradient(135deg, #6c757d, #adb5bd)';
+        profileAvatarEl.style.color = '#ffffff';
+      }
     }
 
     async function loadUserProfile(uid) {
@@ -998,6 +1009,7 @@
         const username = data.username || (data.email ? data.email.split('@')[0] : 'user');
         const displayName = data.name || [data.firstName, data.lastName].filter(Boolean).join(' ') || '';
         const bio = data.bio || '';
+        const photoURL = data.photoURL || null; // Load photoURL from Firestore
         
         profileUsernameEl.textContent = `@${username}`;
         profileNameEl.textContent = displayName;
@@ -1011,9 +1023,9 @@
           profileBioEl.style.display = 'none';
         }
         
-        // Always use default grey avatar (no external photos)
-        setAvatarFromNameOrPhoto(displayName || username, '');
-        currentUserProfile = { username, displayName, photoURL: '', bio };
+        // Show profile picture if available, otherwise show default avatar
+        setAvatarFromNameOrPhoto(displayName || username, photoURL);
+        currentUserProfile = { username, displayName, photoURL: photoURL || '', bio };
       } catch (e) {
         console.error('Failed to load user profile', e);
       }
@@ -1306,7 +1318,16 @@
 
         // Create post in Firestore
         progressText.textContent = 'Publishing post...';
-        const authorName = currentUserProfile.displayName || currentUserProfile.username || 'User';
+        
+        // Load current user profile data to get the latest username and photoURL
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        const userData = userDocSnap.exists() ? userDocSnap.data() : {};
+        const currentUsername = userData.username || currentUserProfile.username || 'User';
+        const currentPhotoURL = userData.photoURL || null;
+        
+        // Use username with @ prefix for display, or fallback to displayName
+        const authorName = currentUsername || currentUserProfile.displayName || 'User';
         
         // Ensure db is initialized
         if (!db) {
@@ -1324,7 +1345,8 @@
         
         const postData = {
           authorId: user.uid,
-          authorName,
+          authorName: authorName, // Username from Firestore
+          authorPhotoURL: currentPhotoURL || null, // Profile picture URL from Firestore
           caption: caption || '',
           mediaUrl: mediaUrl || null,
           createdAt: serverTimestamp()
