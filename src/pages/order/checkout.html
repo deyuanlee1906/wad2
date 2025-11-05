@@ -73,7 +73,7 @@
       background: none;
       font-size: 0.95rem;
       font-weight: 500;
-      cursor: pointer;
+      cursor: pointer; 
       transition: all 0.2s;
       border-radius: 8px;
     }
@@ -215,8 +215,8 @@
       border-radius: 6px;
       width: 32px;
       height: 32px;
-      display: flex;
-      align-items: center;
+      display: flex; 
+      align-items: center; 
       justify-content: center;
       cursor: pointer;
       transition: all 0.2s;
@@ -229,17 +229,17 @@
       color: white;
       border-color: var(--primary-color);
     }
-
+    
     .qty-controls span {
       min-width: 32px;
-      text-align: center;
-      font-weight: 600;
+      text-align: center; 
+      font-weight: 600; 
       font-size: 0.95rem;
     }
 
     .item-subtotal {
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 1rem; 
       color: var(--text);
       min-width: 80px;
       text-align: right;
@@ -268,9 +268,9 @@
     }
 
     .total-row {
-      display: flex;
+      display: flex; 
       justify-content: space-between;
-      align-items: center;
+      align-items: center; 
       margin-bottom: 12px;
     }
 
@@ -473,7 +473,7 @@
     .empty-cart i {
       font-size: 4rem;
       color: var(--text-muted);
-      margin-bottom: 16px;
+        margin-bottom: 16px;
       opacity: 0.5;
     }
 
@@ -568,7 +568,7 @@
         font-size: 1.3rem;
         margin-bottom: 8px;
       }
-
+      
       .page-subtitle {
         font-size: 0.85rem;
         margin-bottom: 16px;
@@ -621,15 +621,15 @@
         font-size: 1.1rem;
       }
 
-      .payment-card {
+      .payment-method-card {
         padding: 12px;
       }
 
-      .payment-card h5 {
+      .payment-method-card h5 {
         font-size: 0.95rem;
       }
 
-      .payment-card p {
+      .payment-method-card small {
         font-size: 0.8rem;
       }
 
@@ -642,18 +642,15 @@
         padding: 0 8px;
         gap: 6px;
       }
-
+      
       .btn-pay,
       .btn-order-more {
         font-size: 0.85rem;
         padding: 10px 16px;
+        min-height: 44px;
       }
 
       .order-details {
-        font-size: 0.8rem;
-      }
-
-      .detail-item {
         font-size: 0.8rem;
       }
       
@@ -662,37 +659,6 @@
         text-overflow: ellipsis;
         white-space: nowrap;
         max-width: 100%;
-      }
-      
-      .payment-card {
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-      }
-      
-      .payment-card h5 {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      
-      .btn-pay,
-      .btn-order-more {
-        min-height: 44px;
-      }
-      
-      .qty-controls button {
-        min-width: 44px;
-        min-height: 44px;
-      }
-      
-      .page-subtitle {
-        word-wrap: break-word;
-        overflow-wrap: break-word;
-      }
-      
-      .order-details {
-        word-wrap: break-word;
-        overflow-wrap: break-word;
       }
     }
   </style>
@@ -726,29 +692,29 @@
                 <span id="cartTotal">$0.00</span>
               </div>
             </div>
-          </div>
-        </div>
+    </div>
+  </div>
 
         <!-- Right: Payment Section -->
         <div class="payment-section" id="paymentSection" style="display: none;">
           <div class="section-title">
             <i class="bi bi-credit-card-2-front"></i>
             Payment Method
-          </div>
-          
+  </div>
+
           <!-- Cash Payment -->
           <div class="payment-method-card" id="cashCard" onclick="selectPaymentMethod('cash')">
             <div class="payment-icon">
               <i class="bi bi-cash-coin"></i>
-            </div>
+      </div>
             <div class="payment-info">
               <h5>Cash on Pickup</h5>
               <small>Pay when you collect your order</small>
-            </div>
+      </div>
             <div class="form-check">
               <input class="form-check-input" type="radio" name="paymentMethod" value="cash" id="cashRadio" checked>
-            </div>
-          </div>
+      </div>
+      </div>
 
           <!-- Stripe Payment -->
           <div class="payment-method-card" id="stripeCard" onclick="selectPaymentMethod('stripe')">
@@ -761,8 +727,8 @@
             </div>
             <div class="form-check">
               <input class="form-check-input" type="radio" name="paymentMethod" value="stripe" id="stripeRadio">
-            </div>
-          </div>
+    </div>
+  </div>
 
           <div id="paymentMessages" class="payment-messages"></div>
         </div>
@@ -792,6 +758,14 @@
     let selectedPaymentMethod = 'cash';
     let orderTotal = 0;
 
+    // Get Firebase Functions URL
+    function getFirebaseFunctionsUrl() {
+      // Firebase Functions URL format: https://REGION-PROJECT_ID.cloudfunctions.net/FUNCTION_NAME
+      const projectId = 'wad2-login-5799b';
+      const region = 'us-central1'; // Change if your functions are in a different region
+      return `https://${region}-${projectId}.cloudfunctions.net`;
+    }
+
     function renderOrderDetails() {
       const orderDetailsEl = document.getElementById('orderDetails');
       if (!orderDetailsEl) return;
@@ -808,8 +782,8 @@
           const timeDate = new Date(selectedTime);
           if (!isNaN(timeDate.getTime())) {
             timeDisplay = formatTime(timeDate);
-          }
-        } catch (e) {
+        }
+      } catch (e) { 
           timeDisplay = 'ASAP';
         }
       } else if (selectedTime === 'asap') {
@@ -836,13 +810,13 @@
       }
     }
     
-    // Format time as "9:00AM" (no space, 12-hour format)
+    // Format time as "9:00AM"
     function formatTime(d) {
       let hours = d.getHours();
       const minutes = d.getMinutes();
       const ampm = hours >= 12 ? 'PM' : 'AM';
       hours = hours % 12;
-      hours = hours ? hours : 12; // the hour '0' should be '12'
+      hours = hours ? hours : 12;
       const minutesStr = minutes < 10 ? '0' + minutes : minutes;
       return `${hours}:${minutesStr}${ampm}`;
     }
@@ -885,12 +859,12 @@
             <div class="details">
               <h6>${item.name}</h6>
               <div class="price">$${item.price.toFixed(2)} each</div>
-            </div>
+              </div>
             <div class="qty-controls">
               <button onclick="changeQty(${index}, -1)">−</button>
               <span>${item.qty}</span>
               <button onclick="changeQty(${index}, 1)">+</button>
-            </div>
+                </div>
             <div class="item-subtotal">$${subtotal.toFixed(2)}</div>
             <i class="bi bi-x-circle remove-btn" onclick="removeItem(${index})"></i>
           </div>`;
@@ -919,20 +893,16 @@
     }
 
     function orderMore() {
-      // Preserve cart and session information when going back to stall
       const session = JSON.parse(sessionStorage.getItem('orderSession') || '{}');
       
-      // Get stall slug/ID from session or localStorage
       const stallSlug = session.stallSlug || 
                        localStorage.getItem('stallSlug') || 
                        localStorage.getItem('selectedStallSlug') || '';
       
       const stallId = session.stallId || localStorage.getItem('stallId') || '';
       
-      // Ensure cart is saved in localStorage (preserve current cart)
       localStorage.setItem('cart', JSON.stringify(cart));
       
-      // Preserve session information (option, time, stallId, stallSlug)
       const updatedSession = {
         option: session.option || localStorage.getItem('selectedOption') || 'Dine In',
         selectedTime: session.selectedTime || localStorage.getItem('selectedTime') || '',
@@ -949,9 +919,6 @@
         sessionStorage.setItem('stallSlug', stallSlug);
       }
       
-      // Always use browser back when going from checkout to stall
-      // This maintains the proper history stack: online-order → stall → checkout → (back to) stall → (forward to) checkout
-      // Set a flag to indicate we're going back to stall (so stall can use forward if needed)
       sessionStorage.setItem('returningToStallFromCheckout', 'true');
       window.history.back();
     }
@@ -978,35 +945,100 @@
         try {
           // Get session info for order details
           const session = JSON.parse(sessionStorage.getItem('orderSession') || '{}');
+          const stallName = localStorage.getItem('stallName') || 'Unknown Stall';
+          const foodCentre = session.foodCentre || sessionStorage.getItem('selectedFoodCentre') || '';
+          const option = session.option || localStorage.getItem('selectedOption') || 'Dine In';
+          const selectedTime = session.selectedTime || localStorage.getItem('selectedTime') || '';
           
-          // Store order details before creating checkout session
+          // Format pickup time
+          let pickupTime = 'ASAP';
+          if (selectedTime && selectedTime !== 'asap') {
+            try {
+              const timeDate = new Date(selectedTime);
+              if (!isNaN(timeDate.getTime())) {
+                pickupTime = formatTime(timeDate);
+              }
+            } catch (e) {
+              pickupTime = 'ASAP';
+            }
+          }
+          
+          // Prepare order ID
+          const orderId = 'ORD' + Date.now().toString().slice(-6);
+          
+          // Store order details before redirecting to payment link
           const orderData = {
-            orderId: 'ORD' + Date.now().toString().slice(-6),
+            orderId: orderId,
             items: cart,
             total: orderTotal,
-            stallName: localStorage.getItem('stallName') || 'Unknown Stall',
-            type: session.option || 'Dine In',
-            time: session.selectedTime ? formatTime(new Date(session.selectedTime)) : 'ASAP',
+            amount: orderTotal,
+            stallName: stallName,
+            foodCentre: foodCentre,
+            type: option,
+            time: pickupTime,
             paymentMethod: 'stripe',
             timestamp: new Date().toISOString()
           };
+          
+          // Save order data to sessionStorage and localStorage for retrieval after payment
           sessionStorage.setItem('pendingOrder', JSON.stringify(orderData));
           localStorage.setItem('cart', JSON.stringify(cart));
           
-          // Create Checkout Session using Stripe API
-          const response = await fetch('/api/create-checkout-session', {
+          // Prepare items for Stripe Payment Link API
+          const items = cart.map(item => ({
+            name: item.name || item.item_name || 'Food Item',
+            price: item.price || 0,
+            quantity: item.qty || item.quantity || 1,
+            description: item.description || '',
+            image: item.img_url || item.image || null,
+            stallName: stallName,
+            shopName: stallName
+          }));
+          
+          // Calculate totals
+          const itemsTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+          const shippingFee = 0; // No shipping for food center pickup orders
+          const grandTotal = itemsTotal + shippingFee;
+          
+          // Prepare payment link data
+          const baseUrl = window.location.origin;
+          const successUrl = `${baseUrl}/pages/order/orderconfirmed.html`;
+          
+          const paymentLinkData = {
+            items: items,
+            shippingFee: shippingFee,
+            totalAmount: grandTotal,
+            orderId: orderId,
+            stallName: stallName,
+            foodCentre: foodCentre,
+            pickupOption: option,
+            pickupTime: pickupTime,
+            successUrl: successUrl
+          };
+          
+          console.log('🛒 Creating Stripe Payment Link:', {
+            orderId: orderId,
+            items: items.length,
+            total: grandTotal,
+            stallName: stallName,
+            foodCentre: foodCentre,
+            option: option,
+            pickupTime: pickupTime
+          });
+          
+          // Get Firebase Functions URL
+          const functionsUrl = getFirebaseFunctionsUrl();
+          
+          // Create Payment Link using Firebase Functions
+          console.log('💳 Creating Payment Link via Firebase Functions...');
+          console.log('📍 Functions URL:', functionsUrl);
+          
+          const response = await fetch(`${functionsUrl}/createPaymentLink`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-              items: cart.map(item => ({
-                name: item.name || 'Food Item',
-                price: item.price || 0,
-                quantity: item.qty || 1,
-                description: item.description || ''
-              }))
-            })
+            body: JSON.stringify(paymentLinkData)
           });
 
           // Check if response is JSON
@@ -1014,20 +1046,23 @@
           if (!contentType || !contentType.includes('application/json')) {
             const text = await response.text();
             console.error('Non-JSON response:', text);
-            throw new Error('Server returned an error. Please make sure the server is running with "npm run server"');
+            throw new Error('Firebase Functions returned an error. Please check if functions are deployed.');
           }
 
           const data = await response.json();
 
           if (data.error) {
-            throw new Error(data.error || data.details || 'Failed to create checkout session');
+            throw new Error(data.error || data.details || 'Failed to create payment link');
           }
 
           if (!data.url) {
-            throw new Error('Invalid response from server. Missing checkout URL.');
+            throw new Error('Invalid response from server. Missing payment link URL.');
           }
 
-          // Redirect to Stripe Checkout Session (dynamically created with cart total)
+          console.log('✅ Payment Link created:', data.url);
+          
+          // Redirect to dynamically created Stripe Payment Link
+          // After payment, Stripe will automatically redirect to orderconfirmed.html
           window.location.href = data.url;
         } catch (error) {
           console.error('Payment error:', error);
@@ -1058,5 +1093,6 @@
       }
     }
   </script>
+
 </body>
 </html>

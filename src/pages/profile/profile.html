@@ -269,6 +269,386 @@
       border-radius: 6px;
     }
 
+    /* Order History Styles */
+    .order-history-container {
+      background-color: #ffffff;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    .order-history-item {
+      padding: 20px;
+      border-bottom: 1px solid #e0e0e0;
+      transition: background-color 0.2s ease;
+    }
+
+    .order-history-item:last-child {
+      border-bottom: none;
+    }
+
+    .order-history-item:hover {
+      background-color: #f8f9fa;
+    }
+
+    .order-history-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .order-history-id {
+      font-weight: 600;
+      color: #1a1a1a;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .order-history-date {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .order-history-total {
+      font-weight: 700;
+      color: #D98566;
+      font-size: 1.1rem;
+      text-align: right;
+    }
+
+    .order-history-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid #f0f0f0;
+      font-size: 0.9rem;
+    }
+
+    .order-history-detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .order-history-detail-label {
+      color: #666;
+      font-size: 0.85rem;
+    }
+
+    .order-history-detail-value {
+      color: #1a1a1a;
+      font-weight: 500;
+    }
+
+    .order-history-items {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .order-history-item-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+      .order-history-item-entry {
+        display: flex;
+        justify-content: space-between;
+      }
+
+      /* Post Creation Modal Styles */
+      .post-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.2s ease-out;
+      }
+
+      .post-modal-overlay.show {
+        display: flex;
+      }
+
+      .post-modal {
+        background: white;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 600px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        animation: slideUp 0.3s ease-out;
+      }
+
+      @keyframes slideUp {
+        from {
+          transform: translateY(20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      .post-modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #e0e0e0;
+      }
+
+      .post-modal-header h3 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1a1a1a;
+      }
+
+      .post-modal-close {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        color: #666;
+        cursor: pointer;
+        padding: 0;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        transition: all 0.2s;
+      }
+
+      .post-modal-close:hover {
+        background: #f0f0f0;
+        color: #1a1a1a;
+      }
+
+      .post-modal-body {
+        padding: 20px;
+      }
+
+      .post-image-upload {
+        margin-bottom: 20px;
+      }
+
+      .post-image-preview-container {
+        position: relative;
+        width: 100%;
+        margin-bottom: 12px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px dashed #d0d0d0;
+        background: #f8f9fa;
+        min-height: 200px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .post-image-preview-container.has-image {
+        border: 2px solid #e0e0e0;
+        background: #000;
+      }
+
+      .post-image-preview {
+        max-width: 100%;
+        max-height: 400px;
+        object-fit: contain;
+        display: none;
+      }
+
+      .post-image-preview.show {
+        display: block;
+      }
+
+      .post-image-upload-placeholder {
+        text-align: center;
+        padding: 40px 20px;
+        color: #999;
+      }
+
+      .post-image-upload-placeholder i {
+        font-size: 48px;
+        margin-bottom: 12px;
+        display: block;
+      }
+
+      .post-image-remove-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 1.2rem;
+        transition: all 0.2s;
+      }
+
+      .post-image-remove-btn:hover {
+        background: rgba(0, 0, 0, 0.9);
+        transform: scale(1.1);
+      }
+
+      .post-image-upload-btn {
+        width: 100%;
+        padding: 12px;
+        background: #f8f9fa;
+        border: 2px dashed #d0d0d0;
+        border-radius: 8px;
+        color: #666;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.95rem;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .post-image-upload-btn:hover {
+        background: #e9ecef;
+        border-color: #C9784F;
+        color: #C9784F;
+      }
+
+      .post-caption-input {
+        width: 100%;
+        min-height: 120px;
+        padding: 12px;
+        border: 1px solid #d0d0d0;
+        border-radius: 8px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        resize: vertical;
+        transition: all 0.2s;
+      }
+
+      .post-caption-input:focus {
+        outline: none;
+        border-color: #C9784F;
+        box-shadow: 0 0 0 3px rgba(201, 120, 79, 0.1);
+      }
+
+      .post-modal-footer {
+        padding: 20px;
+        border-top: 1px solid #e0e0e0;
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+      }
+
+      .post-submit-btn {
+        padding: 10px 24px;
+        background: #C9784F;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .post-submit-btn:hover:not(:disabled) {
+        background: #b8653f;
+        transform: translateY(-1px);
+      }
+
+      .post-submit-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .post-cancel-btn {
+        padding: 10px 24px;
+        background: #f8f9fa;
+        color: #666;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+
+      .post-cancel-btn:hover {
+        background: #e9ecef;
+      }
+
+      .post-upload-progress {
+        margin-top: 12px;
+        padding: 12px;
+        background: #f0f7ff;
+        border-radius: 8px;
+        display: none;
+      }
+
+      .post-upload-progress.show {
+        display: block;
+      }
+
+      .post-upload-progress-text {
+        font-size: 0.9rem;
+        color: #1976d2;
+        margin-bottom: 8px;
+      }
+
+      .post-upload-progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #e0e0e0;
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .post-upload-progress-fill {
+        height: 100%;
+        background: #1976d2;
+        transition: width 0.3s ease;
+        width: 0%;
+      }
+
+      @media (max-width: 768px) {
+      .order-history-header {
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .order-history-total {
+        text-align: left;
+      }
+
+      .order-history-details {
+        grid-template-columns: 1fr;
+      }
+    }
+
     /* Mobile Responsive */
     @media (max-width: 768px) {
       .profile-container {
@@ -395,6 +775,10 @@
         <i class="bi bi-people"></i>
         <span>Following</span>
       </button>
+      <button class="tab-btn" data-tab="orders">
+        <i class="bi bi-bag-check"></i>
+        <span>Order History</span>
+      </button>
     </div>
 
     <!-- Tab Content -->
@@ -410,6 +794,61 @@
       </div>
       <div class="tab-panel d-none" data-tab="following">
         <div class="following-list" id="followingList"></div>
+      </div>
+      <div class="tab-panel d-none" data-tab="orders">
+        <div class="order-history-container" id="orderHistoryContainer"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Post Creation Modal -->
+  <div class="post-modal-overlay" id="postModalOverlay">
+    <div class="post-modal" onclick="event.stopPropagation()">
+      <div class="post-modal-header">
+        <h3>Create New Post</h3>
+        <button class="post-modal-close" onclick="closePostModal()">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+      <div class="post-modal-body">
+        <div class="post-image-upload">
+          <div class="post-image-preview-container" id="postImagePreviewContainer">
+            <img class="post-image-preview" id="postImagePreview" alt="Preview">
+            <div class="post-image-upload-placeholder" id="postImagePlaceholder">
+              <i class="bi bi-image"></i>
+              <div>No image selected</div>
+            </div>
+            <button class="post-image-remove-btn" id="postImageRemoveBtn" onclick="removePostImage()" style="display: none;">
+              <i class="bi bi-x"></i>
+            </button>
+          </div>
+          <input type="file" id="postImageInput" accept="image/*" style="display: none;" onchange="handlePostImageSelect(event)">
+          <button class="post-image-upload-btn" onclick="document.getElementById('postImageInput').click()">
+            <i class="bi bi-camera"></i>
+            Choose Image
+          </button>
+          <div class="post-upload-progress" id="postUploadProgress">
+            <div class="post-upload-progress-text" id="postUploadProgressText">Uploading image...</div>
+            <div class="post-upload-progress-bar">
+              <div class="post-upload-progress-fill" id="postUploadProgressFill"></div>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="postCaptionInput" style="display: block; margin-bottom: 8px; font-weight: 500; color: #1a1a1a;">Caption</label>
+          <textarea 
+            id="postCaptionInput" 
+            class="post-caption-input" 
+            placeholder="Write a caption for your post..."
+          ></textarea>
+        </div>
+      </div>
+      <div class="post-modal-footer">
+        <button class="post-cancel-btn" onclick="closePostModal()">Cancel</button>
+        <button class="post-submit-btn" id="postSubmitBtn" onclick="submitPost()">
+          <i class="bi bi-check-lg"></i>
+          <span>Publish</span>
+        </button>
       </div>
     </div>
   </div>
@@ -435,9 +874,9 @@
             </button>
         </div>
         <div class="nav-right">
-            <button class="notification-btn" onclick="alert('No new notifications')">
+            <button class="notification-btn" onclick="toggleOrderNotification()">
                 <i class="bi bi-bell"></i>
-                <span class="notification-badge">3</span>
+                <span class="notification-badge" style="display: none;">1</span>
             </button>
             <button class="active" onclick="location.href='/pages/profile/profile.html'">
                 <i class="bi bi-person"></i>
@@ -449,9 +888,10 @@
   <script type="module">
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
     import { getFirestore, doc, getDoc, collection, query, where, orderBy, limit, getDocs, documentId, addDoc, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-storage.js";
 
     // Wait for Firebase to initialize before using it
-    let auth, db;
+    let auth, db, storage;
 
     // Initialize Firebase instances - wait for firebaseauth.js to finish
     async function initFirebase() {
@@ -459,10 +899,10 @@
         // Wait for Firebase to be initialized by firebaseauth.js
         if (window.firebaseInitPromise) {
           await window.firebaseInitPromise;
-          console.log('Firebase initialization promise resolved');
+          console.log('✅ Firebase initialization promise resolved');
         } else {
           // If promise doesn't exist, wait a bit for firebaseauth.js to load
-          console.log('Waiting for firebaseauth.js to initialize...');
+          console.log('⏳ Waiting for firebaseauth.js to initialize...');
           let attempts = 0;
           while (!window.firebaseInitPromise && attempts < 20) {
             await new Promise(resolve => setTimeout(resolve, 100));
@@ -473,30 +913,62 @@
           }
         }
         
-        // Use window.auth and window.db if available (set by firebaseauth.js)
-        if (window.auth && window.db) {
+        // Use window.auth, window.db, and window.app if available (set by firebaseauth.js)
+        if (window.auth && window.db && window.app) {
           auth = window.auth;
           db = window.db;
-          console.log('Using Firebase instances from firebaseauth.js');
-        } else {
-          // Fallback: try to get from default app
-          const { getApp } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js");
-          const app = getApp();
-          auth = getAuth(app);
-          db = getFirestore(app);
-          console.log('Created Firebase instances from default app');
+          storage = getStorage(window.app);
+          console.log('✅ Using Firebase instances from firebaseauth.js');
+          console.log('✅ Auth initialized:', !!auth);
+          console.log('✅ Firestore initialized:', !!db);
+          console.log('✅ Storage initialized:', !!storage);
+          return;
         }
+        
+        // Fallback: get app from firebaseInitPromise result
+        if (window.firebaseInitPromise) {
+          const initResult = await window.firebaseInitPromise;
+          if (initResult && initResult.app) {
+            auth = initResult.auth || getAuth(initResult.app);
+            db = initResult.db || getFirestore(initResult.app);
+            storage = getStorage(initResult.app);
+            console.log('✅ Using Firebase instances from firebaseInitPromise');
+            console.log('✅ Auth initialized:', !!auth);
+            console.log('✅ Firestore initialized:', !!db);
+            console.log('✅ Storage initialized:', !!storage);
+            return;
+          }
+        }
+        
+        // Last resort: get default app
+        const { getApp } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js");
+        const app = getApp();
+        auth = getAuth(app);
+        db = getFirestore(app);
+        storage = getStorage(app);
+        console.log('✅ Created Firebase instances from default app');
+        console.log('✅ Auth initialized:', !!auth);
+        console.log('✅ Firestore initialized:', !!db);
+        console.log('✅ Storage initialized:', !!storage);
       } catch (error) {
-        console.error('Error initializing Firebase:', error);
-        // Try to continue with default app anyway
-        try {
-          const { getApp } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js");
-          const app = getApp();
-          auth = getAuth(app);
-          db = getFirestore(app);
-        } catch (e) {
-          console.error('Failed to initialize Firebase:', e);
-          throw e;
+        console.error('❌ Error initializing Firebase:', error);
+        // Try to continue with window.app if available
+        if (window.app) {
+          try {
+            auth = window.auth || getAuth(window.app);
+            db = window.db || getFirestore(window.app);
+            storage = getStorage(window.app);
+            console.log('✅ Created Firebase instances from window.app (fallback)');
+            console.log('✅ Auth initialized:', !!auth);
+            console.log('✅ Firestore initialized:', !!db);
+            console.log('✅ Storage initialized:', !!storage);
+          } catch (e) {
+            console.error('❌ Failed to initialize from window.app:', e);
+            alert('Failed to initialize Firebase. Please refresh the page.');
+            throw e;
+          }
+        } else {
+          throw new Error('Firebase app not available');
         }
       }
     }
@@ -579,6 +1051,11 @@
       btn.classList.add('active');
       const tab = btn.getAttribute('data-tab');
       panels.forEach(p => p.classList.toggle('d-none', p.getAttribute('data-tab') !== tab));
+      
+      // Load order history when orders tab is clicked
+      if (tab === 'orders') {
+        loadOrderHistory();
+      }
     }));
 
     function addPlaceholders(targetId, count = 9) {
@@ -658,6 +1135,273 @@
       }
     }
 
+    // Post creation modal functions
+    let selectedPostImage = null;
+
+    window.openPostModal = function() {
+      const modal = document.getElementById('postModalOverlay');
+      if (modal) {
+        modal.classList.add('show');
+        // Reset form
+        document.getElementById('postCaptionInput').value = '';
+        removePostImage();
+        document.getElementById('postUploadProgress').classList.remove('show');
+      }
+    };
+
+    window.closePostModal = function() {
+      const modal = document.getElementById('postModalOverlay');
+      if (modal) {
+        modal.classList.remove('show');
+      }
+    };
+
+    window.handlePostImageSelect = function(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        alert('Please select an image file.');
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Image size must be less than 5MB.');
+        return;
+      }
+
+      selectedPostImage = file;
+
+      // Show preview
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const preview = document.getElementById('postImagePreview');
+        const container = document.getElementById('postImagePreviewContainer');
+        const placeholder = document.getElementById('postImagePlaceholder');
+        const removeBtn = document.getElementById('postImageRemoveBtn');
+
+        preview.src = e.target.result;
+        preview.classList.add('show');
+        container.classList.add('has-image');
+        placeholder.style.display = 'none';
+        removeBtn.style.display = 'flex';
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.removePostImage = function() {
+      selectedPostImage = null;
+      const preview = document.getElementById('postImagePreview');
+      const container = document.getElementById('postImagePreviewContainer');
+      const placeholder = document.getElementById('postImagePlaceholder');
+      const removeBtn = document.getElementById('postImageRemoveBtn');
+      const input = document.getElementById('postImageInput');
+
+      preview.src = '';
+      preview.classList.remove('show');
+      container.classList.remove('has-image');
+      placeholder.style.display = 'block';
+      removeBtn.style.display = 'none';
+      input.value = '';
+    };
+
+    window.submitPost = async function() {
+      const captionInput = document.getElementById('postCaptionInput');
+      const caption = captionInput.value.trim();
+      
+      if (!selectedPostImage && !caption) {
+        alert('Please add an image or write a caption.');
+        return;
+      }
+
+      // Ensure Firebase is initialized
+      if (!auth || !db) {
+        console.log('⚠️ Firebase not initialized, initializing now...');
+        try {
+          await initFirebase();
+        } catch (error) {
+          console.error('❌ Failed to initialize Firebase:', error);
+          alert('Failed to initialize Firebase. Please refresh the page and try again.');
+          return;
+        }
+      }
+
+      const user = auth ? auth.currentUser : null;
+      if (!user) {
+        alert('Please sign in to post.');
+        return;
+      }
+
+      // Check if storage is initialized
+      if (!storage) {
+        console.error('❌ Firebase Storage is not initialized');
+        // Try to initialize storage
+        try {
+          if (window.app) {
+            storage = getStorage(window.app);
+            console.log('✅ Storage initialized from window.app');
+          } else {
+            const { getApp } = await import("https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js");
+            const app = getApp();
+            storage = getStorage(app);
+            console.log('✅ Storage initialized from default app');
+          }
+        } catch (error) {
+          console.error('❌ Failed to initialize storage:', error);
+          alert('Storage service is not available. Please refresh the page and try again.');
+          return;
+        }
+      }
+
+      const submitBtn = document.getElementById('postSubmitBtn');
+      const progressDiv = document.getElementById('postUploadProgress');
+      const progressText = document.getElementById('postUploadProgressText');
+      const progressFill = document.getElementById('postUploadProgressFill');
+
+      submitBtn.disabled = true;
+      let mediaUrl = null;
+
+      try {
+        // Upload image if selected
+        if (selectedPostImage) {
+          if (!storage) {
+            throw new Error('Firebase Storage is not initialized. Please refresh the page.');
+          }
+
+          progressDiv.classList.add('show');
+          progressText.textContent = 'Preparing upload...';
+          progressFill.style.width = '10%';
+
+          // Create unique filename - sanitize filename to remove special characters
+          const timestamp = Date.now();
+          const sanitizedName = selectedPostImage.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+          const filename = `posts/${user.uid}/${timestamp}_${sanitizedName}`;
+          
+          console.log('📤 Uploading to:', filename);
+          console.log('📦 File size:', (selectedPostImage.size / 1024 / 1024).toFixed(2), 'MB');
+          console.log('📋 File type:', selectedPostImage.type);
+          
+          const storageRef = ref(storage, filename);
+
+          // Upload to Firebase Storage
+          progressFill.style.width = '30%';
+          progressText.textContent = 'Uploading image...';
+          
+          console.log('🔄 Starting upload...');
+          const uploadResult = await uploadBytes(storageRef, selectedPostImage);
+          console.log('✅ Upload successful:', uploadResult);
+          
+          progressFill.style.width = '80%';
+          progressText.textContent = 'Getting download URL...';
+          
+          // Get download URL
+          mediaUrl = await getDownloadURL(uploadResult.ref);
+          console.log('🔗 Download URL:', mediaUrl);
+          
+          progressFill.style.width = '100%';
+          progressText.textContent = 'Upload complete!';
+        }
+
+        // Create post in Firestore
+        progressText.textContent = 'Publishing post...';
+        const authorName = currentUserProfile.displayName || currentUserProfile.username || 'User';
+        
+        // Ensure db is initialized
+        if (!db) {
+          console.error('❌ Firestore is not initialized');
+          throw new Error('Database is not available. Please refresh the page and try again.');
+        }
+        
+        console.log('📝 Creating post in Firestore...', {
+          authorId: user.uid,
+          authorName,
+          hasCaption: !!caption,
+          hasImage: !!mediaUrl,
+          dbInitialized: !!db
+        });
+        
+        const postData = {
+          authorId: user.uid,
+          authorName,
+          caption: caption || '',
+          mediaUrl: mediaUrl || null,
+          createdAt: serverTimestamp()
+        };
+        
+        console.log('📦 Post data:', postData);
+        const postRef = await addDoc(collection(db, 'posts'), postData);
+        console.log('✅ Post created with ID:', postRef.id);
+
+        // Close modal and reload posts
+        closePostModal();
+        
+        // Reset form
+        selectedPostImage = null;
+        if (captionInput) captionInput.value = '';
+        const previewContainer = document.getElementById('postImagePreviewContainer');
+        const placeholder = document.getElementById('postImagePlaceholder');
+        const preview = document.getElementById('postImagePreview');
+        const removeBtn = document.getElementById('postImageRemoveBtn');
+        if (previewContainer && placeholder && preview && removeBtn) {
+          preview.style.display = 'none';
+          placeholder.style.display = 'block';
+          removeBtn.style.display = 'none';
+        }
+        
+        // Reload posts
+        try {
+          await loadUserPosts(user.uid);
+          console.log('🎉 Post published successfully!');
+        } catch (reloadError) {
+          console.error('⚠️ Post created but failed to reload:', reloadError);
+          // Post was created successfully, just reload failed
+          alert('Post published successfully! Please refresh the page to see it.');
+        }
+        
+      } catch (err) {
+        console.error('❌ Create post failed:', err);
+        console.error('Error details:', {
+          code: err.code,
+          message: err.message,
+          stack: err.stack,
+          name: err.name
+        });
+        
+        let errorMessage = 'Could not create post. ';
+        
+        if (err.code === 'storage/unauthorized') {
+          errorMessage += 'You do not have permission to upload files. Please check Firebase Storage rules.';
+        } else if (err.code === 'storage/quota-exceeded') {
+          errorMessage += 'Storage quota exceeded. Please contact support.';
+        } else if (err.code === 'storage/canceled') {
+          errorMessage += 'Upload was canceled.';
+        } else if (err.code === 'storage/unknown') {
+          errorMessage += 'An unknown storage error occurred. Please try again.';
+        } else if (err.code === 'permission-denied') {
+          errorMessage += 'Permission denied. Please check Firebase Firestore rules.';
+        } else if (err.message) {
+          errorMessage += err.message;
+        } else {
+          errorMessage += 'Please try again.';
+        }
+        
+        alert(errorMessage);
+      } finally {
+        submitBtn.disabled = false;
+        progressDiv.classList.remove('show');
+        progressFill.style.width = '0%';
+      }
+    };
+
+    // Close modal when clicking outside
+    document.getElementById('postModalOverlay')?.addEventListener('click', function(e) {
+      if (e.target === this) {
+        closePostModal();
+      }
+    });
+
     // Plus-tile uploader for Posts grid
     function renderPostsWithAddTile(items) {
       const grid = document.getElementById('postsGrid');
@@ -675,30 +1419,7 @@
       addTile.className = 'grid-item add-tile';
       addTile.innerHTML = '+';
       addTile.title = 'Create new post';
-      addTile.addEventListener('click', async () => {
-        try {
-          const caption = window.prompt('Write a caption for your post (text-only, no image):') || '';
-          if (!caption.trim()) {
-            alert('Please enter some text for your post.');
-            return;
-          }
-          const user = auth ? auth.currentUser : null;
-          if (!user) { alert('Please sign in to post.'); return; }
-          const authorName = currentUserProfile.displayName || currentUserProfile.username || 'User';
-          await addDoc(collection(db, 'posts'), {
-            authorId: user.uid,
-            authorName,
-            caption,
-            mediaUrl: null, // No image upload - text-only posts
-            createdAt: serverTimestamp()
-          });
-          await loadUserPosts(user.uid);
-          alert('Post published!');
-        } catch (err) {
-          console.error('Create post failed', err);
-          alert('Could not create post. Try again.');
-        }
-      });
+      addTile.addEventListener('click', openPostModal);
       grid.appendChild(addTile);
       
       if (items && items.length) {
@@ -868,9 +1589,119 @@
         console.error('loadUserFollowing error', e);
       }
     }
+
+    // Load and display order history
+    function loadOrderHistory() {
+      const container = document.getElementById('orderHistoryContainer');
+      if (!container) return;
+
+      try {
+        const historyStr = localStorage.getItem('orderHistory');
+        const orders = historyStr ? JSON.parse(historyStr) : [];
+
+        container.innerHTML = '';
+
+        if (orders.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <i class="bi bi-bag-check"></i>
+              <div>No confirmed orders yet</div>
+              <div style="font-size: 0.85rem; color: #999; margin-top: 8px;">
+                Confirm orders from notifications to see them here
+              </div>
+            </div>
+          `;
+          return;
+        }
+
+        // Render each order
+        orders.forEach(order => {
+          const orderItem = document.createElement('div');
+          orderItem.className = 'order-history-item';
+
+          const total = typeof order.total === 'number' 
+            ? order.total 
+            : parseFloat(order.total) || 0;
+
+          // Format confirmed date
+          let confirmedDateStr = 'Date not available';
+          if (order.confirmedAt) {
+            try {
+              const confirmedDate = new Date(order.confirmedAt);
+              confirmedDateStr = confirmedDate.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+              });
+            } catch (e) {
+              console.error('Error formatting date:', e);
+            }
+          }
+
+          // Format order items list
+          let itemsHtml = '';
+          if (order.items && order.items.length > 0) {
+            itemsHtml = '<div class="order-history-items"><div class="order-history-item-list">';
+            order.items.forEach(item => {
+              const qty = item.qty || item.quantity || 1;
+              const name = item.name || item.item_name || 'Food Item';
+              itemsHtml += `
+                <div class="order-history-item-entry">
+                  <span>${name} x${qty}</span>
+                </div>
+              `;
+            });
+            itemsHtml += '</div></div>';
+          }
+
+          orderItem.innerHTML = `
+            <div class="order-history-header">
+              <div>
+                <div class="order-history-id">${order.orderId || 'Order'}</div>
+                <div class="order-history-date">Confirmed: ${confirmedDateStr}</div>
+              </div>
+              <div class="order-history-total">$${total.toFixed(2)}</div>
+            </div>
+            <div class="order-history-details">
+              <div class="order-history-detail-item">
+                <span class="order-history-detail-label">Stall</span>
+                <span class="order-history-detail-value">${order.stall || '-'}</span>
+              </div>
+              <div class="order-history-detail-item">
+                <span class="order-history-detail-label">Food Centre</span>
+                <span class="order-history-detail-value">${order.foodCentre || '-'}</span>
+              </div>
+            </div>
+            ${itemsHtml}
+          `;
+
+          container.appendChild(orderItem);
+        });
+      } catch (e) {
+        console.error('Error loading order history:', e);
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="bi bi-exclamation-triangle"></i>
+            <div>Error loading order history</div>
+          </div>
+        `;
+      }
+    }
+
+    // Listen for order history updates
+    window.addEventListener('orderHistoryUpdated', function() {
+      // Reload order history if orders tab is active
+      const ordersTab = document.querySelector('.tab-btn[data-tab="orders"]');
+      if (ordersTab && ordersTab.classList.contains('active')) {
+        loadOrderHistory();
+      }
+    });
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="/scripts/notification.js"></script>
 </body>
 </html>
 
