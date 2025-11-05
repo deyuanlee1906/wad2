@@ -5,6 +5,13 @@ services:
     plan: starter
     buildCommand: npm install
     startCommand: npm start
+    headers:
+      - path: /*
+        name: Cross-Origin-Opener-Policy
+        value: same-origin-allow-popups
+      - path: /*
+        name: Cross-Origin-Embedder-Policy
+        value: unsafe-none
     envVars:
       - key: NODE_ENV
         value: production

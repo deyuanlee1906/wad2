@@ -1,0 +1,66 @@
+════════════════════════════════════════════════════════════
+  CHOPELAH - HOW TO RUN THE WEBSITE
+════════════════════════════════════════════════════════════
+
+STEP 1: Install Dependencies
+────────────────────────────
+npm install
+
+
+STEP 2: Create .env File
+────────────────────────────
+Create a file named ".env" in the project root folder.
+
+Add this content (replace with your Stripe keys):
+
+PORT=10000
+NODE_ENV=development
+STRIPE_SECRET_KEY=sk_test_your_key_here
+STRIPE_PUBLISHABLE_KEY=pk_test_your_key_here
+FIREBASE_API_KEY=AIzaSyApmvl3E-sbQMZfadYGfa4P0EJ6N7IEZmo
+FIREBASE_AUTH_DOMAIN=wad2-login-5799b.firebaseapp.com
+FIREBASE_PROJECT_ID=wad2-login-5799b
+FIREBASE_STORAGE_BUCKET=wad2-login-5799b.appspot.com
+FIREBASE_MESSAGING_SENDER_ID=148986270821
+FIREBASE_APP_ID=1:148986270821:web:fc17df5adf49b464a1628c
+ALLOWED_ORIGINS=http://localhost:5173,http://localhost:10000
+
+Get Stripe keys from: https://dashboard.stripe.com/test/apikeys
+
+
+STEP 3: Run the Application
+────────────────────────────
+npm start
+
+
+STEP 4: Open Browser
+────────────────────────────
+Open: http://localhost:10000
+
+
+════════════════════════════════════════════════════════════
+  THAT'S IT! 🎉
+════════════════════════════════════════════════════════════
+
+You should see:
+✓ ChopeLah login/signup page
+✓ Can create account
+✓ Can browse food centres
+✓ Can order food
+✓ Can test payments with card: 4242 4242 4242 4242
+
+
+TROUBLESHOOTING:
+────────────────────────────
+• Server won't start → Check .env file exists with Stripe keys
+• Can't login → Check email format and password requirements
+• Payments fail → Verify Stripe keys in .env are correct
+
+
+MORE HELP:
+────────────────────────────
+• Quick Setup (60s): Read QUICK_START.md
+• Detailed Guide: Read GETTING_STARTED.md
+• Environment Setup: Read ENV_SETUP.md
+• All Fixes Applied: Read FIXES_APPLIED.md
+

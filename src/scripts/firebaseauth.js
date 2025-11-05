@@ -1,8 +1,8 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 import { getFirestore, setDoc, doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
-import { GoogleAuthProvider, signInWithPopup, FacebookAuthProvider } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, FacebookAuthProvider } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 
 // Fallback Firebase configuration (used if API fetch fails)
 const fallbackFirebaseConfig = {
@@ -42,7 +42,14 @@ let firebaseConfig = fallbackFirebaseConfig;
 const firebaseInitPromise = (async function initializeFirebase() {
   try {
     firebaseConfig = await getFirebaseConfig();
-    app = initializeApp(firebaseConfig);
+    
+    // Initialize Firebase with explicit config to prevent auto-fetch of init.json
+    // The automaticDataCollectionEnabled: false prevents SDK from trying to fetch
+    // configuration from Firebase Hosting (which causes 404 on non-Firebase hosts)
+    app = initializeApp(firebaseConfig, {
+      automaticDataCollectionEnabled: false
+    });
+    
     auth = getAuth(app);
     // Use browser language for auth emails
     try { auth.useDeviceLanguage && auth.useDeviceLanguage(); } catch (_) {}
@@ -68,7 +75,9 @@ const firebaseInitPromise = (async function initializeFirebase() {
   } catch (error) {
     console.error("❌ Firebase initialization failed:", error);
     // Fallback initialization with default config
-    app = initializeApp(fallbackFirebaseConfig);
+    app = initializeApp(fallbackFirebaseConfig, {
+      automaticDataCollectionEnabled: false
+    });
     auth = getAuth(app);
     db = getFirestore(app);
     
@@ -94,6 +103,28 @@ const firebaseInitPromise = (async function initializeFirebase() {
 
 // Export the promise so other code can wait for initialization
 window.firebaseInitPromise = firebaseInitPromise;
+
+// Check for redirect results (in case redirect flow was used)
+// Note: We're now using popup flow, but this handles any pending redirects
+(async function handleOAuthRedirect() {
+  try {
+    const { auth } = await firebaseInitPromise;
+    const result = await getRedirectResult(auth);
+    
+    if (result) {
+      console.log('✅ OAuth redirect detected and handled');
+      // Redirect flow is deprecated, but handle it if it happens
+      const user = result.user;
+      localStorage.setItem('loggedInUserId', user.uid);
+      window.location.href = '/pages/chope/chope.html';
+    }
+  } catch (error) {
+    // Silently handle redirect errors since we're using popup flow now
+    if (error.code && error.code !== 'auth/no-auth-event') {
+      console.warn('Redirect result check failed:', error.code);
+    }
+  }
+})();
 
 /**
  * Insert a single document into a collection
@@ -327,11 +358,38 @@ document.addEventListener('DOMContentLoaded', async () => {
   const googleButtons = document.querySelectorAll('#googleLogin');
   const facebookButtons = document.querySelectorAll('#facebookLogin');
 
-  googleButtons.forEach((btn) => {
+  console.log(`✅ Found ${googleButtons.length} Google login button(s)`);
+  
+  googleButtons.forEach((btn, index) => {
+    console.log(`📌 Binding click handler to Google button #${index + 1}`);
     btn.addEventListener('click', async () => {
+      console.log('🖱️ Google login button clicked!');
+      console.log('🔐 Auth object:', auth);
+      console.log('🌍 Current domain:', window.location.hostname);
+      
+      // Check if user is already signed in - sign them out first to allow account selection
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        console.log('👤 User already signed in, signing out to allow account selection...');
+        try {
+          await signOut(auth);
+          console.log('✅ Signed out successfully');
+        } catch (signOutError) {
+          console.warn('⚠️ Could not sign out:', signOutError);
+        }
+      }
+      
       const provider = new GoogleAuthProvider();
+      // Force account selection - always show account picker
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
       try {
+        // Use popup flow (COOP headers configured in render.yaml allow this)
+        console.log('🔄 Initiating Google sign-in with popup...');
+        console.log('📋 Account picker will be shown (forced)');
         const result = await signInWithPopup(auth, provider);
+        console.log('✅ Google sign-in successful!', result);
         const user = result.user;
 
         // Check if this is a new user (no existing document in Firestore)
@@ -341,29 +399,34 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         if (!userDocSnap.exists()) {
           isNewUser = true;
+          console.log('🆕 New user detected, creating profile...');
           // For new users, create minimal profile - they'll pick username in onboarding
           await setDoc(userDocRef, {
             email: user.email,
             name: user.displayName,
             createdAt: new Date()
           });
+          console.log('✅ New user profile created');
+        } else {
+          console.log('✅ Existing user found');
         }
 
         // Persist session context
         localStorage.setItem('loggedInUserId', user.uid);
+        console.log('✅ Session stored');
         showMessage("Google login successful!", "signInMessage");
         
         // If new user, redirect to onboarding flow; otherwise go to app
         if (isNewUser) {
+          console.log('🔄 Redirecting to onboarding...');
           window.location.href = '/pages/onboarding/choose-username.html';
         } else {
+          console.log('🔄 Redirecting to app...');
           window.location.href = '/pages/chope/chope.html';
         }
       } catch (error) {
-        console.error("Google login failed:", error);
-        console.error("Error code:", error.code);
-        console.error("Error message:", error.message);
-        console.error("Full error:", JSON.stringify(error, null, 2));
+        console.error("❌ Google login failed:", error);
+        console.error("Error details:", { code: error.code, message: error.message, stack: error.stack });
         
         const errorCode = error.code;
         let errorMessage = `Google login failed: ${error.message || errorCode || 'Unknown error'}`;
@@ -391,9 +454,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   facebookButtons.forEach((btn) => {
     btn.addEventListener('click', async () => {
+      console.log('🖱️ Facebook login button clicked!');
       const provider = new FacebookAuthProvider();
       try {
+        // Use popup flow (COOP headers configured in render.yaml allow this)
+        console.log('🔄 Initiating Facebook sign-in with popup...');
         const result = await signInWithPopup(auth, provider);
+        console.log('✅ Facebook sign-in successful!', result);
         const user = result.user;
 
         // Check if this is a new user (no existing document in Firestore)
@@ -403,26 +470,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         if (!userDocSnap.exists()) {
           isNewUser = true;
+          console.log('🆕 New Facebook user detected, creating profile...');
           // For new users, create minimal profile - they'll pick username in onboarding
           await setDoc(userDocRef, {
             email: user.email,
             name: user.displayName,
             createdAt: new Date()
           });
+          console.log('✅ New user profile created');
+        } else {
+          console.log('✅ Existing Facebook user found');
         }
 
         // Persist session context
         localStorage.setItem('loggedInUserId', user.uid);
+        console.log('✅ Session stored');
         showMessage("Facebook login successful!", "signInMessage");
         
         // If new user, redirect to onboarding flow; otherwise go to app
         if (isNewUser) {
+          console.log('🔄 Redirecting to onboarding...');
           window.location.href = '/pages/onboarding/choose-username.html';
         } else {
+          console.log('🔄 Redirecting to app...');
           window.location.href = '/pages/chope/chope.html';
         }
       } catch (error) {
-        console.error("Facebook login failed:", error);
+        console.error("❌ Facebook login failed:", error);
+        console.error("Error details:", { code: error.code, message: error.message });
+        
         const errorCode = error.code;
         let errorMessage = "Facebook login failed. Please try again.";
         
