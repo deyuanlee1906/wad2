@@ -4,6 +4,9 @@ const router = express.Router()
 
 router.post("/create-checkout-session", async (req, res) => {
   try {
+    console.log('📝 Stripe Secret Key exists:', !!process.env.STRIPE_SECRET_KEY);
+    console.log('📝 Request body:', JSON.stringify(req.body, null, 2));
+
     const { 
       items, 
       shippingFee = 0, 
@@ -20,8 +23,11 @@ router.post("/create-checkout-session", async (req, res) => {
       })
     }
 
-    // Build base URL
-    const baseUrl = req.headers.origin || "http://localhost:10000";
+    // Build base URL - FIXED: Use environment variable first
+    const baseUrl = process.env.FRONTEND_URL || req.headers.origin || "http://localhost:10000";
+    
+    console.log('📝 Base URL:', baseUrl);
+    console.log('📝 Stripe Secret Key exists:', !!process.env.STRIPE_SECRET_KEY);
     
     // Calculate items total
     const itemsTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -123,6 +129,12 @@ router.post("/create-checkout-session", async (req, res) => {
     })
   } catch (error) {
     console.error("❌ Error creating checkout session:", error)
+    console.error("❌ Error details:", {
+      message: error.message,
+      type: error.type,
+      code: error.code,
+      statusCode: error.statusCode
+    })
     res.status(500).json({
       error: "Failed to create checkout session",
       details: error.message,
@@ -218,8 +230,11 @@ router.post("/create-payment-link", async (req, res) => {
       })
     }
 
-    // Build base URL
-    const baseUrl = req.headers.origin || "http://localhost:10000";
+    // Build base URL - FIXED: Use environment variable first
+    const baseUrl = process.env.FRONTEND_URL || req.headers.origin || "http://localhost:10000";
+    
+    console.log('📝 Base URL:', baseUrl);
+    console.log('📝 Stripe Secret Key exists:', !!process.env.STRIPE_SECRET_KEY);
     
     // Calculate items total
     const itemsTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -319,6 +334,12 @@ router.post("/create-payment-link", async (req, res) => {
     })
   } catch (error) {
     console.error("❌ Error creating payment link:", error)
+    console.error("❌ Error details:", {
+      message: error.message,
+      type: error.type,
+      code: error.code,
+      statusCode: error.statusCode
+    })
     res.status(500).json({
       error: "Failed to create payment link",
       details: error.message,
