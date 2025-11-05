@@ -318,6 +318,36 @@
                 minute: '2-digit'
             };
             document.getElementById('bookingDate').textContent = now.toLocaleDateString('en-US', options);
+            
+            // Store reservation data for crowd-view.html to display
+            try {
+                // Get existing reservations or create new array
+                const reservations = JSON.parse(localStorage.getItem('reservations') || '[]');
+                
+                // Add new reservation
+                const reservation = {
+                    id: Date.now(),
+                    hawkerCentre: foodCenter,
+                    pax: 1, // Default to 1 pax per seat (can be extended later)
+                    time: time,
+                    timestamp: now.getTime(),
+                    table: table,
+                    seat: seat,
+                    duration: duration ? parseInt(duration) : 60 // Store duration in minutes, default 60
+                };
+                
+                reservations.unshift(reservation); // Add to beginning
+                
+                // Keep only last 20 reservations
+                if (reservations.length > 20) {
+                    reservations.splice(20);
+                }
+                
+                localStorage.setItem('reservations', JSON.stringify(reservations));
+            } catch (e) {
+                console.warn('Could not store reservation data for crowd view', e);
+            }
+            
             // Clear booking snapshot keys so later bookings don't pick stale data
             try {
                 sessionStorage.removeItem('booking_foodCenter');
