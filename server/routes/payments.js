@@ -2,84 +2,88 @@ const express = require("express")
 const stripe = require("../external/stripeClient")
 const router = express.Router()
 
+/**
+ * Validate cart items
+ * @param {Array} items - Cart items to validate
+ * @returns {Object} - { valid: boolean, errors: Array }
+ */
+function validateCartItems(items) {
+  const errors = [];
+  
+  if (!items || !Array.isArray(items)) {
+    errors.push('Items must be an array');
+    return { valid: false, errors };
+  }
+  
+  if (items.length === 0) {
+    errors.push('Cart is empty');
+    return { valid: false, errors };
+  }
+  
+  if (items.length > 100) {
+    errors.push('Cart cannot contain more than 100 items');
+  }
+  
+  items.forEach((item, index) => {
+    if (!item.name || typeof item.name !== 'string') {
+      errors.push(`Item ${index + 1}: name is required and must be a string`);
+    }
+    
+    if (typeof item.price !== 'number' || item.price < 0) {
+      errors.push(`Item ${index + 1}: price must be a non-negative number`);
+    }
+    
+    if (item.price > 10000) {
+      errors.push(`Item ${index + 1}: price exceeds maximum allowed ($10,000)`);
+    }
+    
+    if (typeof item.quantity !== 'number' || item.quantity < 1 || item.quantity > 100) {
+      errors.push(`Item ${index + 1}: quantity must be between 1 and 100`);
+    }
+    
+    if (!Number.isInteger(item.quantity)) {
+      errors.push(`Item ${index + 1}: quantity must be an integer`);
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
 router.post("/create-checkout-session", async (req, res) => {
   try {
-    console.log('🔍 Stripe Secret Key exists:', !!process.env.STRIPE_SECRET_KEY);
-    console.log('🔍 Request body:', JSON.stringify(req.body, null, 2));
+    const { items } = req.body
 
-    const { 
-      items, 
-      shippingFee = 0, 
-      totalAmount, 
-      deliveryAddress = null,
-      successUrl,
-      cancelUrl,
-      savedCard = null 
-    } = req.body
-
-    if (!items || items.length === 0) {
+    // Validate cart items
+    const validation = validateCartItems(items);
+    if (!validation.valid) {
       return res.status(400).json({
-        error: "Cart is empty",
+        error: "Invalid cart data",
+        details: validation.errors
       })
     }
 
-<<<<<<< HEAD
-    // Get base URL from environment or request
-    // Priority: FRONTEND_URL > origin header > referer header
-    let baseUrl = process.env.FRONTEND_URL;
-    
-    if (!baseUrl) {
-      const origin = req.headers.origin;
-      const referer = req.headers.referer;
-      
-      if (origin) {
-        baseUrl = origin;
-      } else if (referer) {
-        // Extract base URL from referer
-        try {
-          const url = new URL(referer);
-          baseUrl = `${url.protocol}//${url.host}`;
-        } catch (e) {
-          baseUrl = referer.split('/').slice(0, 3).join('/');
-        }
-      } else {
-        // Fallback for development
-        baseUrl = `${req.protocol}://${req.get('host')}`;
-      }
-    }
-    
-    console.log('🔍 Base URL:', baseUrl);
-    
-    // Calculate items total
-    const itemsTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
-    // Calculate grand total (items + shipping)
-    const grandTotal = totalAmount || (itemsTotal + (shippingFee || 0));
-    
-    // Convert cart items to Stripe line items
+    // Convert cart items to Stripe line items with stall name in description
     const lineItems = items.map((item) => {
-      // Build description with additional details
-      let description = item.description || "";
-      if (item.size) {
-        description += description ? ` • Size: ${item.size}` : `Size: ${item.size}`;
+      const productData = {
+        name: item.name,
+      };
+      
+      // Only include description if it's a non-empty string
+      if (item.description && item.description.trim() !== "") {
+        productData.description = item.description;
       }
-      if (item.shopName || item.stallName) {
-        const shopName = item.shopName || item.stallName;
-        description += description ? ` • From: ${shopName}` : `From: ${shopName}`;
-      }
-
+      
       return {
         price_data: {
           currency: "sgd",
-          product_data: {
-            name: item.name || item.item_name || 'Food Item',
-            description: description || "",
-            images: item.image || item.img_url ? [item.image || item.img_url] : undefined,
-          },
+          product_data: productData,
           unit_amount: Math.round(item.price * 100), // Convert to cents
         },
-        quantity: item.quantity || item.qty || 1,
-      }
+        quantity: item.quantity,
+      };
     })
 
     // Build base URL
@@ -183,220 +187,5 @@ router.get("/verify-checkout-session/:sessionId", async (req, res) => {
     })
   }
 })
-
-<<<<<<< HEAD
-// Endpoint to create a Stripe Payment Link dynamically
-router.post("/create-payment-link", async (req, res) => {
-  try {
-    const { 
-      items, 
-      shippingFee = 0, 
-      totalAmount, 
-      successUrl,
-      orderId,
-      stallName,
-      foodCentre,
-      pickupOption,
-      pickupTime
-    } = req.body
-
-    if (!items || items.length === 0) {
-      return res.status(400).json({
-        error: "Cart is empty",
-      })
-    }
-
-    // Get base URL from environment or request
-    // Priority: FRONTEND_URL > origin header > referer header
-    let baseUrl = process.env.FRONTEND_URL;
-    
-    if (!baseUrl) {
-      const origin = req.headers.origin;
-      const referer = req.headers.referer;
-      
-      if (origin) {
-        baseUrl = origin;
-      } else if (referer) {
-        // Extract base URL from referer
-        try {
-          const url = new URL(referer);
-          baseUrl = `${url.protocol}//${url.host}`;
-        } catch (e) {
-          baseUrl = referer.split('/').slice(0, 3).join('/');
-        }
-      } else {
-        // Fallback for development
-        baseUrl = `${req.protocol}://${req.get('host')}`;
-      }
-    }
-    
-    console.log('🔍 Base URL:', baseUrl);
-    console.log('🔍 Creating Payment Link for order:', orderId);
-    
-    // Calculate items total
-    const itemsTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
-    // Calculate grand total (items + shipping)
-    const grandTotal = totalAmount || (itemsTotal + (shippingFee || 0));
-    
-    // Convert cart items to Stripe line items using price_data
-    const lineItems = items.map((item) => {
-      // Build description with additional details
-      let description = item.description || "";
-      if (item.size) {
-        description += description ? ` • Size: ${item.size}` : `Size: ${item.size}`;
-      }
-      if (item.shopName || item.stallName) {
-        const shopName = item.shopName || item.stallName;
-        description += description ? ` • From: ${shopName}` : `From: ${shopName}`;
-      }
-
-      return {
-        price_data: {
-          currency: "sgd",
-          product_data: {
-            name: item.name || item.item_name || 'Food Item',
-            description: description || "",
-            images: item.image || item.img_url ? [item.image || item.img_url] : undefined,
-          },
-          unit_amount: Math.round(item.price * 100), // Convert to cents
-        },
-        quantity: item.quantity || item.qty || 1,
-      }
-    })
-
-    // Add shipping as a separate line item if applicable
-    if (shippingFee && shippingFee > 0) {
-      lineItems.push({
-        price_data: {
-          currency: "sgd",
-          product_data: {
-            name: "Shipping Fee",
-            description: "Delivery or service fee",
-          },
-          unit_amount: Math.round(shippingFee * 100),
-        },
-        quantity: 1,
-      })
-    }
-    
-    // Prepare metadata
-    const metadata = {
-      orderId: orderId || `order_${Date.now()}`,
-      items: JSON.stringify(items),
-      itemsTotal: itemsTotal.toFixed(2),
-      shippingFee: (shippingFee || 0).toFixed(2),
-      total: grandTotal.toFixed(2),
-    }
-
-    // Add stall/shop info to metadata if available
-    if (stallName) {
-      metadata.stallName = stallName;
-    }
-    if (foodCentre) {
-      metadata.foodCentre = foodCentre;
-    }
-    if (pickupOption) {
-      metadata.pickupOption = pickupOption;
-    }
-    if (pickupTime) {
-      metadata.pickupTime = pickupTime;
-    }
-    
-    // Create Payment Link using Stripe API
-    const paymentLink = await stripe.paymentLinks.create({
-      line_items: lineItems,
-      metadata: metadata,
-      // Configure redirect after completion
-      after_completion: {
-        type: 'redirect',
-        redirect: {
-          url: successUrl || `${baseUrl}/pages/order/orderconfirmed.html`,
-        },
-      },
-      // Allow promotion codes
-      allow_promotion_codes: true,
-    })
-
-    console.log("✅ Payment Link Created:", {
-      id: paymentLink.id,
-      url: paymentLink.url,
-      total: grandTotal,
-      itemsCount: items.length,
-      orderId: orderId
-    })
-
-    res.json({ 
-      url: paymentLink.url,
-      paymentLinkId: paymentLink.id 
-    })
-  } catch (error) {
-    console.error("❌ Error creating payment link:", error)
-    console.error("❌ Error details:", {
-      message: error.message,
-      type: error.type,
-      code: error.code,
-      statusCode: error.statusCode
-    })
-    res.status(500).json({
-      error: "Failed to create payment link",
-      details: error.message,
-    })
-  }
-})
-
-// Create Payment Intent endpoint (for direct Stripe integration)
-router.post("/create-payment-intent", async (req, res) => {
-  try {
-    const { amount, currency = "sgd", order } = req.body;
-
-    // Validate amount
-    if (!amount || amount <= 0) {
-      return res.status(400).json({
-        error: "Invalid amount. Amount must be greater than 0."
-      });
-    }
-
-    console.log("💳 Creating Payment Intent:", {
-      amount: amount,
-      currency: currency,
-      orderId: order?.id
-    });
-
-    // Create payment intent
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convert to cents
-      currency: currency.toLowerCase(),
-      metadata: {
-        orderId: order?.id || `order_${Date.now()}`,
-        customerEmail: order?.customer?.email || "unknown",
-        foodCentre: order?.info?.foodCentre || "unknown",
-        stall: order?.info?.stall || "unknown"
-      },
-      description: `Food order from ${order?.info?.stall || "Unknown Stall"}`,
-      automatic_payment_methods: {
-        enabled: true,
-      },
-    });
-
-    console.log("✅ Payment Intent Created:", {
-      id: paymentIntent.id,
-      amount: paymentIntent.amount,
-      currency: paymentIntent.currency
-    });
-
-    res.status(200).json({
-      clientSecret: paymentIntent.client_secret,
-      paymentIntentId: paymentIntent.id
-    });
-
-  } catch (error) {
-    console.error("❌ Error creating payment intent:", error);
-    res.status(500).json({
-      error: "Failed to create payment intent",
-      details: error.message
-    });
-  }
-});
 
 module.exports = router
