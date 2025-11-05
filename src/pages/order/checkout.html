@@ -10,28 +10,16 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
 
   <style>
-    /* Modern aesthetic design system */
     :root {
-      --primary: #C9784F;
-      --primary-dark: #A85F3F;
-      --primary-light: #E89B7A;
-      --primary-gradient: linear-gradient(135deg, #D98566, #F2C6B6);
-      --primary-gradient-hover: linear-gradient(135deg, #F2C6B6, #D98566);
-      --bg: #FAFAFA;
-      --card: #FFFFFF;
-      --text: #1A1A1A;
-      --text-muted: #666666;
-      --text-tertiary: #999999;
-      --border: #E8E8E8;
-      --success: #10B981;
-      --danger: #EF4444;
-      --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.06);
-      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-      --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-      --shadow-colored: 0 8px 24px rgba(201, 120, 79, 0.20);
-      --radius-md: 12px;
-      --radius-lg: 16px;
-      --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+      --primary-color: #D98566;
+      --secondary-color: #F2C6B6;
+      --bg: #f8f9fa;
+      --card: #fff;
+      --text: #1a1a1a;
+      --text-muted: #6c757d;
+      --border: #e9ecef;
+      --success: #28a745;
+      --danger: #dc3545;
     }
 
     * {
@@ -43,10 +31,8 @@
     html, body {
       height: 100%;
       width: 100%;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
     }
 
     body {
@@ -65,54 +51,46 @@
       margin-bottom: 100px;
     }
 
-    /* Modern header with backdrop blur */
+    /* Improved header with better styling */
     .header-section {
-      padding: 20px 24px;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      padding: 16px 20px;
+      background: var(--card);
       border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
       z-index: 100;
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.04);
     }
 
     .back-btn {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 10px 18px;
-      color: var(--primary);
+      padding: 8px 16px;
+      color: var(--primary-color);
       text-decoration: none;
       border: none;
-      background: transparent;
+      background: none;
       font-size: 0.95rem;
-      font-weight: 600;
+      font-weight: 500;
       cursor: pointer;
-      transition: all var(--transition-base);
-      border-radius: var(--radius-md);
+      transition: all 0.2s;
+      border-radius: 8px;
     }
 
     .back-btn:hover {
-      background: rgba(201, 120, 79, 0.1);
-      transform: translateX(-2px);
+      background: rgba(217, 133, 102, 0.1);
     }
 
     .back-btn i {
       font-size: 1.2rem;
-      transition: transform var(--transition-base);
-    }
-
-    .back-btn:hover i {
-      transform: translateX(-2px);
     }
 
     /* Better container layout */
     .checkout-container {
       flex: 1;
-      padding: 32px 24px;
-      padding-bottom: 140px;
+      padding: 24px 20px;
+      padding-bottom: 120px;
       max-width: 1400px;
       margin: 0 auto;
       width: 100%;
@@ -121,37 +99,20 @@
     .checkout-layout {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 32px;
+      gap: 24px;
       align-items: start;
     }
 
     .order-section {
       position: sticky;
-      top: 32px;
+      top: 24px;
     }
 
     .page-title {
       font-weight: 700;
-      font-size: 2.25rem;
-      margin-bottom: 16px;
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      letter-spacing: -0.02em;
-      position: relative;
-      padding-bottom: 12px;
-    }
-
-    .page-title::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      width: 80px;
-      height: 3px;
-      background: var(--primary-gradient);
-      border-radius: 2px;
+      font-size: 1.75rem;
+      margin-bottom: 8px;
+      color: var(--text);
     }
 
     .page-subtitle {
@@ -184,89 +145,36 @@
       color: var(--border);
     }
 
-    /* Modern cart section with enhanced card design */
+    /* Improved cart section with card design */
     .cart-section {
       background: var(--card);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--border);
-      transition: all var(--transition-base);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .cart-section::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--primary-gradient);
-      transform: scaleX(0);
-      transition: transform var(--transition-base);
-    }
-
-    .cart-section:hover {
-      box-shadow: var(--shadow-md);
-      border-color: var(--primary-light);
-    }
-
-    .cart-section:hover::before {
-      transform: scaleX(1);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
 
     .section-title {
-      font-weight: 700;
-      font-size: 1.35rem;
-      margin-bottom: 24px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      margin-bottom: 16px;
       color: var(--text);
       display: flex;
       align-items: center;
-      gap: 12px;
-      letter-spacing: -0.01em;
-      padding-bottom: 12px;
-      border-bottom: 2px solid var(--border);
-      position: relative;
-    }
-
-    .section-title::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 60px;
-      height: 2px;
-      background: var(--primary-gradient);
-      border-radius: 2px;
+      gap: 8px;
     }
 
     .section-title i {
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      font-size: 1.5rem;
+      color: var(--primary-color);
     }
 
     .cart-item {
       display: flex; 
       align-items: center; 
-      padding: 18px 0;
+      padding: 16px 0;
       border-bottom: 1px solid var(--border);
-      gap: 16px;
+      gap: 12px;
       justify-content: space-between;
-      transition: all var(--transition-base);
-    }
-
-    .cart-item:hover {
-      background: rgba(201, 120, 79, 0.02);
-      margin: 0 -24px;
-      padding-left: 24px;
-      padding-right: 24px;
-      border-radius: var(--radius-md);
     }
 
     .cart-item:last-child {
@@ -279,18 +187,15 @@
     }
 
     .cart-item .details h6 {
-      font-weight: 700;
-      font-size: 1.1rem;
-      margin: 0 0 8px 0;
+      font-weight: 600;
+      font-size: 1rem;
+      margin: 0 0 4px 0;
       color: var(--text);
-      letter-spacing: -0.01em;
-      line-height: 1.3;
     }
 
     .cart-item .details .price {
-      color: var(--text-secondary);
-      font-size: 0.95rem;
-      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 0.9rem;
     }
 
     .qty-controls {
@@ -298,34 +203,31 @@
       align-items: center; 
       gap: 8px;
       background: var(--bg);
-      border-radius: var(--radius-md);
+      border-radius: 8px;
       padding: 4px;
       min-width: 120px;
       justify-content: center;
-      border: 1px solid var(--border);
     }
 
     .qty-controls button {
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      width: 36px;
-      height: 36px;
+      border-radius: 6px;
+      width: 32px;
+      height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all var(--transition-base);
+      transition: all 0.2s;
       font-size: 1.1rem;
       color: var(--text);
-      font-weight: 600;
     }
 
     .qty-controls button:hover {
-      background: var(--primary-gradient);
+      background: var(--primary-color);
       color: white;
-      border-color: var(--primary);
-      transform: scale(1.1);
+      border-color: var(--primary-color);
     }
 
     .qty-controls span {
@@ -336,16 +238,12 @@
     }
 
     .item-subtotal {
-      font-weight: 700;
-      font-size: 1.1rem;
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      min-width: 90px;
+      font-weight: 600;
+      font-size: 1rem;
+      color: var(--text);
+      min-width: 80px;
       text-align: right;
       padding-right: 8px;
-      letter-spacing: -0.01em;
     }
 
     .remove-btn {
@@ -362,10 +260,10 @@
       transform: scale(1.1);
     }
 
-    /* Modern total section */
+    /* Better total section */
     .total-section {
-      margin-top: 24px;
-      padding-top: 24px;
+      margin-top: 20px;
+      padding-top: 20px;
       border-top: 2px solid var(--border);
     }
 
@@ -373,120 +271,63 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
 
     .total-row.final {
-      font-size: 1.75rem;
+      font-size: 1.4rem;
       font-weight: 700;
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
+      color: var(--primary-color);
       margin-bottom: 0;
-      padding-top: 16px;
-      border-top: 2px solid var(--border);
-      margin-top: 16px;
-      letter-spacing: -0.02em;
     }
 
     .total-label {
       font-weight: 500;
       color: var(--text-muted);
-      font-size: 0.95rem;
     }
 
     .total-row.final .total-label {
       color: var(--text);
-      font-size: 1.5rem;
     }
 
-    /* Enhanced payment method cards */
+    /* Improved payment method cards */
     .payment-section {
       background: var(--card);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      margin-bottom: 24px;
-      box-shadow: var(--shadow-sm);
-      border: 1px solid var(--border);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .payment-section::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: var(--primary-gradient);
-      transform: scaleX(0);
-      transition: transform var(--transition-base);
-    }
-
-    .payment-section:hover::before {
-      transform: scaleX(1);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
 
     .payment-method-card {
       background: var(--card);
       border: 2px solid var(--border);
-      border-radius: var(--radius-md);
-      padding: 20px;
-      margin-bottom: 16px;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 12px;
       cursor: pointer;
-      transition: all var(--transition-base);
+      transition: all 0.3s ease;
       display: flex;
       align-items: center;
-      gap: 18px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .payment-method-card::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 0;
-      bottom: 0;
-      width: 4px;
-      background: var(--primary-gradient);
-      transform: scaleY(0);
-      transition: transform var(--transition-base);
+      gap: 16px;
     }
 
     .payment-method-card:hover {
-      border-color: var(--primary);
-      box-shadow: var(--shadow-sm);
-      transform: translateX(4px);
-    }
-
-    .payment-method-card:hover::before {
-      transform: scaleY(1);
+      border-color: var(--primary-color);
+      box-shadow: 0 4px 12px rgba(217, 133, 102, 0.15);
     }
 
     .payment-method-card.selected {
-      border-color: var(--primary);
-      background: linear-gradient(135deg, rgba(201, 120, 79, 0.08), rgba(242, 198, 182, 0.08));
-      box-shadow: var(--shadow-colored);
-    }
-
-    .payment-method-card.selected::before {
-      transform: scaleY(1);
+      border-color: var(--primary-color);
+      background: rgba(217, 133, 102, 0.05);
+      box-shadow: 0 4px 12px rgba(217, 133, 102, 0.15);
     }
 
     .payment-icon {
-      font-size: 2.2rem;
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      width: 56px;
+      font-size: 2rem;
+      color: var(--primary-color);
+      width: 50px;
       text-align: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
     }
 
     .payment-info {
@@ -494,17 +335,14 @@
     }
 
     .payment-info h5 {
-      margin: 0 0 6px 0;
+      margin: 0 0 4px 0;
       font-weight: 600;
-      font-size: 1.1rem;
-      color: var(--text);
-      letter-spacing: -0.01em;
+      font-size: 1.05rem;
     }
 
     .payment-info small {
       color: var(--text-muted);
-      font-size: 0.875rem;
-      font-weight: 500;
+      font-size: 0.85rem;
     }
 
     .form-check-input {
@@ -518,19 +356,17 @@
       border-color: var(--primary-color);
     }
 
-    /* Fixed bottom container with modern styling */
+    /* Fixed bottom container (similar to stall page) */
     .checkout-fixed {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-      background: rgba(255, 255, 255, 0.98);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
-      padding: 16px 0;
-      border-top: 1px solid var(--border);
+      background: var(--card);
+      padding: 14px 0;
+      border-top: 1px solid rgba(0, 0, 0, 0.08);
       z-index: 1000;
-      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+      box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.04);
       height: 80px;
       display: flex;
       align-items: center;
@@ -629,50 +465,26 @@
       cursor: not-allowed;
     }
 
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
     .empty-cart {
       text-align: center;
-      padding: 80px 20px;
-      animation: fadeInUp 0.6s ease-out;
+      padding: 60px 20px;
     }
 
     .empty-cart i {
-      font-size: 5rem;
-      background: var(--primary-gradient);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 24px;
-      display: block;
-      filter: drop-shadow(0 4px 8px rgba(201, 120, 79, 0.2));
+      font-size: 4rem;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      opacity: 0.5;
     }
 
     .empty-cart h5 {
       color: var(--text);
-      margin-bottom: 12px;
-      font-size: 1.5rem;
-      font-weight: 700;
-      letter-spacing: -0.01em;
+      margin-bottom: 8px;
     }
 
     .empty-cart p {
       color: var(--text-muted);
-      margin-bottom: 32px;
-      font-size: 1rem;
-      line-height: 1.6;
-      max-width: 400px;
-      margin-left: auto;
-      margin-right: auto;
+      margin-bottom: 24px;
     }
 
     .payment-messages {
@@ -953,10 +765,10 @@
           </div>
 
           <div id="paymentMessages" class="payment-messages"></div>
-              </div>
-              </div>
-            </div>
-          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- Fixed bottom container with Order More and Payment buttons -->
   <div class="checkout-fixed" id="checkoutFixed" style="display: none;">
@@ -964,12 +776,12 @@
       <div class="checkout-left-section">
         <button class="btn-order-more" onclick="orderMore()" id="orderMoreBtn">
           <i class="bi bi-plus-circle"></i> Order More Items
-          </button>
-        </div>
+        </button>
+      </div>
       <div class="checkout-right-section">
         <button class="btn-pay" id="payButton" onclick="handlePayment()">
           <i class="bi bi-lock-fill"></i> Complete Payment
-      </button>
+        </button>
       </div>
     </div>
   </div>
@@ -1205,29 +1017,81 @@
           sessionStorage.setItem('pendingOrder', JSON.stringify(orderData));
           localStorage.setItem('cart', JSON.stringify(cart));
           
-          console.log('🛒 Redirecting to Stripe Payment Link:', {
+          // Prepare items for Stripe Payment Link API
+          const items = cart.map(item => ({
+            name: item.name || item.item_name || 'Food Item',
+            price: item.price || 0,
+            quantity: item.qty || item.quantity || 1,
+            description: item.description || '',
+            image: item.img_url || item.image || null,
+            stallName: stallName,
+            shopName: stallName
+          }));
+          
+          // Calculate totals
+          const itemsTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+          const shippingFee = 0; // No shipping for food center pickup orders
+          const grandTotal = itemsTotal + shippingFee;
+          
+          // Prepare payment link data
+          const baseUrl = window.location.origin;
+          const successUrl = `${baseUrl}/pages/order/orderconfirmed.html`;
+          
+          const paymentLinkData = {
+            items: items,
+            shippingFee: shippingFee,
+            totalAmount: grandTotal,
             orderId: orderId,
-            total: orderTotal,
+            stallName: stallName,
+            foodCentre: foodCentre,
+            pickupOption: option,
+            pickupTime: pickupTime,
+            successUrl: successUrl
+          };
+          
+          console.log('🛒 Creating Stripe Payment Link:', {
+            orderId: orderId,
+            items: items.length,
+            total: grandTotal,
             stallName: stallName,
             foodCentre: foodCentre,
             option: option,
             pickupTime: pickupTime
           });
           
-          // Static Stripe Payment Link
-          const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/test_14AcN6bde4uE4uBeel6Zy01';
+          // Create Payment Link using Stripe API
+          const response = await fetch('/api/create-payment-link', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(paymentLinkData)
+          });
+
+          // Check if response is JSON
+          const contentType = response.headers.get('content-type');
+          if (!contentType || !contentType.includes('application/json')) {
+            const text = await response.text();
+            console.error('Non-JSON response:', text);
+            throw new Error('Server returned an error. Please make sure the server is running with "npm run server"');
+          }
+
+          const data = await response.json();
+
+          if (data.error) {
+            throw new Error(data.error || data.details || 'Failed to create payment link');
+          }
+
+          if (!data.url) {
+            throw new Error('Invalid response from server. Missing payment link URL.');
+          }
+
+          console.log('✅ Payment Link created:', data.url);
           
-          // Build payment link with client reference ID for tracking
-          // Note: Redirect URL must be configured in Stripe Dashboard
-          const paymentLinkUrl = `${STRIPE_PAYMENT_LINK}?client_reference_id=${orderId}`;
-          
-          console.log('🔗 Payment Link:', paymentLinkUrl);
-          console.log('📋 Order data saved. After payment, you will be redirected to orderconfirmed.html');
-          
-          // Redirect to Stripe Payment Link
-          // After payment, Stripe will redirect to orderconfirmed.html (configured in dashboard)
-          window.location.href = paymentLinkUrl;
-      } catch (error) {
+          // Redirect to dynamically created Stripe Payment Link
+          // After payment, Stripe will automatically redirect to orderconfirmed.html
+          window.location.href = data.url;
+        } catch (error) {
           console.error('Payment error:', error);
           messagesDiv.innerHTML = `
             <div class="alert alert-danger">
@@ -1239,11 +1103,11 @@
         }
       } else {
         // Handle cash payment
-      const session = JSON.parse(sessionStorage.getItem('orderSession') || '{}');
+        const session = JSON.parse(sessionStorage.getItem('orderSession') || '{}');
         const orderData = {
-        orderId: 'ORD' + Date.now().toString().slice(-6),
+          orderId: 'ORD' + Date.now().toString().slice(-6),
           stallName: localStorage.getItem('stallName') || 'Unknown Stall',
-        amount: orderTotal,
+          amount: orderTotal,
           type: session.option || 'Dine In',
           time: session.selectedTime ? formatTime(new Date(session.selectedTime)) : 'ASAP',
           paymentMethod: 'cash',

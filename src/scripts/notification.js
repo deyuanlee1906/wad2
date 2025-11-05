@@ -296,38 +296,6 @@
         text-align: right;
       }
 
-      .order-confirm-button {
-        margin-top: 20px;
-        width: 100%;
-        padding: 12px 24px;
-        background: var(--primary-color, #D98566);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        font-size: 0.95rem;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-      }
-
-      .order-confirm-button:hover {
-        background: #c66d52;
-        transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(217, 133, 102, 0.3);
-      }
-
-      .order-confirm-button:active {
-        transform: translateY(0);
-      }
-
-      .order-confirm-button i {
-        font-size: 1.1rem;
-      }
-
       .order-notification-backdrop {
         position: fixed;
         top: 0;
@@ -411,10 +379,6 @@
         <div class="order-notification-details" id="orderNotificationDetails">
           <!-- Order details will be populated here -->
         </div>
-        <button class="order-confirm-button" id="orderConfirmButton" onclick="confirmOrder()">
-          <i class="bi bi-check-circle"></i>
-          Confirm Order Collected
-        </button>
       </div>
     `;
 
@@ -652,53 +616,6 @@
       console.error('Error dismissing notification:', e);
     }
   }
-
-  // Confirm order and move to order history
-  window.confirmOrder = function() {
-    if (!currentOrderId) return;
-    
-    const notifications = getOrderNotifications();
-    const notification = notifications.find(n => n.orderId === currentOrderId);
-    
-    if (!notification) {
-      alert('Order not found');
-      return;
-    }
-    
-    // Get existing order history
-    let orderHistory = [];
-    try {
-      const historyStr = localStorage.getItem('orderHistory');
-      if (historyStr) {
-        orderHistory = JSON.parse(historyStr);
-      }
-    } catch (e) {
-      console.error('Error loading order history:', e);
-      orderHistory = [];
-    }
-    
-    // Add confirmed timestamp
-    const confirmedOrder = {
-      ...notification,
-      confirmedAt: new Date().toISOString(),
-      confirmed: true
-    };
-    
-    // Add to order history (prepend to show latest first)
-    orderHistory.unshift(confirmedOrder);
-    
-    // Save order history
-    localStorage.setItem('orderHistory', JSON.stringify(orderHistory));
-    
-    // Remove from notifications
-    dismissNotification(currentOrderId);
-    
-    // Close notification popup
-    closeOrderNotification();
-    
-    // Trigger event for profile page to update
-    window.dispatchEvent(new CustomEvent('orderHistoryUpdated', { detail: confirmedOrder }));
-  };
 
   // Show notification list view
   window.showNotificationList = function() {
