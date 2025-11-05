@@ -49,6 +49,7 @@ const firebaseInitPromise = (async function initializeFirebase() {
     db = getFirestore(app);
     
     // Export to window once initialized
+    window.app = app; // Export app for Storage initialization
     window.db = db;
     window.doc = doc;
     window.setDoc = setDoc;
@@ -73,6 +74,7 @@ const firebaseInitPromise = (async function initializeFirebase() {
     db = getFirestore(app);
     
     // Export to window with fallback
+    window.app = app; // Export app for Storage initialization
     window.db = db;
     window.doc = doc;
     window.setDoc = setDoc;
