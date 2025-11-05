@@ -18,7 +18,8 @@ app.use((req, res, next) => {
 // Middleware
 app.use(cors({
   origin: [
-    'http://localhost:10000',
+    'http://localhost:5173', // Dev server (npm run dev)
+    'http://localhost:10000', // Express server
     'https://your-render-app.onrender.com', // Add your Render URL
     process.env.FRONTEND_URL // Add this env var in Render
   ],

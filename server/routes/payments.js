@@ -4,8 +4,8 @@ const router = express.Router()
 
 router.post("/create-checkout-session", async (req, res) => {
   try {
-    console.log('📝 Stripe Secret Key exists:', !!process.env.STRIPE_SECRET_KEY);
-    console.log('📝 Request body:', JSON.stringify(req.body, null, 2));
+    console.log('🔍 Stripe Secret Key exists:', !!process.env.STRIPE_SECRET_KEY);
+    console.log('🔍 Request body:', JSON.stringify(req.body, null, 2));
 
     const { 
       items, 
@@ -23,11 +23,31 @@ router.post("/create-checkout-session", async (req, res) => {
       })
     }
 
-    // Build base URL - FIXED: Use environment variable first
-    const baseUrl = process.env.FRONTEND_URL || req.headers.origin || "http://localhost:10000";
+    // Get base URL from environment or request
+    // Priority: FRONTEND_URL > origin header > referer header
+    let baseUrl = process.env.FRONTEND_URL;
     
-    console.log('📝 Base URL:', baseUrl);
-    console.log('📝 Stripe Secret Key exists:', !!process.env.STRIPE_SECRET_KEY);
+    if (!baseUrl) {
+      const origin = req.headers.origin;
+      const referer = req.headers.referer;
+      
+      if (origin) {
+        baseUrl = origin;
+      } else if (referer) {
+        // Extract base URL from referer
+        try {
+          const url = new URL(referer);
+          baseUrl = `${url.protocol}//${url.host}`;
+        } catch (e) {
+          baseUrl = referer.split('/').slice(0, 3).join('/');
+        }
+      } else {
+        // Fallback for development
+        baseUrl = `${req.protocol}://${req.get('host')}`;
+      }
+    }
+    
+    console.log('🔍 Base URL:', baseUrl);
     
     // Calculate items total
     const itemsTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -230,11 +250,32 @@ router.post("/create-payment-link", async (req, res) => {
       })
     }
 
-    // Build base URL - FIXED: Use environment variable first
-    const baseUrl = process.env.FRONTEND_URL || req.headers.origin || "http://localhost:10000";
+    // Get base URL from environment or request
+    // Priority: FRONTEND_URL > origin header > referer header
+    let baseUrl = process.env.FRONTEND_URL;
     
-    console.log('📝 Base URL:', baseUrl);
-    console.log('📝 Stripe Secret Key exists:', !!process.env.STRIPE_SECRET_KEY);
+    if (!baseUrl) {
+      const origin = req.headers.origin;
+      const referer = req.headers.referer;
+      
+      if (origin) {
+        baseUrl = origin;
+      } else if (referer) {
+        // Extract base URL from referer
+        try {
+          const url = new URL(referer);
+          baseUrl = `${url.protocol}//${url.host}`;
+        } catch (e) {
+          baseUrl = referer.split('/').slice(0, 3).join('/');
+        }
+      } else {
+        // Fallback for development
+        baseUrl = `${req.protocol}://${req.get('host')}`;
+      }
+    }
+    
+    console.log('🔍 Base URL:', baseUrl);
+    console.log('🔍 Creating Payment Link for order:', orderId);
     
     // Calculate items total
     const itemsTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -326,6 +367,7 @@ router.post("/create-payment-link", async (req, res) => {
       url: paymentLink.url,
       total: grandTotal,
       itemsCount: items.length,
+      orderId: orderId
     })
 
     res.json({ 
@@ -346,5 +388,59 @@ router.post("/create-payment-link", async (req, res) => {
     })
   }
 })
+
+// Create Payment Intent endpoint (for direct Stripe integration)
+router.post("/create-payment-intent", async (req, res) => {
+  try {
+    const { amount, currency = "sgd", order } = req.body;
+
+    // Validate amount
+    if (!amount || amount <= 0) {
+      return res.status(400).json({
+        error: "Invalid amount. Amount must be greater than 0."
+      });
+    }
+
+    console.log("💳 Creating Payment Intent:", {
+      amount: amount,
+      currency: currency,
+      orderId: order?.id
+    });
+
+    // Create payment intent
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Convert to cents
+      currency: currency.toLowerCase(),
+      metadata: {
+        orderId: order?.id || `order_${Date.now()}`,
+        customerEmail: order?.customer?.email || "unknown",
+        foodCentre: order?.info?.foodCentre || "unknown",
+        stall: order?.info?.stall || "unknown"
+      },
+      description: `Food order from ${order?.info?.stall || "Unknown Stall"}`,
+      automatic_payment_methods: {
+        enabled: true,
+      },
+    });
+
+    console.log("✅ Payment Intent Created:", {
+      id: paymentIntent.id,
+      amount: paymentIntent.amount,
+      currency: paymentIntent.currency
+    });
+
+    res.status(200).json({
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id
+    });
+
+  } catch (error) {
+    console.error("❌ Error creating payment intent:", error);
+    res.status(500).json({
+      error: "Failed to create payment intent",
+      details: error.message
+    });
+  }
+});
 
 module.exports = router
