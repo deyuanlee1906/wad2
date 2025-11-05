@@ -6,6 +6,15 @@ require('dotenv').config();
 
 const app = express();
 
+// CRITICAL: Add COOP headers BEFORE other middleware
+app.use((req, res, next) => {
+  // Allow popups to communicate with the opener
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  // Optional: Also set COEP if needed
+  res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
+  next();
+});
+
 // Middleware
 app.use(cors({
   origin: [
