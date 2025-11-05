@@ -66,17 +66,25 @@ router.post("/create-checkout-session", async (req, res) => {
     }
 
     // Convert cart items to Stripe line items with stall name in description
-    const lineItems = items.map((item) => ({
-      price_data: {
-        currency: "sgd",
-        product_data: {
-          name: item.name,
-          description: item.description || "",
+    const lineItems = items.map((item) => {
+      const productData = {
+        name: item.name,
+      };
+      
+      // Only include description if it's a non-empty string
+      if (item.description && item.description.trim() !== "") {
+        productData.description = item.description;
+      }
+      
+      return {
+        price_data: {
+          currency: "sgd",
+          product_data: productData,
+          unit_amount: Math.round(item.price * 100), // Convert to cents
         },
-        unit_amount: Math.round(item.price * 100), // Convert to cents
-      },
-      quantity: item.quantity,
-    }))
+        quantity: item.quantity,
+      };
+    })
 
     // Build base URL
     const baseUrl = req.headers.origin || "http://localhost:10000";
