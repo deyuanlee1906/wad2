@@ -7,7 +7,6 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-<<<<<<< HEAD
 app.use(cors({
   origin: [
     'http://localhost:5173', // Dev server (npm run dev)
