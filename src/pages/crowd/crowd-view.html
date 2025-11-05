@@ -156,15 +156,10 @@
 
         .select-wrapper label {
             display: block;
-            position: static;
             font-size: var(--font-size-sm);
             font-weight: var(--font-weight-medium);
             color: #1a1a1a;
             margin-bottom: var(--space-8);
-            left: auto;
-            top: auto;
-            transform: none;
-            pointer-events: auto;
         }
 
         select {
@@ -603,59 +598,16 @@
                 display: block;
             }
 
-            .mobile-view .header {
-                margin-bottom: var(--space-24);
-                padding: 0 var(--space-4);
-            }
-
-            .mobile-view .header > div:first-child {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                gap: var(--space-12);
-                flex-wrap: nowrap;
-                width: 100%;
-                position: relative;
-            }
-
-            .mobile-view .header h1 {
+            .header h1 {
                 font-size: var(--font-size-2xl);
-                margin: 0;
-                flex: 1;
-                min-width: 0;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                -webkit-font-smoothing: antialiased;
-                -moz-osx-font-smoothing: grayscale;
-                text-rendering: optimizeLegibility;
-                line-height: 1.2;
-                word-break: normal;
-                transform: translateZ(0);
-                -webkit-transform: translateZ(0);
-                backface-visibility: hidden;
-                -webkit-backface-visibility: hidden;
-            }
-
-            .mobile-view .live-indicator {
-                flex-shrink: 0;
-                white-space: nowrap;
             }
 
             .hawker-selector {
                 flex-direction: column;
-                gap: var(--space-16);
             }
 
             .select-wrapper {
                 min-width: 100%;
-                width: 100%;
-            }
-            
-            .select-wrapper label {
-                margin-bottom: var(--space-8);
-                white-space: normal;
-                word-wrap: break-word;
             }
 
             .stats-grid {
@@ -978,7 +930,7 @@
     <!-- MOBILE VIEW (iPhone SE) -->
     <div class="mobile-view">
         <div class="header">
-            <div>
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: var(--space-16);">
                 <h1>🍜 Crowd View</h1>
                 <div class="live-indicator">
                     <span class="live-dot"></span>

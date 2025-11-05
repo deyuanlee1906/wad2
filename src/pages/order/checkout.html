@@ -978,94 +978,35 @@
         try {
           // Get session info for order details
           const session = JSON.parse(sessionStorage.getItem('orderSession') || '{}');
-          const stallName = localStorage.getItem('stallName') || 'Unknown Stall';
-          const foodCentre = session.foodCentre || sessionStorage.getItem('selectedFoodCentre') || '';
-          const option = session.option || localStorage.getItem('selectedOption') || 'Dine In';
-          const selectedTime = session.selectedTime || localStorage.getItem('selectedTime') || '';
           
-          // Format pickup time
-          let pickupTime = 'ASAP';
-          if (selectedTime && selectedTime !== 'asap') {
-            try {
-              const timeDate = new Date(selectedTime);
-              if (!isNaN(timeDate.getTime())) {
-                pickupTime = formatTime(timeDate);
-              }
-            } catch (e) {
-              pickupTime = 'ASAP';
-            }
-          }
-          
-          // Prepare order ID
-          const orderId = 'ORD' + Date.now().toString().slice(-6);
-          
-          // Store order details before redirecting to payment link
+          // Store order details before creating checkout session
           const orderData = {
-            orderId: orderId,
+            orderId: 'ORD' + Date.now().toString().slice(-6),
             items: cart,
             total: orderTotal,
-            amount: orderTotal, // Also include 'amount' for compatibility with orderconfirmed.html
-            stallName: stallName,
-            foodCentre: foodCentre,
-            type: option,
-            time: pickupTime,
+            stallName: localStorage.getItem('stallName') || 'Unknown Stall',
+            type: session.option || 'Dine In',
+            time: session.selectedTime ? formatTime(new Date(session.selectedTime)) : 'ASAP',
             paymentMethod: 'stripe',
             timestamp: new Date().toISOString()
           };
-          
-          // Save order data to sessionStorage and localStorage for retrieval after payment
           sessionStorage.setItem('pendingOrder', JSON.stringify(orderData));
           localStorage.setItem('cart', JSON.stringify(cart));
           
-          // Prepare items for Stripe Payment Link API
-          const items = cart.map(item => ({
-            name: item.name || item.item_name || 'Food Item',
-            price: item.price || 0,
-            quantity: item.qty || item.quantity || 1,
-            description: item.description || '',
-            image: item.img_url || item.image || null,
-            stallName: stallName,
-            shopName: stallName
-          }));
-          
-          // Calculate totals
-          const itemsTotal = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-          const shippingFee = 0; // No shipping for food center pickup orders
-          const grandTotal = itemsTotal + shippingFee;
-          
-          // Prepare payment link data
-          const baseUrl = window.location.origin;
-          const successUrl = `${baseUrl}/pages/order/orderconfirmed.html`;
-          
-          const paymentLinkData = {
-            items: items,
-            shippingFee: shippingFee,
-            totalAmount: grandTotal,
-            orderId: orderId,
-            stallName: stallName,
-            foodCentre: foodCentre,
-            pickupOption: option,
-            pickupTime: pickupTime,
-            successUrl: successUrl
-          };
-          
-          console.log('🛒 Creating Stripe Payment Link:', {
-            orderId: orderId,
-            items: items.length,
-            total: grandTotal,
-            stallName: stallName,
-            foodCentre: foodCentre,
-            option: option,
-            pickupTime: pickupTime
-          });
-          
-          // Create Payment Link using Stripe API
-          const response = await fetch('/api/create-payment-link', {
+          // Create Checkout Session using Stripe API
+          const response = await fetch('/api/create-checkout-session', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify(paymentLinkData)
+            body: JSON.stringify({
+              items: cart.map(item => ({
+                name: item.name || 'Food Item',
+                price: item.price || 0,
+                quantity: item.qty || 1,
+                description: item.description || ''
+              }))
+            })
           });
 
           // Check if response is JSON
@@ -1079,17 +1020,14 @@
           const data = await response.json();
 
           if (data.error) {
-            throw new Error(data.error || data.details || 'Failed to create payment link');
+            throw new Error(data.error || data.details || 'Failed to create checkout session');
           }
 
           if (!data.url) {
-            throw new Error('Invalid response from server. Missing payment link URL.');
+            throw new Error('Invalid response from server. Missing checkout URL.');
           }
 
-          console.log('✅ Payment Link created:', data.url);
-          
-          // Redirect to dynamically created Stripe Payment Link
-          // After payment, Stripe will automatically redirect to orderconfirmed.html
+          // Redirect to Stripe Checkout Session (dynamically created with cart total)
           window.location.href = data.url;
         } catch (error) {
           console.error('Payment error:', error);
