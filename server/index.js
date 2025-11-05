@@ -6,24 +6,8 @@ require('dotenv').config();
 
 const app = express();
 
-// CRITICAL: Add COOP headers BEFORE other middleware
-app.use((req, res, next) => {
-  // Allow popups to communicate with the opener
-  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
-  // Optional: Also set COEP if needed
-  res.setHeader('Cross-Origin-Embedder-Policy', 'unsafe-none');
-  next();
-});
-
 // Middleware
-app.use(cors({
-  origin: [
-    'http://localhost:10000',
-    'https://your-render-app.onrender.com', // Add your Render URL
-    process.env.FRONTEND_URL // Add this env var in Render
-  ],
-  credentials: true
-}));
+app.use(cors());
 app.use(express.json());
 
 // Import routes (before static files to ensure API routes are mounted first)
