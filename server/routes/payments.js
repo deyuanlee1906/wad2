@@ -23,6 +23,7 @@ router.post("/create-checkout-session", async (req, res) => {
       })
     }
 
+<<<<<<< HEAD
     // Get base URL from environment or request
     // Priority: FRONTEND_URL > origin header > referer header
     let baseUrl = process.env.FRONTEND_URL;
@@ -81,80 +82,34 @@ router.post("/create-checkout-session", async (req, res) => {
       }
     })
 
-    // Add shipping as a separate line item if applicable
-    if (shippingFee && shippingFee > 0) {
-      lineItems.push({
-        price_data: {
-          currency: "sgd",
-          product_data: {
-            name: "Shipping Fee",
-            description: "Delivery or service fee",
-          },
-          unit_amount: Math.round(shippingFee * 100),
-        },
-        quantity: 1,
-      })
-    }
+    // Build base URL
+    const baseUrl = req.headers.origin || "http://localhost:10000";
     
-    // Prepare metadata
-    const metadata = {
-      orderId: req.body.orderId || `order_${Date.now()}`,
-      items: JSON.stringify(items),
-      itemsTotal: itemsTotal.toFixed(2),
-      shippingFee: (shippingFee || 0).toFixed(2),
-      total: grandTotal.toFixed(2),
-    }
-
-    // Add address info to metadata if provided
-    if (deliveryAddress) {
-      metadata.deliveryAddress = JSON.stringify(deliveryAddress);
-    }
-
-    // Add stall/shop info to metadata if available
-    if (req.body.stallName) {
-      metadata.stallName = req.body.stallName;
-    }
-    if (req.body.foodCentre) {
-      metadata.foodCentre = req.body.foodCentre;
-    }
-    if (req.body.pickupOption) {
-      metadata.pickupOption = req.body.pickupOption;
-    }
-    if (req.body.pickupTime) {
-      metadata.pickupTime = req.body.pickupTime;
-    }
+    // Calculate total for description
+    const total = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     
     // Create Checkout Session using Stripe API
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: lineItems,
       mode: "payment",
-      success_url: successUrl || `${baseUrl}/pages/order/orderconfirmed.html?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: cancelUrl || `${baseUrl}/pages/order/checkout.html`,
-      metadata: metadata,
-      // Allow promotion codes
-      allow_promotion_codes: true,
+      success_url: `${baseUrl}/pages/order/orderconfirmed.html?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/pages/order/checkout.html`,
+      metadata: {
+        orderId: `order_${Date.now()}`,
+        items: JSON.stringify(items),
+        total: total.toFixed(2),
+      },
     })
 
     console.log("✅ Checkout Session Created:", {
       id: session.id,
       url: session.url,
-      total: grandTotal,
-      itemsCount: items.length,
     })
 
-    res.json({ 
-      url: session.url,
-      sessionId: session.id 
-    })
+    res.json({ url: session.url })
   } catch (error) {
     console.error("❌ Error creating checkout session:", error)
-    console.error("❌ Error details:", {
-      message: error.message,
-      type: error.type,
-      code: error.code,
-      statusCode: error.statusCode
-    })
     res.status(500).json({
       error: "Failed to create checkout session",
       details: error.message,
@@ -229,6 +184,7 @@ router.get("/verify-checkout-session/:sessionId", async (req, res) => {
   }
 })
 
+<<<<<<< HEAD
 // Endpoint to create a Stripe Payment Link dynamically
 router.post("/create-payment-link", async (req, res) => {
   try {
