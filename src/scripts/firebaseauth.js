@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 import { getFirestore, setDoc, doc, getDoc, collection, query, where, getDocs, updateDoc, deleteDoc, serverTimestamp, addDoc } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
 import { GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, FacebookAuthProvider } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
 
@@ -104,91 +104,24 @@ const firebaseInitPromise = (async function initializeFirebase() {
 // Export the promise so other code can wait for initialization
 window.firebaseInitPromise = firebaseInitPromise;
 
-// Handle OAuth redirect results (for redirect-based login flow)
+// Check for redirect results (in case redirect flow was used)
+// Note: We're now using popup flow, but this handles any pending redirects
 (async function handleOAuthRedirect() {
-  console.log('🔍 Checking for OAuth redirect result...');
-  
   try {
-    // Wait for Firebase to initialize
-    const { auth, db } = await firebaseInitPromise;
-    console.log('✅ Firebase initialized, checking redirect result...');
-    
-    // Check if we're returning from an OAuth redirect
+    const { auth } = await firebaseInitPromise;
     const result = await getRedirectResult(auth);
     
     if (result) {
-      console.log('✅ OAuth redirect successful!', result);
+      console.log('✅ OAuth redirect detected and handled');
+      // Redirect flow is deprecated, but handle it if it happens
       const user = result.user;
-      console.log('👤 User:', user.email, user.uid);
-      
-      // Check if this is a new user
-      let isNewUser = false;
-      const userDocRef = doc(db, 'users', user.uid);
-      const userDocSnap = await getDoc(userDocRef);
-      
-      if (!userDocSnap.exists()) {
-        isNewUser = true;
-        console.log('🆕 New user detected, creating profile...');
-        // For new users, create minimal profile
-        await setDoc(userDocRef, {
-          email: user.email,
-          name: user.displayName,
-          createdAt: new Date()
-        });
-        console.log('✅ New user profile created');
-      } else {
-        console.log('✅ Existing user found');
-      }
-      
-      // Persist session
       localStorage.setItem('loggedInUserId', user.uid);
-      console.log('✅ Session stored in localStorage');
-      
-      // Redirect based on user status
-      if (isNewUser) {
-        console.log('🔄 Redirecting new user to onboarding...');
-        window.location.href = '/pages/onboarding/choose-username.html';
-      } else {
-        console.log('🔄 Redirecting existing user to app...');
-        window.location.href = '/pages/chope/chope.html';
-      }
-    } else {
-      console.log('ℹ️ No redirect result (normal page load or redirect not completed)');
+      window.location.href = '/pages/chope/chope.html';
     }
   } catch (error) {
-    console.error('❌ OAuth redirect handler error:', error);
-    console.error('Error details:', {
-      code: error.code,
-      message: error.message,
-      stack: error.stack
-    });
-    
-    if (error.code) {
-      // Show user-friendly error message
-      const errorMessages = {
-        'auth/unauthorized-domain': `Domain not authorized. Please add ${window.location.hostname} to Firebase authorized domains in Firebase Console.`,
-        'auth/popup-blocked': 'Popup was blocked. Please allow popups for this site.',
-        'auth/account-exists-with-different-credential': 'Account exists with different sign-in method.',
-        'auth/operation-not-allowed': 'This sign-in method is not enabled in Firebase Console.'
-      };
-      
-      const message = errorMessages[error.code] || `Sign-in failed: ${error.message}`;
-      console.error('📢 User-facing error:', message);
-      
-      // Try to show message if on login page
-      const messageDiv = document.getElementById('signInMessage');
-      if (messageDiv) {
-        messageDiv.style.display = 'block';
-        messageDiv.innerHTML = message;
-        messageDiv.style.opacity = 1;
-        setTimeout(() => {
-          messageDiv.style.opacity = 0;
-        }, 10000);
-      } else {
-        console.warn('⚠️ Could not find signInMessage div to display error');
-        // Show alert as fallback
-        alert(message);
-      }
+    // Silently handle redirect errors since we're using popup flow now
+    if (error.code && error.code !== 'auth/no-auth-event') {
+      console.warn('Redirect result check failed:', error.code);
     }
   }
 })();
@@ -434,138 +367,152 @@ document.addEventListener('DOMContentLoaded', async () => {
       console.log('🔐 Auth object:', auth);
       console.log('🌍 Current domain:', window.location.hostname);
       
-      const provider = new GoogleAuthProvider();
-      try {
-        // Try redirect flow first (more reliable, no COOP issues)
-        console.log('🔄 Initiating Google sign-in with redirect...');
-        console.log('📍 About to call signInWithRedirect...');
-        await signInWithRedirect(auth, provider);
-        console.log('✅ signInWithRedirect called successfully (user should be redirecting now)');
-        // User will be redirected to Google, then back to our app
-        // The redirect result is handled by handleOAuthRedirect() function
-      } catch (error) {
-        console.error("❌ Google redirect failed, trying popup fallback:", error);
-        console.error("Error details:", { code: error.code, message: error.message });
-        
-        // Fallback to popup if redirect fails
+      // Check if user is already signed in - sign them out first to allow account selection
+      const currentUser = auth.currentUser;
+      if (currentUser) {
+        console.log('👤 User already signed in, signing out to allow account selection...');
         try {
-          const result = await signInWithPopup(auth, provider);
-          const user = result.user;
-
-          // Check if this is a new user (no existing document in Firestore)
-          let isNewUser = false;
-          const userDocRef = doc(db, 'users', user.uid);
-          const userDocSnap = await getDoc(userDocRef);
-          
-          if (!userDocSnap.exists()) {
-            isNewUser = true;
-            // For new users, create minimal profile - they'll pick username in onboarding
-            await setDoc(userDocRef, {
-              email: user.email,
-              name: user.displayName,
-              createdAt: new Date()
-            });
-          }
-
-          // Persist session context
-          localStorage.setItem('loggedInUserId', user.uid);
-          showMessage("Google login successful!", "signInMessage");
-          
-          // If new user, redirect to onboarding flow; otherwise go to app
-          if (isNewUser) {
-            window.location.href = '/pages/onboarding/choose-username.html';
-          } else {
-            window.location.href = '/pages/chope/chope.html';
-          }
-        } catch (popupError) {
-          console.error("Google login failed:", popupError);
-          console.error("Error code:", popupError.code);
-          console.error("Error message:", popupError.message);
-          
-          const errorCode = popupError.code;
-          let errorMessage = `Google login failed: ${popupError.message || errorCode || 'Unknown error'}`;
-          
-          if (errorCode === 'auth/popup-blocked') {
-            errorMessage = "Popup was blocked. Please allow popups for this site and try again.";
-          } else if (errorCode === 'auth/popup-closed-by-user') {
-            errorMessage = "Login cancelled. Please try again.";
-          } else if (errorCode === 'auth/unauthorized-domain') {
-            errorMessage = `Unauthorized domain. Current domain: ${window.location.hostname}. Please add ${window.location.hostname} to Firebase Authorized domains.`;
-          } else if (errorCode === 'auth/operation-not-allowed') {
-            errorMessage = "Google login is not enabled in Firebase Console.";
-          } else if (errorCode === 'auth/account-exists-with-different-credential') {
-            errorMessage = "An account already exists with the same email but different sign-in method.";
-          }
-          
-          showMessage(errorMessage, "signInMessage");
-          
-          // Log to console for debugging
-          console.log("Current domain:", window.location.hostname);
-          console.log("Firebase authDomain:", firebaseConfig.authDomain);
+          await signOut(auth);
+          console.log('✅ Signed out successfully');
+        } catch (signOutError) {
+          console.warn('⚠️ Could not sign out:', signOutError);
         }
+      }
+      
+      const provider = new GoogleAuthProvider();
+      // Force account selection - always show account picker
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+      try {
+        // Use popup flow (COOP headers configured in render.yaml allow this)
+        console.log('🔄 Initiating Google sign-in with popup...');
+        console.log('📋 Account picker will be shown (forced)');
+        const result = await signInWithPopup(auth, provider);
+        console.log('✅ Google sign-in successful!', result);
+        const user = result.user;
+
+        // Check if this is a new user (no existing document in Firestore)
+        let isNewUser = false;
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        
+        if (!userDocSnap.exists()) {
+          isNewUser = true;
+          console.log('🆕 New user detected, creating profile...');
+          // For new users, create minimal profile - they'll pick username in onboarding
+          await setDoc(userDocRef, {
+            email: user.email,
+            name: user.displayName,
+            createdAt: new Date()
+          });
+          console.log('✅ New user profile created');
+        } else {
+          console.log('✅ Existing user found');
+        }
+
+        // Persist session context
+        localStorage.setItem('loggedInUserId', user.uid);
+        console.log('✅ Session stored');
+        showMessage("Google login successful!", "signInMessage");
+        
+        // If new user, redirect to onboarding flow; otherwise go to app
+        if (isNewUser) {
+          console.log('🔄 Redirecting to onboarding...');
+          window.location.href = '/pages/onboarding/choose-username.html';
+        } else {
+          console.log('🔄 Redirecting to app...');
+          window.location.href = '/pages/chope/chope.html';
+        }
+      } catch (error) {
+        console.error("❌ Google login failed:", error);
+        console.error("Error details:", { code: error.code, message: error.message, stack: error.stack });
+        
+        const errorCode = error.code;
+        let errorMessage = `Google login failed: ${error.message || errorCode || 'Unknown error'}`;
+        
+        if (errorCode === 'auth/popup-blocked') {
+          errorMessage = "Popup was blocked. Please allow popups for this site and try again.";
+        } else if (errorCode === 'auth/popup-closed-by-user') {
+          errorMessage = "Login cancelled. Please try again.";
+        } else if (errorCode === 'auth/unauthorized-domain') {
+          errorMessage = `Unauthorized domain. Current domain: ${window.location.hostname}. Please add ${window.location.hostname} to Firebase Authorized domains.`;
+        } else if (errorCode === 'auth/operation-not-allowed') {
+          errorMessage = "Google login is not enabled in Firebase Console.";
+        } else if (errorCode === 'auth/account-exists-with-different-credential') {
+          errorMessage = "An account already exists with the same email but different sign-in method.";
+        }
+        
+        showMessage(errorMessage, "signInMessage");
+        
+        // Log to console for debugging
+        console.log("Current domain:", window.location.hostname);
+        console.log("Firebase authDomain:", firebaseConfig.authDomain);
       }
     });
   });
 
   facebookButtons.forEach((btn) => {
     btn.addEventListener('click', async () => {
+      console.log('🖱️ Facebook login button clicked!');
       const provider = new FacebookAuthProvider();
       try {
-        // Try redirect flow first (more reliable, no COOP issues)
-        console.log('🔄 Initiating Facebook sign-in with redirect...');
-        await signInWithRedirect(auth, provider);
-        // User will be redirected to Facebook, then back to our app
-        // The redirect result is handled by handleOAuthRedirect() function
-      } catch (error) {
-        console.error("Facebook redirect failed, trying popup fallback:", error);
+        // Use popup flow (COOP headers configured in render.yaml allow this)
+        console.log('🔄 Initiating Facebook sign-in with popup...');
+        const result = await signInWithPopup(auth, provider);
+        console.log('✅ Facebook sign-in successful!', result);
+        const user = result.user;
+
+        // Check if this is a new user (no existing document in Firestore)
+        let isNewUser = false;
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
         
-        // Fallback to popup if redirect fails
-        try {
-          const result = await signInWithPopup(auth, provider);
-          const user = result.user;
-
-          // Check if this is a new user (no existing document in Firestore)
-          let isNewUser = false;
-          const userDocRef = doc(db, 'users', user.uid);
-          const userDocSnap = await getDoc(userDocRef);
-          
-          if (!userDocSnap.exists()) {
-            isNewUser = true;
-            // For new users, create minimal profile - they'll pick username in onboarding
-            await setDoc(userDocRef, {
-              email: user.email,
-              name: user.displayName,
-              createdAt: new Date()
-            });
-          }
-
-          // Persist session context
-          localStorage.setItem('loggedInUserId', user.uid);
-          showMessage("Facebook login successful!", "signInMessage");
-          
-          // If new user, redirect to onboarding flow; otherwise go to app
-          if (isNewUser) {
-            window.location.href = '/pages/onboarding/choose-username.html';
-          } else {
-            window.location.href = '/pages/chope/chope.html';
-          }
-        } catch (popupError) {
-          console.error("Facebook login failed:", popupError);
-          const errorCode = popupError.code;
-          let errorMessage = "Facebook login failed. Please try again.";
-          
-          if (errorCode === 'auth/popup-blocked') {
-            errorMessage = "Popup was blocked. Please allow popups for this site and try again.";
-          } else if (errorCode === 'auth/popup-closed-by-user') {
-            errorMessage = "Login cancelled. Please try again.";
-          } else if (errorCode === 'auth/unauthorized-domain') {
-            errorMessage = "This domain is not authorized. Please contact support.";
-          } else if (errorCode === 'auth/operation-not-allowed') {
-            errorMessage = "Facebook login is not enabled. Please contact support.";
-          }
-          
-          showMessage(errorMessage, "signInMessage");
+        if (!userDocSnap.exists()) {
+          isNewUser = true;
+          console.log('🆕 New Facebook user detected, creating profile...');
+          // For new users, create minimal profile - they'll pick username in onboarding
+          await setDoc(userDocRef, {
+            email: user.email,
+            name: user.displayName,
+            createdAt: new Date()
+          });
+          console.log('✅ New user profile created');
+        } else {
+          console.log('✅ Existing Facebook user found');
         }
+
+        // Persist session context
+        localStorage.setItem('loggedInUserId', user.uid);
+        console.log('✅ Session stored');
+        showMessage("Facebook login successful!", "signInMessage");
+        
+        // If new user, redirect to onboarding flow; otherwise go to app
+        if (isNewUser) {
+          console.log('🔄 Redirecting to onboarding...');
+          window.location.href = '/pages/onboarding/choose-username.html';
+        } else {
+          console.log('🔄 Redirecting to app...');
+          window.location.href = '/pages/chope/chope.html';
+        }
+      } catch (error) {
+        console.error("❌ Facebook login failed:", error);
+        console.error("Error details:", { code: error.code, message: error.message });
+        
+        const errorCode = error.code;
+        let errorMessage = "Facebook login failed. Please try again.";
+        
+        if (errorCode === 'auth/popup-blocked') {
+          errorMessage = "Popup was blocked. Please allow popups for this site and try again.";
+        } else if (errorCode === 'auth/popup-closed-by-user') {
+          errorMessage = "Login cancelled. Please try again.";
+        } else if (errorCode === 'auth/unauthorized-domain') {
+          errorMessage = "This domain is not authorized. Please contact support.";
+        } else if (errorCode === 'auth/operation-not-allowed') {
+          errorMessage = "Facebook login is not enabled. Please contact support.";
+        }
+        
+        showMessage(errorMessage, "signInMessage");
       }
     });
   });
