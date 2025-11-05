@@ -99,13 +99,31 @@
                 <div class="col-12 col-md-6">
                      Select Timeslot
                     <select id="timeslot" class="form-select" required> <!-- require to select-->
-                        <option value="11:00 AM" selected>11:00 AM</option>
+                        <option value="8:00 AM" selected>8:00 AM</option>
+                        <option value="8:30 AM">8:30 AM</option>
+                        <option value="9:00 AM">9:00 AM</option>
+                        <option value="9:30 AM">9:30 AM</option>
+                        <option value="10:00 AM">10:00 AM</option>
+                        <option value="10:30 AM">10:30 AM</option>
+                        <option value="11:00 AM">11:00 AM</option>
                         <option value="11:30 AM">11:30 AM</option>
                         <option value="12:00 PM">12:00 PM</option>
                         <option value="12:30 PM">12:30 PM</option>
                         <option value="1:00 PM">1:00 PM</option>
                         <option value="1:30 PM">1:30 PM</option>
                         <option value="2:00 PM">2:00 PM</option>
+                        <option value="2:30 PM">2:30 PM</option>
+                        <option value="3:00 PM">3:00 PM</option>
+                        <option value="3:30 PM">3:30 PM</option>
+                        <option value="4:00 PM">4:00 PM</option>
+                        <option value="4:30 PM">4:30 PM</option>
+                        <option value="5:00 PM">5:00 PM</option>
+                        <option value="5:30 PM">5:30 PM</option>
+                        <option value="6:00 PM">6:00 PM</option>
+                        <option value="6:30 PM">6:30 PM</option>
+                        <option value="7:00 PM">7:00 PM</option>
+                        <option value="7:30 PM">7:30 PM</option>
+                        <option value="8:00 PM">8:00 PM</option>
                     </select>
                 </div>
 
@@ -221,6 +239,60 @@
             }, 800);
         }
 
+        // Function to hide past timeslots based on current time
+        function updateTimeSlots() {
+            const now = new Date();
+            const currentMinutes = now.getHours() * 60 + now.getMinutes(); // convert to total minutes of the day
+
+            const select = document.getElementById("timeslot");
+            const checkBtn = document.getElementById("checkBtn");
+            
+            const options = Array.from(select.options);
+
+            // Loop through all options in the dropdown
+            options.forEach(option => {
+                // Convert option time (e.g. "10:30 AM") to minutes
+                const timeStr = option.value;
+                const [time, period] = timeStr.split(" ");
+                let [hours, minutes] = time.split(":").map(Number);
+
+                // Convert 12-hour format to 24-hour
+                if (period === "PM" && hours !== 12) hours += 12;
+                if (period === "AM" && hours === 12) hours = 0;
+
+                const optionMinutes = hours * 60 + minutes;
+
+                // Hide past times
+                if (optionMinutes < currentMinutes) {
+                    option.style.display = "none";
+                } else {
+                    option.style.display = "block";
+                }
+            });
+
+            // Automatically select the first available future slot
+            const visibleOptions = options.filter(opt => opt.style.display !== "none");
+            if (visibleOptions.length > 0) {
+                visibleOptions[0].selected = true;
+                select.disabled = false;
+                checkBtn.disabled = false; // enable button
+                checkBtn.style.opacity = "1"; // restore normal appearance
+                checkBtn.style.cursor = "pointer";
+            } else {
+                // no available slots left today
+                const placeholder = document.createElement("option");
+                placeholder.textContent = "No more slots available today";
+                placeholder.disabled = true;
+                placeholder.selected = true;
+                select.innerHTML = "";
+                select.appendChild(placeholder);
+
+                // disable the button
+                checkBtn.disabled = true;
+                checkBtn.style.opacity = "0.6";
+            }
+        }
+
         // add event listener to the reset button
         document.getElementById("resetBtn").addEventListener("click", () =>{
             document.getElementById("timeslot").selectedIndex = 0;
@@ -251,6 +323,7 @@
         window.onload = function() {
             loadGoogleMaps();
             window.bookingHistory.initialize();
+            updateTimeSlots();
         };
 
         // Load Google Maps API dynamically with API key from environment
@@ -281,7 +354,7 @@
         }
     </script>
 
-
+    <!-- AIzaSyAZYjV0jElEp2DoLwlC5gE941lkf3Ymt14 -->
     <!-------------------------Bootstrap------------------------- -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script src="/scripts/notification.js"></script>
