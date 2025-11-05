@@ -2,13 +2,66 @@ const express = require("express")
 const stripe = require("../external/stripeClient")
 const router = express.Router()
 
+/**
+ * Validate cart items
+ * @param {Array} items - Cart items to validate
+ * @returns {Object} - { valid: boolean, errors: Array }
+ */
+function validateCartItems(items) {
+  const errors = [];
+  
+  if (!items || !Array.isArray(items)) {
+    errors.push('Items must be an array');
+    return { valid: false, errors };
+  }
+  
+  if (items.length === 0) {
+    errors.push('Cart is empty');
+    return { valid: false, errors };
+  }
+  
+  if (items.length > 100) {
+    errors.push('Cart cannot contain more than 100 items');
+  }
+  
+  items.forEach((item, index) => {
+    if (!item.name || typeof item.name !== 'string') {
+      errors.push(`Item ${index + 1}: name is required and must be a string`);
+    }
+    
+    if (typeof item.price !== 'number' || item.price < 0) {
+      errors.push(`Item ${index + 1}: price must be a non-negative number`);
+    }
+    
+    if (item.price > 10000) {
+      errors.push(`Item ${index + 1}: price exceeds maximum allowed ($10,000)`);
+    }
+    
+    if (typeof item.quantity !== 'number' || item.quantity < 1 || item.quantity > 100) {
+      errors.push(`Item ${index + 1}: quantity must be between 1 and 100`);
+    }
+    
+    if (!Number.isInteger(item.quantity)) {
+      errors.push(`Item ${index + 1}: quantity must be an integer`);
+    }
+  });
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+
 router.post("/create-checkout-session", async (req, res) => {
   try {
     const { items } = req.body
 
-    if (!items || items.length === 0) {
+    // Validate cart items
+    const validation = validateCartItems(items);
+    if (!validation.valid) {
       return res.status(400).json({
-        error: "Cart is empty",
+        error: "Invalid cart data",
+        details: validation.errors
       })
     }
 

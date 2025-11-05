@@ -1,11 +1,14 @@
 {
   "name": "chope-lah",
   "private": true,
+  "version": "1.0.0",
+  "description": "ChopeLah - Hawker Centre Seat Reservation and Food Ordering Platform",
   "scripts": {
-    "dev": "serve src -l 5173",
-    "server": "node server/index.js",
     "start": "node server/index.js",
-    "build": "echo 'No build step required - static files served directly'"
+    "server": "node server/index.js",
+    "dev": "node server/index.js",
+    "build": "echo 'No build step required - static files served directly'",
+    "test": "echo 'No tests configured yet'"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -19,5 +22,13 @@
   "engines": {
     "node": ">=18.0.0",
     "npm": ">=9.0.0"
-  }
+  },
+  "keywords": [
+    "hawker-centre",
+    "reservation",
+    "food-ordering",
+    "singapore"
+  ],
+  "author": "ChopeLah Team",
+  "license": "ISC"
 }
