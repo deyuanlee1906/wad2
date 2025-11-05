@@ -146,6 +146,25 @@ app.get('/api/stripe-config', (req, res) => {
 });
 
 // ============================================
+// Google Maps Config Endpoint
+// ============================================
+app.get('/api/google-maps-config', (req, res) => {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  
+  if (!apiKey) {
+    console.warn('⚠️  GOOGLE_MAPS_API_KEY not set in environment variables');
+    return res.status(500).json({ 
+      error: 'Google Maps API key not configured',
+      message: 'Please set GOOGLE_MAPS_API_KEY in your .env file'
+    });
+  }
+  
+  res.json({
+    apiKey: apiKey
+  });
+});
+
+// ============================================
 // Static Files Configuration
 // ============================================
 const staticPath = path.join(__dirname, '../src');
@@ -297,6 +316,7 @@ const server = app.listen(PORT, () => {
   console.log(`📅 Reservations API: http://localhost:${PORT}/api/reservations`);
   console.log(`❤️  Health Check: http://localhost:${PORT}/api/health`);
   console.log(`🔥 Firebase Config: http://localhost:${PORT}/api/firebase-config`);
+  console.log(`🗺️  Google Maps Config: http://localhost:${PORT}/api/google-maps-config`);
   console.log('='.repeat(50));
   
   // Environment variable warnings
@@ -304,6 +324,7 @@ const server = app.listen(PORT, () => {
   if (!process.env.STRIPE_SECRET_KEY) warnings.push('STRIPE_SECRET_KEY not set');
   if (!process.env.STRIPE_PUBLISHABLE_KEY) warnings.push('STRIPE_PUBLISHABLE_KEY not set');
   if (!process.env.FIREBASE_API_KEY) warnings.push('FIREBASE_API_KEY not set (using fallback)');
+  if (!process.env.GOOGLE_MAPS_API_KEY) warnings.push('GOOGLE_MAPS_API_KEY not set');
   
   if (warnings.length > 0) {
     console.log('⚠️  Warnings:');

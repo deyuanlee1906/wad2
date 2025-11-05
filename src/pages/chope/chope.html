@@ -249,12 +249,37 @@
 
         // load the map and initialize booking history
         window.onload = function() {
-            initMap();
+            loadGoogleMaps();
             window.bookingHistory.initialize();
         };
+
+        // Load Google Maps API dynamically with API key from environment
+        async function loadGoogleMaps() {
+            try {
+                const response = await fetch('/api/google-maps-config');
+                if (response.ok) {
+                    const config = await response.json();
+                    if (config.apiKey && config.apiKey.trim() !== '') {
+                        // Load Google Maps script with API key
+                        const script = document.createElement('script');
+                        script.src = `https://maps.googleapis.com/maps/api/js?key=${config.apiKey}&callback=initMap`;
+                        script.async = true;
+                        script.defer = true;
+                        document.head.appendChild(script);
+                        console.log('✅ Loaded Google Maps API with key from environment');
+                    } else {
+                        console.error('❌ Google Maps API key is empty');
+                        alert('Google Maps API key not configured. Please set GOOGLE_MAPS_API_KEY in your .env file');
+                    }
+                } else {
+                    throw new Error('Failed to fetch Google Maps config');
+                }
+            } catch (error) {
+                console.error('❌ Error loading Google Maps API:', error);
+                alert('Failed to load Google Maps. Please check your API key configuration.');
+            }
+        }
     </script>
-    <!-- google maps link and YOUR OWN API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap" async defer></script>
 
 
     <!-------------------------Bootstrap------------------------- -->
