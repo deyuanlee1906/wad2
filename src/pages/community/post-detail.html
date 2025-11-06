@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Post Detail</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
+<link rel="stylesheet" href="/styles/main.css" />
+<link rel="stylesheet" href="/styles/components.css" />
+<script type="module" src="/scripts/firebaseauth.js"></script>
+<style>
+  :root {
+    --font-size-3xl: 24px;
+    --font-size-base: 14px;
+    --font-weight-bold: 600;
+    --space-32: 32px;
+    --space-16: 16px;
+    --space-24: 24px;
+    --space-8: 8px;
+    --color-text-secondary: #666;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background-color: #fafafa;
+    color: #1a1a1a;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    padding-top: 70px;
+    padding-bottom: 80px;
+  }
+
+  .post-detail-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-32);
+  }
+
+  .post-detail-wrapper {
+    display: flex;
+    gap: 0;
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .post-image-section {
+    flex: 1;
+    min-width: 0;
+    background-color: #000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+
+  .post-image-section img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    max-height: 60vh;
+  }
+
+  .post-image-actions {
+    width: 100%;
+    padding: 16px;
+    background-color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .profile-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .left-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .left-action-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .post-content-section {
+    flex: 1;
+    min-width: 400px;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .post-content-header {
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    flex-shrink: 0;
+  }
+
+  .post-content-header .username {
+    font-weight: 600;
+    color: #1a1a1a;
+    font-size: 16px;
+    display: block;
+    margin-bottom: 12px;
+  }
+
+  .post-content-header .caption {
+    color: #1a1a1a;
+    word-break: break-word;
+    line-height: 1.6;
+    font-size: 14px;
+  }
+
+  .action-group {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .action-btn {
+    background: none !important;
+    border: none !important;
+    font-size: 22px !important;
+    color: #1a1a1a !important;
+    cursor: pointer;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px !important;
+    height: 36px !important;
+    margin: 0 !important;
+  }
+
+  .action-count {
+    font-size: 14px;
+    color: #1a1a1a;
+    font-weight: 600;
+    text-align: left;
+    min-width: 20px;
+  }
+  
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #C9784F, #d88d5f);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  .like-btn.liked,
+  .like-btn.liked i {
+    color: #ff3040 !important;
+  }
+
+  .bookmark-btn.bookmarked,
+  .bookmark-btn.bookmarked i {
+    color: #ffc107 !important;
+  }
+
+  .comments-section-detail {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    border-top: 1px solid #e0e0e0;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  .comments-list {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 0;
+  }
+
+  .comment-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 16px;
+    padding: 8px;
+    border-radius: 8px;
+    gap: 12px;
+  }
+
+  .comment-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #C9784F, #d88d5f);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .comment-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .comment-author {
+    font-weight: 600;
+    margin-right: 8px;
+    font-size: 14px;
+  }
+
+  .comment-text {
+    color: #1a1a1a;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .add-comment {
+    flex-shrink: 0;
+    display: flex;
+    gap: 8px;
+    background-color: #ffffff;
+    padding: 12px 20px;
+    border-top: 1px solid #e0e0e0;
+    z-index: 10;
+  }
+
+  .comment-input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+
+  .post-comment-btn {
+    padding: 10px 16px;
+    background-color: #C9784F;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .back-btn {
+    margin-bottom: 16px;
+    padding: 8px 16px;
+    background-color: #f5f5f5;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #1a1a1a;
+    font-weight: 600;
+  }
+
+  .back-btn:hover {
+    background-color: #e0e0e0;
+  }
+
+  @media (max-width: 768px) {
+    .post-detail-wrapper {
+      flex-direction: column;
+    }
+
+    .post-content-section {
+      min-width: 100%;
+      max-height: none;
+    }
+
+    .post-image-section {
+      min-height: 300px;
+    }
+    
+    .post-image-section img {
+      max-height: 50vh;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="post-detail-container">
+    <button class="back-btn" onclick="window.history.back()">
+      <i class="bi bi-arrow-left"></i> Back
+    </button>
+    
+    <div id="postDetail" class="post-detail-wrapper">
+      <!-- Content will be loaded by JavaScript -->
+    </div>
+  </div>
+
+  <div class="nav-bar">
+    <a href="/" class="nav-logo"><img src="/img/logo.jpg" alt="ChopeLah" /></a>
+    <div class="nav-items">
+      <button onclick="location.href='/pages/order/online-order-home.html'">
+        <i class="bi bi-cart3"></i>
+        <span>Order</span>
+      </button>
+      <button onclick="location.href='/pages/community/community.html'">
+        <i class="bi bi-people"></i>
+        <span>Community</span>
+      </button>
+      <button onclick="location.href='/pages/chope/chope.html'">
+        <i class="bi bi-bookmark"></i>
+        <span>Chope</span>
+      </button>
+      <button onclick="location.href='/pages/crowd/crowd-view.html'">
+        <i class="bi bi-eye"></i>
+        <span>Crowd View</span>
+      </button>
+    </div>
+    <div class="nav-right">
+      <button class="notification-btn" onclick="toggleOrderNotification()">
+        <i class="bi bi-bell"></i>
+        <span class="notification-badge" style="display: none;">1</span>
+      </button>
+      <button onclick="location.href='/pages/profile/profile.html'">
+        <i class="bi bi-person"></i>
+        <span>Profile</span>
+      </button>
+    </div>
+  </div>
+
+<script type="module">
+import { getAuth } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, collection, getDocs, setDoc, deleteDoc, serverTimestamp, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/12.4.0/firebase-firestore.js";
+
+let auth, db;
+
+async function initFirebase() {
+  if (window.firebaseInitPromise) {
+    await window.firebaseInitPromise;
+  }
+  auth = getAuth();
+  db = getFirestore();
+}
+
+async function loadPostDetail() {
+  await initFirebase();
+  
+  const urlParams = new URLSearchParams(window.location.search);
+  const postId = urlParams.get('id');
+  
+  if (!postId) {
+    document.getElementById('postDetail').innerHTML = '<div style="padding: 40px; text-align: center;">Post not found</div>';
+    return;
+  }
+
+  try {
+    // Try to load from Firestore first
+    const postRef = doc(db, 'posts', postId);
+    const postSnap = await getDoc(postRef);
+    
+    let postData = null;
+    
+    if (postSnap.exists()) {
+      const data = postSnap.data();
+      postData = {
+        id: postId,
+        author: data.authorName || 'User',
+        authorPhotoURL: data.authorPhotoURL || null,
+        authorId: data.authorId || null,
+        content: data.caption || '',
+        mediaUrl: data.mediaUrl || null,
+        comments: []
+      };
+      
+    // Load comments with author profile pictures
+    let commentsWithAvatars = [];
+    if (postData.comments && postData.comments.length > 0) {
+      for (const comment of postData.comments) {
+        let commentAvatar = null;
+        let commentAuthorId = comment.authorId || null;
+        
+        // Try to get author profile picture
+        if (commentAuthorId) {
+          try {
+            const userDocRef = doc(db, 'users', commentAuthorId);
+            const userDocSnap = await getDoc(userDocRef);
+            if (userDocSnap.exists()) {
+              const userData = userDocSnap.data();
+              commentAvatar = userData.photoURL || null;
+            }
+          } catch (e) {
+            console.warn('Failed to load comment author profile:', e);
+          }
+        }
+        
+        commentsWithAvatars.push({
+          ...comment,
+          avatar: commentAvatar
+        });
+      }
+    }
+    
+    // Also load comments from Firestore if they exist
+    try {
+      const commentsRef = collection(db, 'posts', postId, 'comments');
+      const commentsSnap = await getDocs(commentsRef);
+      const firestoreComments = [];
+      for (const docSnap of commentsSnap.docs) {
+        const commentData = docSnap.data();
+        let commentAvatar = null;
+        let commentAuthorId = commentData.authorId || null;
+        
+        // Try to get author profile picture
+        if (commentAuthorId) {
+          try {
+            const userDocRef = doc(db, 'users', commentAuthorId);
+            const userDocSnap = await getDoc(userDocRef);
+            if (userDocSnap.exists()) {
+              const userData = userDocSnap.data();
+              commentAvatar = userData.photoURL || null;
+            }
+          } catch (e) {
+            console.warn('Failed to load comment author profile:', e);
+          }
+        }
+        
+        firestoreComments.push({
+          ...commentData,
+          avatar: commentAvatar
+        });
+      }
+      // Use Firestore comments if available, otherwise use postData comments
+      if (firestoreComments.length > 0) {
+        commentsWithAvatars = firestoreComments;
+      }
+    } catch (e) {
+      console.log('No comments subcollection found or error loading:', e);
+    }
+    
+    // Update postData with comments that have avatars
+    postData.comments = commentsWithAvatars;
+    } else {
+      // Try to load from sample threads
+      const threads = window.threads || JSON.parse(localStorage.getItem('threads') || '[]');
+      postData = threads.find(t => t.id === postId);
+      
+      // Load comments from Firestore for sample threads too
+      if (postData) {
+        try {
+          const commentsRef = collection(db, 'posts', postId, 'comments');
+          const commentsSnap = await getDocs(commentsRef);
+          const firestoreComments = [];
+          for (const docSnap of commentsSnap.docs) {
+            const commentData = docSnap.data();
+            let commentAvatar = null;
+            let commentAuthorId = commentData.authorId || null;
+            
+            if (commentAuthorId) {
+              try {
+                const userDocRef = doc(db, 'users', commentAuthorId);
+                const userDocSnap = await getDoc(userDocRef);
+                if (userDocSnap.exists()) {
+                  const userData = userDocSnap.data();
+                  commentAvatar = userData.photoURL || null;
+                }
+              } catch (e) {
+                console.warn('Failed to load comment author profile:', e);
+              }
+            }
+            
+            firestoreComments.push({
+              ...commentData,
+              avatar: commentAvatar
+            });
+          }
+          if (firestoreComments.length > 0) {
+            postData.comments = firestoreComments;
+          }
+        } catch (e) {
+          console.log('No comments subcollection found for sample thread');
+        }
+      }
+    }
+    
+    if (!postData) {
+      document.getElementById('postDetail').innerHTML = '<div style="padding: 40px; text-align: center;">Post not found</div>';
+      return;
+    }
+    
+    // Load like count
+    const likesRef = collection(db, 'posts', postId, 'likes');
+    const likesSnap = await getDocs(likesRef);
+    const likeCount = likesSnap.size;
+    
+    // Check if current user liked this post
+    const currentUser = auth.currentUser;
+    let isLiked = false;
+    if (currentUser) {
+      const userLikeDoc = await getDoc(doc(db, 'posts', postId, 'likes', currentUser.uid));
+      isLiked = userLikeDoc.exists();
+    }
+    
+    // Check if bookmarked
+    let isBookmarked = false;
+    if (currentUser) {
+      const bookmarkDoc = await getDoc(doc(db, 'users', currentUser.uid, 'bookmarks', postId));
+      isBookmarked = bookmarkDoc.exists();
+    }
+    
+    // Load author profile picture if needed
+    let authorPhotoURL = postData.authorPhotoURL;
+    if (!authorPhotoURL && postData.authorId && db) {
+      try {
+        const userDocRef = doc(db, 'users', postData.authorId);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+          authorPhotoURL = userData.photoURL || null;
+        }
+      } catch (e) {
+        console.warn('Failed to load author profile picture:', e);
+      }
+    }
+    
+    const avatarInitial = postData.author.charAt(0).toUpperCase();
+    const avatarHTML = authorPhotoURL 
+      ? `<div class="avatar" style="background-image: url('${authorPhotoURL}'); background-size: cover; background-position: center; background-repeat: no-repeat; color: transparent; text-indent: -9999px;">${avatarInitial}</div>`
+      : `<div class="avatar">${avatarInitial}</div>`;
+    
+    // Helper function to render comment with avatar
+    function renderCommentHTML(comment) {
+      const commentAuthor = comment.author || comment.authorName || 'User';
+      const commentInitial = commentAuthor.charAt(0).toUpperCase();
+      const commentAvatarHTML = comment.avatar
+        ? `<div class="comment-avatar" style="background-image: url('${comment.avatar}'); background-size: cover; background-position: center; background-repeat: no-repeat; color: transparent; text-indent: -9999px;">${commentInitial}</div>`
+        : `<div class="comment-avatar">${commentInitial}</div>`;
+      
+      return `
+        <div class="comment-item">
+          ${commentAvatarHTML}
+          <div class="comment-content">
+            <span class="comment-author">${commentAuthor}</span>
+            <span class="comment-text">${comment.content || comment.text || ''}</span>
+          </div>
+        </div>
+      `;
+    }
+    
+    const postDetailHTML = `
+      <div class="post-image-section">
+        ${postData.mediaUrl ? `<img src="${postData.mediaUrl}" alt="post" />` : '<div style="color: white; padding: 40px;">No image</div>'}
+        <div class="post-image-actions">
+          <div class="profile-section">
+            ${avatarHTML}
+            <span class="username">${postData.author}</span>
+          </div>
+          <div class="left-actions">
+            <div class="left-action-group">
+              <span class="action-count like-count">${likeCount}</span>
+              <button class="action-btn like-btn ${isLiked ? 'liked' : ''}" data-post-id="${postId}">
+                <i class="bi bi-heart${isLiked ? '-fill' : ''}"></i>
+              </button>
+            </div>
+            <div class="left-action-group">
+              <span class="action-count comment-count">${postData.comments.length}</span>
+              <button class="action-btn comment-btn" data-post-id="${postId}">
+                <i class="bi bi-chat"></i>
+              </button>
+            </div>
+            <button class="action-btn bookmark-btn ${isBookmarked ? 'bookmarked' : ''}" data-post-id="${postId}">
+              <i class="bi bi-bookmark${isBookmarked ? '-fill' : ''}"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="post-content-section">
+        <div class="post-content-header">
+          <div class="caption">${postData.content || 'Beautiful moment captured! ✨'}</div>
+        </div>
+        
+        <div class="comments-section-detail">
+          <div class="comments-list" id="commentsList">
+            ${(postData.comments || []).map(comment => renderCommentHTML(comment)).join('')}
+          </div>
+        </div>
+        
+        <div class="add-comment">
+          <input type="text" placeholder="Add a comment..." class="comment-input" id="commentInput" />
+          <button class="post-comment-btn" id="postCommentBtn">
+            <i class="bi bi-send"></i>
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.getElementById('postDetail').innerHTML = postDetailHTML;
+    
+    // Setup interactions
+    setupPostInteractions(postId, likeCount, isLiked, isBookmarked, postData.comments.length);
+    
+    // Set up real-time listener for comments to update count
+    setupCommentCountListener(postId);
+    
+  } catch (error) {
+    console.error('Error loading post:', error);
+    document.getElementById('postDetail').innerHTML = '<div style="padding: 40px; text-align: center;">Error loading post</div>';
+  }
+}
+
+function setupCommentCountListener(postId) {
+  const commentCountElements = document.querySelectorAll('.comment-count');
+  const commentsList = document.getElementById('commentsList');
+  
+  // Listen to comments collection changes
+  const commentsRef = collection(db, 'posts', postId, 'comments');
+  const commentsQuery = query(commentsRef, orderBy('createdAt', 'desc'));
+  
+  const unsubscribe = onSnapshot(commentsQuery, (snapshot) => {
+    const count = snapshot.size;
+    // Update all comment count elements
+    commentCountElements.forEach(el => {
+      el.textContent = count;
+    });
+    
+    // Reload comments list
+    if (commentsList) {
+      commentsList.innerHTML = '';
+      snapshot.docs.forEach(docSnap => {
+        const comment = docSnap.data();
+        const commentAuthor = comment.author || comment.authorName || 'User';
+        const commentInitial = commentAuthor.charAt(0).toUpperCase();
+        
+        // Use avatar from comment data if available, otherwise try to load it
+        let commentAvatar = comment.avatar || null;
+        if (!commentAvatar && comment.authorId) {
+          // Load avatar asynchronously
+          getDoc(doc(db, 'users', comment.authorId)).then(userDocSnap => {
+            if (userDocSnap.exists()) {
+              const userData = userDocSnap.data();
+              commentAvatar = userData.photoURL || null;
+              // Update the avatar in the DOM if found
+              const commentItem = commentsList.querySelector(`[data-comment-id="${docSnap.id}"]`);
+              if (commentItem && commentAvatar) {
+                const avatarEl = commentItem.querySelector('.comment-avatar');
+                if (avatarEl) {
+                  avatarEl.style.backgroundImage = `url('${commentAvatar}')`;
+                  avatarEl.style.color = 'transparent';
+                  avatarEl.style.textIndent = '-9999px';
+                }
+              }
+            }
+          }).catch(e => console.warn('Failed to load comment author avatar:', e));
+        }
+        
+        const commentAvatarHTML = commentAvatar
+          ? `<div class="comment-avatar" style="background-image: url('${commentAvatar}'); background-size: cover; background-position: center; background-repeat: no-repeat; color: transparent; text-indent: -9999px;">${commentInitial}</div>`
+          : `<div class="comment-avatar">${commentInitial}</div>`;
+        
+        const commentItem = document.createElement('div');
+        commentItem.className = 'comment-item';
+        commentItem.setAttribute('data-comment-id', docSnap.id);
+        commentItem.innerHTML = `
+          ${commentAvatarHTML}
+          <div class="comment-content">
+            <span class="comment-author">${commentAuthor}</span>
+            <span class="comment-text">${comment.content || comment.text || ''}</span>
+          </div>
+        `;
+        commentsList.appendChild(commentItem);
+      });
+    }
+  }, (error) => {
+    console.error('Error listening to comments:', error);
+  });
+  
+  // Store unsubscribe function for cleanup if needed
+  window.commentListenerUnsubscribe = unsubscribe;
+}
+
+function setupPostInteractions(postId, initialLikeCount, initialIsLiked, initialIsBookmarked, initialCommentCount) {
+  const likeBtn = document.querySelector('.like-btn');
+  const likeCount = document.querySelector('.like-count');
+  const bookmarkBtn = document.querySelector('.bookmark-btn');
+  const commentBtn = document.querySelector('.comment-btn');
+  const commentCount = document.querySelector('.comment-count');
+  const commentInput = document.getElementById('commentInput');
+  const postCommentBtn = document.getElementById('postCommentBtn');
+  const commentsList = document.getElementById('commentsList');
+  
+  let currentLikeCount = initialLikeCount;
+  let currentIsLiked = initialIsLiked;
+  let currentIsBookmarked = initialIsBookmarked;
+  let currentCommentCount = initialCommentCount;
+  
+  // Like functionality
+  if (likeBtn) {
+    likeBtn.addEventListener('click', async function() {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        alert('Please sign in to like posts.');
+        return;
+      }
+      
+      try {
+        if (currentIsLiked) {
+          await deleteDoc(doc(db, 'posts', postId, 'likes', currentUser.uid));
+          currentLikeCount--;
+          currentIsLiked = false;
+          this.classList.remove('liked');
+          this.querySelector('i').className = 'bi bi-heart';
+        } else {
+          await setDoc(doc(db, 'posts', postId, 'likes', currentUser.uid), {
+            uid: currentUser.uid,
+            likedAt: serverTimestamp()
+          });
+          currentLikeCount++;
+          currentIsLiked = true;
+          this.classList.add('liked');
+          this.querySelector('i').className = 'bi bi-heart-fill';
+        }
+        likeCount.textContent = currentLikeCount;
+      } catch (e) {
+        console.error('Like action failed', e);
+      }
+    });
+  }
+  
+  // Bookmark functionality
+  if (bookmarkBtn) {
+    bookmarkBtn.addEventListener('click', async function() {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        alert('Please sign in to bookmark posts.');
+        return;
+      }
+      
+      try {
+        if (currentIsBookmarked) {
+          await deleteDoc(doc(db, 'users', currentUser.uid, 'bookmarks', postId));
+          currentIsBookmarked = false;
+          this.classList.remove('bookmarked');
+          this.querySelector('i').className = 'bi bi-bookmark';
+        } else {
+          await setDoc(doc(db, 'users', currentUser.uid, 'bookmarks', postId), {
+            postId: postId,
+            bookmarkedAt: serverTimestamp()
+          });
+          currentIsBookmarked = true;
+          this.classList.add('bookmarked');
+          this.querySelector('i').className = 'bi bi-bookmark-fill';
+        }
+      } catch (e) {
+        console.error('Bookmark action failed', e);
+      }
+    });
+  }
+  
+  // Comment functionality
+  async function addComment() {
+    const commentText = commentInput.value.trim();
+    if (!commentText) return;
+    
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      alert('Please sign in to comment.');
+      return;
+    }
+    
+    // Get user display name and profile picture
+    const displayName = currentUser.displayName || 'You';
+    let userPhotoURL = currentUser.photoURL || null;
+    
+    // Try to get photoURL from user document if not available
+    if (!userPhotoURL) {
+      try {
+        const userDocRef = doc(db, 'users', currentUser.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        if (userDocSnap.exists()) {
+          const userData = userDocSnap.data();
+          userPhotoURL = userData.photoURL || null;
+        }
+      } catch (e) {
+        console.warn('Failed to load user photo:', e);
+      }
+    }
+    
+    const newComment = {
+      author: displayName,
+      authorId: currentUser.uid,
+      content: commentText,
+      avatar: userPhotoURL,
+      createdAt: serverTimestamp()
+    };
+    
+    // Add comment to Firestore
+    const commentRef = doc(collection(db, 'posts', postId, 'comments'));
+    setDoc(commentRef, newComment).then(() => {
+      // Comment will be added to UI automatically by the listener
+      commentInput.value = '';
+    }).catch(e => {
+      console.error('Error adding comment:', e);
+      alert('Failed to add comment. Please try again.');
+    });
+  }
+  
+  if (postCommentBtn) {
+    postCommentBtn.addEventListener('click', addComment);
+  }
+  
+  if (commentInput) {
+    commentInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        addComment();
+      }
+    });
+  }
+}
+
+// Initialize
+loadPostDetail();
+</script>
+
+<script src="/scripts/main.js"></script>
+<script src="/scripts/notification.js"></script>
+</body>
+</html>
+
