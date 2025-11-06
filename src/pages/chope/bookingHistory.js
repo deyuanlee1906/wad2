@@ -9,12 +9,31 @@ class BookingHistory {
     initialize() {
         if (this.initialized) return;
         
-        // Initialize history modal
-        this.modal = new bootstrap.Modal(document.getElementById('historyModal'));
-        document.getElementById('historyBtn').addEventListener('click', () => {
-            this.updateActiveBookings();
-            this.modal.show();
-        });
+        // Initialize desktop history modal
+        const desktopModalEl = document.getElementById('historyModal');
+        if (desktopModalEl) {
+            this.modal = new bootstrap.Modal(desktopModalEl);
+            const desktopBtn = document.getElementById('historyBtn');
+            if (desktopBtn) {
+                desktopBtn.addEventListener('click', () => {
+                    this.updateActiveBookings();
+                    this.modal.show();
+                });
+            }
+        }
+
+        // Initialize mobile history modal
+        const mobileModalEl = document.getElementById('historyModalMobile');
+        if (mobileModalEl) {
+            this.mobileModal = new bootstrap.Modal(mobileModalEl);
+            const mobileBtn = document.getElementById('historyBtnMobile');
+            if (mobileBtn) {
+                mobileBtn.addEventListener('click', () => {
+                    this.updateActiveBookings();
+                    this.mobileModal.show();
+                });
+            }
+        }
 
         // Update bookings list every minute
         setInterval(() => this.updateActiveBookings(), 60000);
@@ -94,23 +113,25 @@ class BookingHistory {
 
     // update the active booking list which add or delete the booking history
     async updateActiveBookings() {
-        const container = document.getElementById('activeBookings');
-        if (!container) {
-            console.error('Bookings container not found');
+        // Update both desktop and mobile containers
+        const desktopContainer = document.getElementById('activeBookings');
+        const mobileContainer = document.getElementById('activeBookingsMobile');
+        
+        if (!desktopContainer && !mobileContainer) {
+            console.error('Bookings containers not found');
             return;
         }
 
-        container.innerHTML = ''; // Clear existing bookings
-        
-        let foundActiveBookings = false;
         if (!window.seatDatabase) {
             console.error('SeatDatabase not initialized');
-            container.innerHTML = `
+            const errorHtml = `
                 <div class="text-center text-muted py-4">
                     <i class="bi bi-exclamation-triangle-fill fs-1"></i>
                     <p class="mt-2">Error: Seat database not initialized</p>
                 </div>
             `;
+            if (desktopContainer) desktopContainer.innerHTML = errorHtml;
+            if (mobileContainer) mobileContainer.innerHTML = errorHtml;
             return;
         }
 
@@ -127,16 +148,20 @@ class BookingHistory {
         // Get current user ID
         const currentUserId = this.getCurrentUserId();
         if (!currentUserId) {
-            container.innerHTML = `
+            const noUserHtml = `
                 <div class="text-center text-muted py-4">
                     <i class="bi bi-person-x fs-1"></i>
                     <p class="mt-2">Please log in to view your bookings</p>
                 </div>
             `;
+            if (desktopContainer) desktopContainer.innerHTML = noUserHtml;
+            if (mobileContainer) mobileContainer.innerHTML = noUserHtml;
             return;
         }
 
         const now = new Date();
+        let foundActiveBookings = false;
+        const bookingCards = [];
 
         // Check all food centers
         ['maxwell', 'newton', 'changiVillage'].forEach(foodCenter => {
@@ -154,10 +179,8 @@ class BookingHistory {
                         if (expiresAt > now) {
                             foundActiveBookings = true;
                             
-                            // Create booking card
-                            const card = document.createElement('div');
-                            card.className = 'booking-card';
-                            card.innerHTML = `
+                            // Create booking card HTML
+                            const cardHtml = `
                                 <div class="detail-item">
                                     <span class="detail-label">Food Center:</span>
                                     <span class="detail-value">${this.getFoodCenterName(foodCenter)}</span>
@@ -188,22 +211,25 @@ class BookingHistory {
                                     </button>
                                 </div>
                             `;
-                            container.appendChild(card);
+                            bookingCards.push(`<div class="booking-card">${cardHtml}</div>`);
                         }
                     }
                 }
             }
         });
 
-        // if theres not booking history --> show no active booking
-        if (!foundActiveBookings) {
-            container.innerHTML = `
+        // Update both containers with the same content
+        const contentHtml = foundActiveBookings 
+            ? bookingCards.join('')
+            : `
                 <div class="text-center text-muted py-4">
                     <i class="bi bi-calendar-x fs-1"></i>
                     <p class="mt-2">No active bookings found</p>
                 </div>
             `;
-        }
+        
+        if (desktopContainer) desktopContainer.innerHTML = contentHtml;
+        if (mobileContainer) mobileContainer.innerHTML = contentHtml;
     }
 }
 
