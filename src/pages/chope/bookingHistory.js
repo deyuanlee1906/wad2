@@ -44,17 +44,44 @@ class BookingHistory {
         });
     }
 
+    // Get current user ID
+    getCurrentUserId() {
+        return localStorage.getItem('loggedInUserId');
+    }
+
     // handel the cancelation of booking
-    cancelBooking(foodCenter, table, seat) {
+    async cancelBooking(foodCenter, table, seat) {
+        // Verify the booking belongs to the current user before allowing cancellation
+        const currentUserId = this.getCurrentUserId();
+        if (!currentUserId) {
+            alert('You must be logged in to cancel bookings.');
+            return;
+        }
+
+        // Wait for Firebase to be ready
+        if (window.seatDatabase && window.seatDatabase.initPromise) {
+            await window.seatDatabase.initPromise;
+        }
+
+        // Check if the booking belongs to the current user
+        const bookings = window.seatDatabase.getAllSeats(foodCenter);
+        if (bookings[table] && bookings[table][seat]) {
+            const booking = bookings[table][seat];
+            if (booking.bookedBy !== currentUserId) {
+                alert('You can only cancel your own bookings.');
+                return;
+            }
+        }
+
         if (confirm('Are you sure you want to cancel this booking?')) {
             try {
                 if (!window.seatDatabase) {
                     throw new Error('Seat database not initialized');
                 }
-                const success = window.seatDatabase.releaseSeat(foodCenter, table, seat);
+                const success = await window.seatDatabase.releaseSeat(foodCenter, table, seat);
                 if (success) {
                     alert('Booking cancelled successfully!');
-                    this.updateActiveBookings(); // Refresh the booking list
+                    await this.updateActiveBookings(); // Refresh the booking list
                 } else {
                     throw new Error('Failed to release seat');
                 }
@@ -66,7 +93,7 @@ class BookingHistory {
     }
 
     // update the active booking list which add or delete the booking history
-    updateActiveBookings() {
+    async updateActiveBookings() {
         const container = document.getElementById('activeBookings');
         if (!container) {
             console.error('Bookings container not found');
@@ -87,31 +114,42 @@ class BookingHistory {
             return;
         }
 
-        const now = new Date();
-
-        // For debugging
-        console.log('Current time:', now);
-        console.log('Checking bookings in seatDatabase:', window.seatDatabase);
-        
-        try {
-            const stored = localStorage.getItem('seatDatabase');
-            console.log('Raw localStorage data:', stored);
-        } catch (e) {
-            console.error('Error reading localStorage:', e);
+        // Wait for Firebase to be ready
+        if (window.seatDatabase && window.seatDatabase.initPromise) {
+            await window.seatDatabase.initPromise;
         }
+        
+        // Refresh data from Firebase
+        if (window.seatDatabase && window.seatDatabase.refresh) {
+            await window.seatDatabase.refresh();
+        }
+
+        // Get current user ID
+        const currentUserId = this.getCurrentUserId();
+        if (!currentUserId) {
+            container.innerHTML = `
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-person-x fs-1"></i>
+                    <p class="mt-2">Please log in to view your bookings</p>
+                </div>
+            `;
+            return;
+        }
+
+        const now = new Date();
 
         // Check all food centers
         ['maxwell', 'newton', 'changiVillage'].forEach(foodCenter => {
             const bookings = window.seatDatabase.getAllSeats(foodCenter);
-            console.log(`Checking ${foodCenter}:`, bookings);
             
             for (const table in bookings) {
                 for (const seat in bookings[table]) {
                     const booking = bookings[table][seat];
-                    console.log(`Checking booking for ${foodCenter} table ${table} seat ${seat}:`, booking);
                     
-                    // if there is booking and have not expired yet, then create the booking histroy card
-                    if (booking.status === 'booked' && booking.expiresAt) {
+                    // Only show bookings that belong to the current user and haven't expired
+                    if (booking.status === 'booked' && 
+                        booking.expiresAt && 
+                        booking.bookedBy === currentUserId) {
                         const expiresAt = new Date(booking.expiresAt);
                         if (expiresAt > now) {
                             foundActiveBookings = true;
