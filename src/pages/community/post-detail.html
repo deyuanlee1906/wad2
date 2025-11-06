@@ -217,6 +217,7 @@
     padding: 8px;
     border-radius: 8px;
     gap: 12px;
+    position: relative;
   }
 
   .comment-avatar {
@@ -238,6 +239,31 @@
     display: flex;
     flex-direction: column;
     gap: 4px;
+  }
+
+  .comment-delete-btn {
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+    opacity: 0.6;
+  }
+
+  .comment-delete-btn:hover {
+    color: #d32f2f;
+    background-color: #ffebee;
+    opacity: 1;
+  }
+
+  .comment-delete-btn i {
+    font-size: 14px;
   }
 
   .comment-author {
@@ -508,6 +534,7 @@ async function loadPostDetail() {
         
         commentsWithAvatars.push({
           ...comment,
+          id: docSnap.id,
           avatar: commentAvatar
         });
       }
@@ -539,6 +566,7 @@ async function loadPostDetail() {
         
         firestoreComments.push({
           ...commentData,
+          id: docSnap.id,
           avatar: commentAvatar
         });
       }
@@ -583,6 +611,7 @@ async function loadPostDetail() {
             
             firestoreComments.push({
               ...commentData,
+              id: docSnap.id,
               avatar: commentAvatar
             });
           }
@@ -640,21 +669,29 @@ async function loadPostDetail() {
       ? `<div class="avatar" style="background-image: url('${authorPhotoURL}'); background-size: cover; background-position: center; background-repeat: no-repeat; color: transparent; text-indent: -9999px;">${avatarInitial}</div>`
       : `<div class="avatar">${avatarInitial}</div>`;
     
-    // Helper function to render comment with avatar
-    function renderCommentHTML(comment) {
+    // Helper function to render comment with avatar and delete button
+    function renderCommentHTML(comment, currentUserId) {
       const commentAuthor = comment.author || comment.authorName || 'User';
       const commentInitial = commentAuthor.charAt(0).toUpperCase();
       const commentAvatarHTML = comment.avatar
         ? `<div class="comment-avatar" style="background-image: url('${comment.avatar}'); background-size: cover; background-position: center; background-repeat: no-repeat; color: transparent; text-indent: -9999px;">${commentInitial}</div>`
         : `<div class="comment-avatar">${commentInitial}</div>`;
       
+      // Show delete button only if this is the current user's comment
+      const deleteButtonHTML = (comment.authorId && currentUserId && comment.authorId === currentUserId)
+        ? `<button class="comment-delete-btn" data-comment-id="${comment.id || ''}" title="Delete comment">
+            <i class="bi bi-trash"></i>
+          </button>`
+        : '';
+      
       return `
-        <div class="comment-item">
+        <div class="comment-item" data-comment-id="${comment.id || ''}">
           ${commentAvatarHTML}
           <div class="comment-content">
             <span class="comment-author">${commentAuthor}</span>
             <span class="comment-text">${comment.content || comment.text || ''}</span>
           </div>
+          ${deleteButtonHTML}
         </div>
       `;
     }
@@ -693,7 +730,7 @@ async function loadPostDetail() {
         
         <div class="comments-section-detail">
           <div class="comments-list" id="commentsList">
-            ${(postData.comments || []).map(comment => renderCommentHTML(comment)).join('')}
+            ${(postData.comments || []).map(comment => renderCommentHTML(comment, currentUser ? currentUser.uid : null)).join('')}
           </div>
         </div>
         
@@ -707,6 +744,26 @@ async function loadPostDetail() {
     `;
     
     document.getElementById('postDetail').innerHTML = postDetailHTML;
+    
+    // Setup delete button event listeners for initial comments
+    const currentUserId = currentUser ? currentUser.uid : null;
+    if (currentUserId) {
+      document.querySelectorAll('.comment-delete-btn').forEach(deleteBtn => {
+        const commentId = deleteBtn.getAttribute('data-comment-id');
+        deleteBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          if (confirm('Are you sure you want to delete this comment?')) {
+            try {
+              await deleteDoc(doc(db, 'posts', postId, 'comments', commentId));
+              // Comment will be removed automatically by the listener
+            } catch (error) {
+              console.error('Error deleting comment:', error);
+              alert('Failed to delete comment. Please try again.');
+            }
+          }
+        });
+      });
+    }
     
     // Setup interactions
     setupPostInteractions(postId, likeCount, isLiked, isBookmarked, postData.comments.length);
@@ -723,6 +780,8 @@ async function loadPostDetail() {
 function setupCommentCountListener(postId) {
   const commentCountElements = document.querySelectorAll('.comment-count');
   const commentsList = document.getElementById('commentsList');
+  const currentUser = auth.currentUser;
+  const currentUserId = currentUser ? currentUser.uid : null;
   
   // Listen to comments collection changes
   const commentsRef = collection(db, 'posts', postId, 'comments');
@@ -740,6 +799,7 @@ function setupCommentCountListener(postId) {
       commentsList.innerHTML = '';
       snapshot.docs.forEach(docSnap => {
         const comment = docSnap.data();
+        const commentId = docSnap.id;
         const commentAuthor = comment.author || comment.authorName || 'User';
         const commentInitial = commentAuthor.charAt(0).toUpperCase();
         
@@ -752,7 +812,7 @@ function setupCommentCountListener(postId) {
               const userData = userDocSnap.data();
               commentAvatar = userData.photoURL || null;
               // Update the avatar in the DOM if found
-              const commentItem = commentsList.querySelector(`[data-comment-id="${docSnap.id}"]`);
+              const commentItem = commentsList.querySelector(`[data-comment-id="${commentId}"]`);
               if (commentItem && commentAvatar) {
                 const avatarEl = commentItem.querySelector('.comment-avatar');
                 if (avatarEl) {
@@ -769,17 +829,44 @@ function setupCommentCountListener(postId) {
           ? `<div class="comment-avatar" style="background-image: url('${commentAvatar}'); background-size: cover; background-position: center; background-repeat: no-repeat; color: transparent; text-indent: -9999px;">${commentInitial}</div>`
           : `<div class="comment-avatar">${commentInitial}</div>`;
         
+        // Show delete button only if this is the current user's comment
+        const deleteButtonHTML = (comment.authorId && currentUserId && comment.authorId === currentUserId)
+          ? `<button class="comment-delete-btn" data-comment-id="${commentId}" title="Delete comment">
+              <i class="bi bi-trash"></i>
+            </button>`
+          : '';
+        
         const commentItem = document.createElement('div');
         commentItem.className = 'comment-item';
-        commentItem.setAttribute('data-comment-id', docSnap.id);
+        commentItem.setAttribute('data-comment-id', commentId);
         commentItem.innerHTML = `
           ${commentAvatarHTML}
           <div class="comment-content">
             <span class="comment-author">${commentAuthor}</span>
             <span class="comment-text">${comment.content || comment.text || ''}</span>
           </div>
+          ${deleteButtonHTML}
         `;
         commentsList.appendChild(commentItem);
+        
+        // Add delete button event listener if this is the user's comment
+        if (comment.authorId && currentUserId && comment.authorId === currentUserId) {
+          const deleteBtn = commentItem.querySelector('.comment-delete-btn');
+          if (deleteBtn) {
+            deleteBtn.addEventListener('click', async (e) => {
+              e.stopPropagation();
+              if (confirm('Are you sure you want to delete this comment?')) {
+                try {
+                  await deleteDoc(doc(db, 'posts', postId, 'comments', commentId));
+                  // Comment will be removed automatically by the listener
+                } catch (error) {
+                  console.error('Error deleting comment:', error);
+                  alert('Failed to delete comment. Please try again.');
+                }
+              }
+            });
+          }
+        }
       });
     }
   }, (error) => {
@@ -879,22 +966,22 @@ function setupPostInteractions(postId, initialLikeCount, initialIsLiked, initial
       return;
     }
     
-    // Get user display name and profile picture
-    const displayName = currentUser.displayName || 'You';
-    let userPhotoURL = currentUser.photoURL || null;
+    // Always fetch the latest user data from Firestore to get current profile picture
+    let userPhotoURL = null;
+    let displayName = currentUser.displayName || 'You';
     
-    // Try to get photoURL from user document if not available
-    if (!userPhotoURL) {
-      try {
-        const userDocRef = doc(db, 'users', currentUser.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        if (userDocSnap.exists()) {
-          const userData = userDocSnap.data();
-          userPhotoURL = userData.photoURL || null;
-        }
-      } catch (e) {
-        console.warn('Failed to load user photo:', e);
+    try {
+      const userDocRef = doc(db, 'users', currentUser.uid);
+      const userDocSnap = await getDoc(userDocRef);
+      if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        userPhotoURL = userData.photoURL || null;
+        displayName = userData.displayName || userData.username || displayName;
       }
+    } catch (e) {
+      console.warn('Failed to load user data:', e);
+      // Fallback to auth.currentUser data
+      userPhotoURL = currentUser.photoURL || null;
     }
     
     const newComment = {
