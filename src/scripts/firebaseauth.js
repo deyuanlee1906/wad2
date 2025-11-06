@@ -400,7 +400,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!userDocSnap.exists()) {
           isNewUser = true;
           console.log('🆕 New user detected, creating profile...');
-          // For new users, create minimal profile - they'll pick username in onboarding
+          // Create user profile with basic information
           await setDoc(userDocRef, {
             email: user.email,
             name: user.displayName,
@@ -416,7 +416,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('✅ Session stored');
         showMessage("Google login successful!", "signInMessage");
         
-        // Redirect all users to app
+        // Redirect all users (new and existing) directly to app
         console.log('🔄 Redirecting to app...');
         window.location.href = '/pages/chope/chope.html';
       } catch (error) {
@@ -466,7 +466,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!userDocSnap.exists()) {
           isNewUser = true;
           console.log('🆕 New Facebook user detected, creating profile...');
-          // For new users, create minimal profile - they'll pick username in onboarding
+          // Create user profile with basic information
           await setDoc(userDocRef, {
             email: user.email,
             name: user.displayName,
@@ -482,7 +482,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('✅ Session stored');
         showMessage("Facebook login successful!", "signInMessage");
         
-        // Redirect all users to app
+        // Redirect all users (new and existing) directly to app
         console.log('🔄 Redirecting to app...');
         window.location.href = '/pages/chope/chope.html';
       } catch (error) {
