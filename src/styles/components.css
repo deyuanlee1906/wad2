@@ -292,19 +292,22 @@ input:not(:placeholder-shown) ~ label {
 
 /* Logo */
 .nav-bar .nav-logo {
-  font-size: 24px;
-  font-weight: 700;
-  color: #C9784F;
-  text-decoration: none;
-  margin-right: 32px;
   display: flex;
   align-items: center;
-  gap: 6px;
-  letter-spacing: -0.5px;
+  text-decoration: none;
+  margin-right: 32px;
+  margin-left: 24px;
+  height: 40px;
+}
+
+.nav-bar .nav-logo img {
+  height: 100%;
+  width: auto;
+  object-fit: contain;
 }
 
 .nav-bar .nav-logo:hover {
-  color: #b36a43;
+  opacity: 0.8;
 }
 
 /* Navigation items container */
@@ -633,7 +636,6 @@ input:not(:placeholder-shown) ~ label {
 @media (min-width: 769px) {
   .instagram-post {
     margin-bottom: 0;
-    height: fit-content;
   }
 }
 
@@ -821,6 +823,38 @@ input:not(:placeholder-shown) ~ label {
 .action-buttons {
   display: flex;
   gap: 15px;
+  align-items: center;
+}
+
+.action-group {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.action-count {
+  font-size: 14px;
+  color: #1a1a1a;
+  font-weight: 600;
+  line-height: 1;
+  text-align: left;
+  min-width: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.bookmark-btn {
+  height: 36px;
+  width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: 22px !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .action-btn {
@@ -829,7 +863,7 @@ input:not(:placeholder-shown) ~ label {
   font-size: 22px !important;
   color: #1a1a1a !important;
   cursor: pointer;
-  padding: 8px !important;
+  padding: 0 !important;
   border-radius: 50% !important;
   transition: all 0.2s ease;
   display: flex;
@@ -840,6 +874,14 @@ input:not(:placeholder-shown) ~ label {
   margin: 0 !important;
   box-shadow: none !important;
   font-weight: 400 !important;
+}
+
+.action-group .action-btn {
+  height: 36px !important;
+  width: 36px !important;
+  font-size: 22px !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .action-btn:hover {
@@ -866,16 +908,9 @@ input:not(:placeholder-shown) ~ label {
   background-color: #ffffff;
 }
 
-.like-count,
-.comment-count {
-  font-weight: 600;
-  color: #1a1a1a;
-  font-size: 14px;
-  margin-bottom: 5px;
-}
 
 .post-caption {
-  padding: 12px 16px;
+  padding: 8px 16px;
   background-color: #ffffff;
   line-height: 1.5;
 }

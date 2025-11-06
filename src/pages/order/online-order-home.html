@@ -23,6 +23,15 @@
       --clr-sand: #f1f3f5;
       --clr-green: #28a745;
       --clr-red: #dc3545;
+      
+      /* Header variables matching crowd-view */
+      --font-size-3xl: 24px;
+      --font-size-base: 14px;
+      --font-weight-bold: 600;
+      --space-32: 32px;
+      --space-16: 16px;
+      --space-8: 8px;
+      --color-text-secondary: #666;
     }
 
     body {
@@ -35,21 +44,53 @@
       flex-direction: column;
       min-height: 100vh;
       overflow-x: hidden;
+      width: 100%;
+      max-width: 100vw;
     }
     
     @media (max-width: 768px) {
       body {
-        padding-top: 0;
-        padding-bottom: 100px;
+        padding-top: env(safe-area-inset-top);
+        padding-bottom: calc(100px + env(safe-area-inset-bottom));
       }
     }
 
-    .main-content {
-      padding: 0 20px;
+    /* Desktop View */
+    .desktop-view {
+      display: block;
+      padding: var(--space-32);
+        max-width: 1400px;
+        margin: 0 auto;
       width: 100%;
       box-sizing: border-box;
-      max-width: 1400px;
-      margin: 0 auto;
+    }
+
+    /* Mobile View */
+    .mobile-view {
+      display: none;
+      padding: var(--space-16);
+      padding-top: max(var(--space-16), env(safe-area-inset-top));
+      width: 100%;
+      max-width: 100vw;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
+
+    /* Header styling matching crowd-view */
+    .header {
+      margin-bottom: var(--space-32);
+    }
+
+    .header h1 {
+      font-size: var(--font-size-3xl);
+      font-weight: var(--font-weight-bold);
+      color: #1a1a1a;
+      margin-bottom: var(--space-8);
+    }
+
+    .header-subtitle {
+      font-size: var(--font-size-base);
+      color: var(--color-text-secondary);
     }
 
     .location-header {
@@ -57,8 +98,17 @@
       align-items: center;
       gap: 12px;
       font-weight: 700;
-      margin: 16px 0 8px;
+      margin: 20px 0 8px;
       flex-wrap: wrap;
+    }
+    
+    .header-controls {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      margin-top: 20px;
     }
 
     .food-centre-select {
@@ -66,24 +116,31 @@
       flex: 1;
       min-width: 200px;
       max-width: 400px;
+      display: flex;
+      align-items: center;
     }
 
     .food-centre-input-wrapper {
       position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
     }
 
     .food-centre-input {
       width: 100%;
       padding: 10px 36px 10px 12px;
-      border: 1px solid var(--clr-ink);
+      border: 1px solid #1a1a1a;
       border-radius: 6px;
       background: white;
-      color: var(--clr-ink);
+      color: #1a1a1a;
       font-size: 16px;
       font-weight: 600;
       cursor: text;
       transition: all 0.2s;
       box-sizing: border-box;
+      height: 44px;
+      line-height: 24px;
     }
 
     .food-centre-input::placeholder {
@@ -123,7 +180,7 @@
       left: 0;
       right: 0;
       background: white;
-      border: 1px solid var(--clr-ink);
+      border: 1px solid #1a1a1a;
       border-radius: 6px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       max-height: 300px;
@@ -189,42 +246,78 @@
 
     .search-wrap {
       position: relative;
-      margin-bottom: 16px;
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-container {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      display: flex;
+      align-items: center;
+      background: white;
+      border: 1px solid #1a1a1a;
+      border-radius: 6px;
+      overflow: hidden;
+      box-sizing: border-box;
+      height: 44px;
+    }
+
+    .search-container i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(26, 26, 26, 0.5);
+      pointer-events: none;
+      z-index: 1;
+      font-size: 16px;
+    }
+
+    .search-container input {
+      width: 100%;
+      padding: 10px 12px 10px 40px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: #1a1a1a;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.2s;
+      box-sizing: border-box;
+      outline: none;
+      height: 100%;
+      line-height: 24px;
+    }
+
+    .search-container input::placeholder {
+      color: rgba(26, 26, 26, 0.5);
+      font-weight: 500;
+    }
+
+    .search-container:hover {
+      border-color: #4285f4;
+      box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+    }
+
+    .search-container:focus-within {
+      border-color: #4285f4;
+      box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+    }
+
+    .search-container input:focus {
+      outline: none;
     }
 
     .search-bar {
-      border: none;
-      border-bottom: 1px solid var(--clr-ink);
-      padding-right: 36px;
-      background: transparent;
-      color: var(--clr-ink);
+      display: none;
     }
-
-    .search-bar:disabled {
-      background: #e9ecef;
-      color: #6c757d;
-      border-bottom-color: #d3d3d3;
-      cursor: not-allowed;
-    }
-
-    .search-bar:disabled::placeholder {
-      color: #999;
-    }
-
+    
     .search-clear {
-      position: absolute;
-      right: 6px;
-      top: 50%;
-      transform: translateY(-50%);
-      border: none;
-      background: transparent;
-      color: var(--clr-ink);
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
+      display: none;
     }
 
     .stall-list-title {
@@ -237,20 +330,20 @@
       display: grid;
       gap: 16px;
     }
-
+    
     @media (min-width: 768px) {
       #availableStalls, #closedStalls {
         grid-template-columns: repeat(2, 1fr);
       }
     }
-
+    
     @media (min-width: 992px) {
       #availableStalls, #closedStalls {
         grid-template-columns: repeat(3, 1fr);
         gap: 24px;
       }
     }
-
+    
     @media (min-width: 1200px) {
       #availableStalls, #closedStalls {
         gap: 32px;
@@ -347,7 +440,7 @@
     @media (max-width: 767px) {
       body { padding-bottom: 120px; }
       .main-content { padding: 0 16px; }
-      .stall-card { 
+      .stall-card {
         height: 200px; 
         align-items: center;
       }
@@ -357,17 +450,54 @@
       }
     }
 
+    /* Responsive - Mobile */
+    @media (max-width: 430px) {
+      .desktop-view {
+        display: none;
+      }
+
+      .mobile-view {
+        display: block;
+      }
+
+      .mobile-view .header {
+        margin-bottom: var(--space-24);
+        padding: 0 var(--space-16);
+        padding-top: var(--space-8);
+      }
+
+      .mobile-view .header h1 {
+        font-size: 20px;
+        margin-bottom: var(--space-8);
+      }
+
+      .header-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--space-8);
+      }
+
+      .food-centre-select {
+        min-width: 100%;
+        max-width: 100%;
+      }
+      
+      .search-wrap {
+        min-width: 100%;
+      }
+    }
+
     /* iPhone SE and small devices */
     @media (max-width: 390px) {
-      body { 
+      body {
         padding-bottom: 100px; 
       }
       
-      .main-content { 
+      .main-content {
         padding: 0 12px; 
       }
       
-      .location-header {
+      .header-controls {
         margin: 12px 0 8px;
         gap: 8px;
       }
@@ -450,45 +580,53 @@
 </head>
 
 <body>
-  <div class="main-content">
-    <div class="location-header">
-      <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#000" class="me-1" viewBox="0 0 16 16">
-        <path d="M8 16s6-5.686 6-10A6 6 0 1 0 2 6c0 4.314 6 10 6 10Zm0-8a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"/>
-      </svg>
-      <div class="food-centre-select" id="foodCentreSelectWrapper">
-        <div class="food-centre-input-wrapper">
-          <input 
-            type="text" 
-            id="foodCentreSelect" 
-            class="food-centre-input" 
-            placeholder="Please select a food centre"
-            autocomplete="off"
-            aria-label="Select Food Centre"
-          />
-          <svg class="food-centre-dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
-            <path fill="#222" d="M6 9L1 4h10z"/>
-          </svg>
-        </div>
-        <div class="food-centre-dropdown" id="foodCentreDropdown" role="listbox">
-          <div class="dropdown-search-bar">
-            <input 
-              type="text" 
-              id="dropdownSearchInput" 
-              placeholder="Search food centre..."
-              autocomplete="off"
-            />
-          </div>
-          <div class="food-centre-option" data-value="Maxwell Food Centre">Maxwell Food Centre</div>
-          <div class="food-centre-option" data-value="Newton Food Centre">Newton Food Centre</div>
-          <div class="food-centre-option" data-value="Changi Village Food Centre">Changi Village Food Centre</div>
+  <!-- DESKTOP VIEW -->
+  <div class="desktop-view">
+    <div class="header">
+      <div style="display: flex; justify-content: space-between; align-items: start;">
+        <div>
+          <h1>Online Order</h1>
+          <p class="header-subtitle">Order delicious food from hawker centres across Singapore</p>
         </div>
       </div>
-    </div>
-
-    <div class="search-wrap">
-      <input type="text" id="stallSearch" class="form-control search-bar" placeholder="Search for a stall/food" disabled>
-      <button id="clearSearch" class="search-clear" type="button">&times;</button>
-    </div>
+      
+      <div class="header-controls">
+        <div class="food-centre-select" id="foodCentreSelectWrapper">
+          <div class="food-centre-input-wrapper">
+            <input 
+              type="text" 
+              id="foodCentreSelect" 
+              class="food-centre-input" 
+              placeholder="Please select a food centre"
+              autocomplete="off"
+              aria-label="Select Food Centre"
+            />
+            <svg class="food-centre-dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+              <path fill="#222" d="M6 9L1 4h10z"/>
+            </svg>
+          </div>
+          <div class="food-centre-dropdown" id="foodCentreDropdown" role="listbox">
+            <div class="dropdown-search-bar">
+              <input 
+                type="text" 
+                id="dropdownSearchInput" 
+                placeholder="Search food centre..."
+                autocomplete="off"
+              />
+            </div>
+            <div class="food-centre-option" data-value="Maxwell Food Centre">Maxwell Food Centre</div>
+            <div class="food-centre-option" data-value="Newton Food Centre">Newton Food Centre</div>
+            <div class="food-centre-option" data-value="Changi Village Food Centre">Changi Village Food Centre</div>
+          </div>
+        </div>
+        
+        <div class="search-wrap">
+          <div class="search-container">
+            <i class="bi bi-search"></i>
+            <input type="text" id="stallSearch" placeholder="Search for a stall/food" disabled>
+          </div>
+        </div>
+      </div>
 
     <div id="emptyState" style="display: none;">
       <div style="text-align: center; padding: 60px 20px; color: #666;">
@@ -505,6 +643,72 @@
 
     <div class="stall-list-title mt-4" id="closedStallsTitle">Closed Stalls</div>
     <div id="closedStalls" aria-live="polite"></div>
+  </div>
+
+  <!-- MOBILE VIEW -->
+  <div class="mobile-view">
+    <div class="header">
+      <div style="display: flex; justify-content: space-between; align-items: start;">
+        <div>
+          <h1>🛒 Online Order</h1>
+          <p class="header-subtitle">Order delicious food from hawker centres across Singapore</p>
+        </div>
+      </div>
+      
+      <div class="header-controls">
+        <div class="food-centre-select" id="foodCentreSelectWrapperMobile">
+          <div class="food-centre-input-wrapper">
+            <input 
+              type="text" 
+              id="foodCentreSelectMobile" 
+              class="food-centre-input" 
+              placeholder="Please select a food centre"
+              autocomplete="off"
+              aria-label="Select Food Centre"
+            />
+            <svg class="food-centre-dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+              <path fill="#222" d="M6 9L1 4h10z"/>
+            </svg>
+          </div>
+          <div class="food-centre-dropdown" id="foodCentreDropdownMobile" role="listbox">
+            <div class="dropdown-search-bar">
+              <input 
+                type="text" 
+                id="dropdownSearchInputMobile" 
+                placeholder="Search food centre..."
+                autocomplete="off"
+              />
+            </div>
+            <div class="food-centre-option" data-value="Maxwell Food Centre">Maxwell Food Centre</div>
+            <div class="food-centre-option" data-value="Newton Food Centre">Newton Food Centre</div>
+            <div class="food-centre-option" data-value="Changi Village Food Centre">Changi Village Food Centre</div>
+          </div>
+        </div>
+        
+        <div class="search-wrap">
+          <div class="search-container">
+            <i class="bi bi-search"></i>
+            <input type="text" id="stallSearchMobile" placeholder="Search for a stall/food" disabled>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="emptyStateMobile" style="display: none;">
+      <div style="text-align: center; padding: 60px 20px; color: #666;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" style="opacity: 0.3; margin-bottom: 20px;" viewBox="0 0 16 16">
+          <path d="M8 16s6-5.686 6-10A6 6 0 1 0 2 6c0 4.314 6 10 6 10Zm0-8a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"/>
+        </svg>
+        <h3 style="font-size: 24px; font-weight: 600; margin-bottom: 12px; color: #333;">Select a Food Centre</h3>
+        <p style="font-size: 16px; margin-bottom: 8px; color: #666;">To view available stalls and start ordering, please select a food centre from the dropdown above.</p>
+      </div>
+    </div>
+
+    <div class="stall-list-title" id="availableStallsTitleMobile">Available Stalls</div>
+    <div id="availableStallsMobile" aria-live="polite"></div>
+
+    <div class="stall-list-title mt-4" id="closedStallsTitleMobile">Closed Stalls</div>
+    <div id="closedStallsMobile" aria-live="polite"></div>
   </div>
 
   <script>
@@ -579,7 +783,7 @@
         <div class="stall-card" data-slug="${s.slug}">
           <div class="stall-img-wrap">
             <img class="stall-img" src="${s.image || '/img/stall1.jpg'}" alt="${s.name}">
-          </div>
+  </div>
           <div class="stall-info">
             <b>${s.name}</b>
             <small>${s.cuisine || ''}</small>
@@ -849,22 +1053,25 @@
     // Search handling
     (() => {
       const input = document.getElementById('stallSearch');
-      const clear = document.getElementById('clearSearch');
       
       input.disabled = true;
       
       input.addEventListener('input', () => {
         renderStalls(input.value);
-        clear.style.visibility = input.value ? 'visible' : 'hidden';
       });
+    })();
+    
+    // Mobile search handling
+    (() => {
+      const inputMobile = document.getElementById('stallSearchMobile');
       
-      clear.addEventListener('click', () => {
-        input.value = '';
-        renderStalls('');
-        clear.style.visibility = 'hidden';
-        input.focus();
-      });
-      clear.style.visibility = 'hidden';
+      if (inputMobile) {
+        inputMobile.disabled = true;
+        
+        inputMobile.addEventListener('input', () => {
+          renderStalls(inputMobile.value);
+        });
+      }
     })();
   </script>
 
@@ -872,7 +1079,7 @@
 
   <!-- Navigation -->
   <div class="nav-bar">
-    <a href="/" class="nav-logo"><i class="bi bi-shop"></i>ChopeLah</a>
+    <a href="/" class="nav-logo"><img src="/img/logo.jpg" alt="ChopeLah" /></a>
     <div class="nav-items">
       <button class="active" onclick="location.href='/pages/order/online-order-home.html'"><i class="bi bi-cart3"></i><span>Order</span></button>
       <button onclick="location.href='/pages/community/community.html'"><i class="bi bi-people"></i><span>Community</span></button>
@@ -883,9 +1090,9 @@
       <button class="notification-btn" onclick="toggleOrderNotification()">
         <i class="bi bi-bell"></i>
         <span class="notification-badge" style="display: none;">1</span>
-      </button>
+    </button>
       <button onclick="location.href='/pages/profile/profile.html'"><i class="bi bi-person"></i><span>Profile</span></button>
-    </div>
+</div>
   </div>
   <script src="/scripts/notification.js"></script>
 </body>

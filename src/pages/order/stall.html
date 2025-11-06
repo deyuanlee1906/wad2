@@ -21,6 +21,22 @@
     .header-section{padding:20px 24px;border-bottom:1px solid rgba(0,0,0,0.06);background:var(--card);flex-shrink:0}
     .header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
     .header h2{margin:0;font-size:1.5rem;font-weight:600}
+    .back-btn {
+      margin-bottom: 0;
+      padding: 8px 16px;
+      background-color: #f5f5f5;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #1a1a1a;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .back-btn:hover {
+      background-color: #e0e0e0;
+    }
     .controls{display:flex;gap:12px;align-items:center;flex-wrap:wrap;width:100%}
     .time-select{min-width:180px;max-width:220px;flex:0 1 auto;position:relative}
     .time-select .form-select{
@@ -322,7 +338,7 @@
   <div class="main-content">
     <div class="header-section">
       <div class="header">
-        <button class="btn btn-link" onclick="goBack()"><i class="bi bi-arrow-left"></i> Back</button>
+        <button class="back-btn" onclick="goBack()"><i class="bi bi-arrow-left"></i> Back</button>
         <h2 id="stallName"></h2>
       </div>
 

@@ -11,14 +11,30 @@
     <link rel="stylesheet" href="/styles/components.css">
     <script type="module" src="/scripts/firebaseauth.js"></script>
     <script src="seatDatabase.js"></script>
+    <style>
+        .back-btn {
+            margin-bottom: 16px;
+            padding: 8px 16px;
+            background-color: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .back-btn:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
 </head>
 <body class="theme-gradient">
     <div class="container-fluid px-3">
         <!-- Header with back button -->
         <div class="position-relative mb-3">
             <!-- Back button -->
-            <button class="btn btn-outline-secondary position-absolute start-0 top-50 translate-middle-y" onclick="history.back()">
-                <i class="bi bi-arrow-left"></i> <!--stay at the left corner-->
+            <button class="back-btn" onclick="history.back()">
+                <i class="bi bi-arrow-left"></i> Back
             </button>
             <!-- Centered header -->
             <h2 class="text-center mb-0 py-2">SEAT PLAN</h2>
@@ -597,7 +613,7 @@
         crossorigin="anonymous"></script>
 
     <div class="nav-bar">
-      <a href="/" class="nav-logo"><i class="bi bi-shop"></i>ChopeLah</a>
+      <a href="/" class="nav-logo"><img src="/img/logo.jpg" alt="ChopeLah" /></a>
       <div class="nav-items">
         <button onclick="location.href='../order/online-order-home.html'">
           <i class="bi bi-cart3"></i>
