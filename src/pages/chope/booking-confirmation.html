@@ -18,11 +18,27 @@
             --background-color: #F2F2F2;
             --text-color: #262626;
             --danger-color: #dc3545;
+            --space-32: 32px;
+            --space-24: 24px;
+            --space-20: 20px;
+            --space-16: 16px;
+            --space-12: 12px;
+            --space-8: 8px;
         }
 
         body {
             background-color: var(--background-color);
             min-height: 100vh;
+            padding-top: 70px;
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            }
         }
 
         .confirmation-container {
@@ -134,6 +150,16 @@
             color: white;
         }
 
+        .confirmation-container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            max-width: 500px;
+            text-align: center;
+        }
+
         .back-btn {
             margin-bottom: 16px;
             padding: 8px 16px;
@@ -145,10 +171,95 @@
             font-weight: 600;
             text-decoration: none;
             display: inline-block;
+            min-height: 44px;
+            position: relative;
+            z-index: 10;
         }
 
         .back-btn:hover {
             background-color: #e0e0e0;
+        }
+
+        @media (max-width: 430px) {
+            body {
+                padding-top: max(70px, env(safe-area-inset-top));
+                padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            }
+
+            .back-btn {
+                width: 100%;
+                margin-bottom: var(--space-12);
+                padding: 10px 16px;
+            }
+
+            .confirmation-container {
+                padding: var(--space-20);
+                margin: var(--space-16) auto;
+                border-radius: 16px;
+            }
+
+            .success-icon {
+                width: 64px;
+                height: 64px;
+                font-size: 32px;
+                margin-bottom: var(--space-20);
+            }
+
+            .confirmation-title {
+                font-size: 1.5rem;
+                margin-bottom: var(--space-16);
+            }
+
+            .booking-details {
+                padding: var(--space-16);
+                margin: var(--space-20) 0;
+            }
+
+            .detail-item {
+                margin: var(--space-12) 0;
+                padding: var(--space-8) 0;
+                font-size: 0.95rem;
+            }
+
+            .custom-btn,
+            .custom-btn-secondary,
+            .custom-btn-danger {
+                width: 100%;
+                margin: var(--space-8) 0;
+                padding: 12px 24px;
+                min-height: 44px;
+            }
+
+            .mt-4 {
+                margin-top: var(--space-16) !important;
+            }
+        }
+
+        /* iPhone 14 Pro Max specific optimizations (430x932) */
+        @media (max-width: 430px) and (min-height: 900px) {
+            body {
+                padding-top: max(70px, env(safe-area-inset-top));
+                padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            }
+
+            .confirmation-container {
+                padding: var(--space-24);
+                margin: var(--space-20) auto;
+            }
+
+            .success-icon {
+                width: 72px;
+                height: 72px;
+                font-size: 36px;
+            }
+
+            .confirmation-title {
+                font-size: 1.75rem;
+            }
+
+            .booking-details {
+                padding: var(--space-20);
+            }
         }
     </style>
 </head>

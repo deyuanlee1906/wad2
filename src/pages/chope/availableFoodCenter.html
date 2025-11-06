@@ -12,7 +12,68 @@
     <link rel="stylesheet" href="/styles/components.css">
     <script type="module" src="/scripts/firebaseauth.js"></script>
     <script src="seatDatabase.js"></script>
+    <style>
+        :root {
+            --space-32: 32px;
+            --space-24: 24px;
+            --space-16: 16px;
+            --space-12: 12px;
+            --space-8: 8px;
+        }
 
+        body {
+            padding-top: 70px;
+            padding-bottom: 80px;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            }
+        }
+
+        .container-fluid {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-32);
+        }
+
+        @media (max-width: 430px) {
+            .container-fluid {
+                padding: var(--space-16);
+                padding-top: max(var(--space-16), env(safe-area-inset-top));
+            }
+
+            h2 {
+                font-size: 1.5rem;
+                margin-bottom: var(--space-12);
+            }
+
+            .card {
+                padding: var(--space-16) !important;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 12px 24px;
+                min-height: 44px;
+            }
+        }
+
+        /* iPhone 14 Pro Max specific optimizations */
+        @media (max-width: 430px) and (min-height: 900px) {
+            .container-fluid {
+                padding: var(--space-20);
+                padding-top: max(var(--space-20), env(safe-area-inset-top));
+                padding-bottom: max(var(--space-20), env(safe-area-inset-bottom));
+            }
+
+            .card {
+                padding: var(--space-20) !important;
+            }
+        }
+    </style>
 </head>
 
 <body class="theme-gradient">
