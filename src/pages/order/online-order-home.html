@@ -101,30 +101,46 @@
       margin: 20px 0 8px;
       flex-wrap: wrap;
     }
+    
+    .header-controls {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      margin-top: 20px;
+    }
 
     .food-centre-select {
       position: relative;
       flex: 1;
       min-width: 200px;
       max-width: 400px;
+      display: flex;
+      align-items: center;
     }
 
     .food-centre-input-wrapper {
       position: relative;
+      width: 100%;
+      display: flex;
+      align-items: center;
     }
 
     .food-centre-input {
       width: 100%;
       padding: 10px 36px 10px 12px;
-      border: 1px solid var(--clr-ink);
+      border: 1px solid #1a1a1a;
       border-radius: 6px;
       background: white;
-      color: var(--clr-ink);
+      color: #1a1a1a;
       font-size: 16px;
       font-weight: 600;
       cursor: text;
       transition: all 0.2s;
       box-sizing: border-box;
+      height: 44px;
+      line-height: 24px;
     }
 
     .food-centre-input::placeholder {
@@ -164,7 +180,7 @@
       left: 0;
       right: 0;
       background: white;
-      border: 1px solid var(--clr-ink);
+      border: 1px solid #1a1a1a;
       border-radius: 6px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
       max-height: 300px;
@@ -230,42 +246,78 @@
 
     .search-wrap {
       position: relative;
-      margin-bottom: 16px;
+      flex: 1;
+      min-width: 200px;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-container {
+      position: relative;
+      width: 100%;
+      max-width: 100%;
+      display: flex;
+      align-items: center;
+      background: white;
+      border: 1px solid #1a1a1a;
+      border-radius: 6px;
+      overflow: hidden;
+      box-sizing: border-box;
+      height: 44px;
+    }
+
+    .search-container i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(26, 26, 26, 0.5);
+      pointer-events: none;
+      z-index: 1;
+      font-size: 16px;
+    }
+
+    .search-container input {
+      width: 100%;
+      padding: 10px 12px 10px 40px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: #1a1a1a;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.2s;
+      box-sizing: border-box;
+      outline: none;
+      height: 100%;
+      line-height: 24px;
+    }
+
+    .search-container input::placeholder {
+      color: rgba(26, 26, 26, 0.5);
+      font-weight: 500;
+    }
+
+    .search-container:hover {
+      border-color: #4285f4;
+      box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+    }
+
+    .search-container:focus-within {
+      border-color: #4285f4;
+      box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+    }
+
+    .search-container input:focus {
+      outline: none;
     }
 
     .search-bar {
-      border: none;
-      border-bottom: 1px solid var(--clr-ink);
-      padding-right: 36px;
-      background: transparent;
-      color: var(--clr-ink);
+      display: none;
     }
-
-    .search-bar:disabled {
-      background: #e9ecef;
-      color: #6c757d;
-      border-bottom-color: #d3d3d3;
-      cursor: not-allowed;
-    }
-
-    .search-bar:disabled::placeholder {
-      color: #999;
-    }
-
+    
     .search-clear {
-      position: absolute;
-      right: 6px;
-      top: 50%;
-      transform: translateY(-50%);
-      border: none;
-      background: transparent;
-      color: var(--clr-ink);
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
+      display: none;
     }
 
     .stall-list-title {
@@ -419,7 +471,7 @@
         margin-bottom: var(--space-8);
       }
 
-      .location-header {
+      .header-controls {
         flex-direction: column;
         align-items: stretch;
         gap: var(--space-8);
@@ -428,6 +480,10 @@
       .food-centre-select {
         min-width: 100%;
         max-width: 100%;
+      }
+      
+      .search-wrap {
+        min-width: 100%;
       }
     }
 
@@ -441,7 +497,7 @@
         padding: 0 12px; 
       }
       
-      .location-header {
+      .header-controls {
         margin: 12px 0 8px;
         gap: 8px;
       }
@@ -534,44 +590,43 @@
         </div>
       </div>
       
-      <div class="location-header">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#000" class="me-1" viewBox="0 0 16 16">
-          <path d="M8 16s6-5.686 6-10A6 6 0 1 0 2 6c0 4.314 6 10 6 10Zm0-8a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"/>
-        </svg>
+      <div class="header-controls">
         <div class="food-centre-select" id="foodCentreSelectWrapper">
-        <div class="food-centre-input-wrapper">
-          <input 
-            type="text" 
-            id="foodCentreSelect" 
-            class="food-centre-input" 
-            placeholder="Please select a food centre"
-            autocomplete="off"
-            aria-label="Select Food Centre"
-          />
-          <svg class="food-centre-dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
-            <path fill="#222" d="M6 9L1 4h10z"/>
-          </svg>
-        </div>
-        <div class="food-centre-dropdown" id="foodCentreDropdown" role="listbox">
-          <div class="dropdown-search-bar">
+          <div class="food-centre-input-wrapper">
             <input 
               type="text" 
-              id="dropdownSearchInput" 
-              placeholder="Search food centre..."
+              id="foodCentreSelect" 
+              class="food-centre-input" 
+              placeholder="Please select a food centre"
               autocomplete="off"
+              aria-label="Select Food Centre"
             />
+            <svg class="food-centre-dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+              <path fill="#222" d="M6 9L1 4h10z"/>
+            </svg>
           </div>
-          <div class="food-centre-option" data-value="Maxwell Food Centre">Maxwell Food Centre</div>
-          <div class="food-centre-option" data-value="Newton Food Centre">Newton Food Centre</div>
-          <div class="food-centre-option" data-value="Changi Village Food Centre">Changi Village Food Centre</div>
+          <div class="food-centre-dropdown" id="foodCentreDropdown" role="listbox">
+            <div class="dropdown-search-bar">
+              <input 
+                type="text" 
+                id="dropdownSearchInput" 
+                placeholder="Search food centre..."
+                autocomplete="off"
+              />
+            </div>
+            <div class="food-centre-option" data-value="Maxwell Food Centre">Maxwell Food Centre</div>
+            <div class="food-centre-option" data-value="Newton Food Centre">Newton Food Centre</div>
+            <div class="food-centre-option" data-value="Changi Village Food Centre">Changi Village Food Centre</div>
+          </div>
+        </div>
+        
+        <div class="search-wrap">
+          <div class="search-container">
+            <i class="bi bi-search"></i>
+            <input type="text" id="stallSearch" placeholder="Search for a stall/food" disabled>
+          </div>
         </div>
       </div>
-    </div>
-
-    <div class="search-wrap">
-      <input type="text" id="stallSearch" class="form-control search-bar" placeholder="Search for a stall/food" disabled>
-      <button id="clearSearch" class="search-clear" type="button">&times;</button>
-    </div>
 
     <div id="emptyState" style="display: none;">
       <div style="text-align: center; padding: 60px 20px; color: #666;">
@@ -600,10 +655,7 @@
         </div>
       </div>
       
-      <div class="location-header">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#000" class="me-1" viewBox="0 0 16 16">
-          <path d="M8 16s6-5.686 6-10A6 6 0 1 0 2 6c0 4.314 6 10 6 10Zm0-8a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"/>
-        </svg>
+      <div class="header-controls">
         <div class="food-centre-select" id="foodCentreSelectWrapperMobile">
           <div class="food-centre-input-wrapper">
             <input 
@@ -632,12 +684,14 @@
             <div class="food-centre-option" data-value="Changi Village Food Centre">Changi Village Food Centre</div>
           </div>
         </div>
+        
+        <div class="search-wrap">
+          <div class="search-container">
+            <i class="bi bi-search"></i>
+            <input type="text" id="stallSearchMobile" placeholder="Search for a stall/food" disabled>
+          </div>
+        </div>
       </div>
-    </div>
-
-    <div class="search-wrap">
-      <input type="text" id="stallSearchMobile" class="form-control search-bar" placeholder="Search for a stall/food" disabled>
-      <button id="clearSearchMobile" class="search-clear" type="button">&times;</button>
     </div>
 
     <div id="emptyStateMobile" style="display: none;">
@@ -999,22 +1053,25 @@
     // Search handling
     (() => {
       const input = document.getElementById('stallSearch');
-      const clear = document.getElementById('clearSearch');
       
       input.disabled = true;
       
       input.addEventListener('input', () => {
         renderStalls(input.value);
-        clear.style.visibility = input.value ? 'visible' : 'hidden';
       });
+    })();
+    
+    // Mobile search handling
+    (() => {
+      const inputMobile = document.getElementById('stallSearchMobile');
       
-      clear.addEventListener('click', () => {
-        input.value = '';
-        renderStalls('');
-        clear.style.visibility = 'hidden';
-        input.focus();
-      });
-      clear.style.visibility = 'hidden';
+      if (inputMobile) {
+        inputMobile.disabled = true;
+        
+        inputMobile.addEventListener('input', () => {
+          renderStalls(inputMobile.value);
+        });
+      }
     })();
   </script>
 
