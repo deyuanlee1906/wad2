@@ -595,7 +595,9 @@
 
         // add event listener to the reset button
         document.getElementById("resetBtn").addEventListener("click", () =>{
-            document.getElementById("timeslot").selectedIndex = 0;
+            // Reset timeslot to first available slot (same logic as updateTimeSlots)
+            updateTimeSlots();
+            // Reset duration to default
             document.getElementById("duration").selectedIndex = 0;
         });
 

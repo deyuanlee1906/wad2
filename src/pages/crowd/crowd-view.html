@@ -252,7 +252,7 @@
             bottom: 100%;
             left: 0;
             right: 0;
-            padding: 8px 12px 4px 12px;
+            padding: 8px 12px 4px 0;
             margin-bottom: 4px;
             font-size: var(--font-size-sm);
             font-weight: bold;
@@ -351,6 +351,18 @@
             outline: none;
             border-color: #4285f4;
             box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+        }
+
+        .stall-input:disabled {
+            background-color: #f5f5f5;
+            color: #999;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .stall-input:disabled:hover {
+            border-color: #1a1a1a;
+            box-shadow: none;
         }
 
         .stall-dropdown-icon {
@@ -1101,7 +1113,7 @@
                                 <path fill="#1a1a1a" d="M6 9L1 4h10z"/>
                             </svg>
                         </div>
-                        <div class="dropdown-label-above">Select Hawker Centre</div>
+                        <div class="dropdown-label-above">Select Food Centre</div>
                         <div class="hawker-centre-dropdown" id="hawkerCentreDropdown" role="listbox">
                             <div class="dropdown-search-bar">
                                 <input 
@@ -1118,7 +1130,6 @@
                     </div>
                 </div>
                 <div class="select-wrapper">
-                    <label for="stall-select">Select Stall (Optional)</label>
                     <div class="stall-select" id="stallSelectWrapper">
                         <div class="stall-input-wrapper">
                             <input 
@@ -1179,7 +1190,7 @@
         <div class="main-grid">
             <div class="chart-card">
                 <div class="chart-header">
-                    <h2 class="chart-title">Hawker Centre Crowd Level</h2>
+                    <h2 class="chart-title">Food Centre Crowd Level</h2>
                     <div class="time-filter">
                         <button class="time-btn">1H</button>
                         <button class="time-btn active">Today</button>
@@ -1380,7 +1391,7 @@
             
             <div class="hawker-selector">
                 <div class="select-wrapper">
-                    <div class="dropdown-label-above">Hawker Centre</div>
+                    <div class="dropdown-label-above">Food Centre</div>
                     <div class="hawker-centre-select" id="hawkerCentreSelectWrapperMobile">
                         <div class="hawker-centre-input-wrapper">
                             <input 
@@ -1462,7 +1473,7 @@
         <!-- Hawker Centre Chart -->
         <div class="chart-card">
             <div class="chart-header">
-                <h2 class="chart-title">Centre Crowd</h2>
+                <h2 class="chart-title">Food Centre Crowd</h2>
                 <div class="time-filter">
                     <button class="time-btn">1H</button>
                     <button class="time-btn active">Today</button>
@@ -1620,6 +1631,7 @@
   </div>
   </div>
   <script type="module" src="/scripts/firebaseauth.js"></script>
+  <script src="/pages/chope/seatDatabase.js"></script>
   <script>
         // Track current time filter
         let currentTimeFilter = 'Today';
@@ -1964,7 +1976,7 @@
         }
 
         // Count active reservations from seatDatabase (matching chope page logic)
-        function countActiveReservationsFromSeatDatabase(hawkerCentreName) {
+        async function countActiveReservationsFromSeatDatabase(hawkerCentreName) {
             try {
                 // Get the seatDatabase key for this hawker centre
                 const foodCenterKey = getSeatDatabaseKey(hawkerCentreName);
@@ -1972,7 +1984,29 @@
                     return 0;
                 }
 
-                // Load seatDatabase from localStorage
+                // Wait for seatDatabase to be initialized
+                if (window.seatDatabase && window.seatDatabase.initPromise) {
+                    await window.seatDatabase.initPromise;
+                }
+
+                // Use the same method as chope pages to get seat counts
+                if (window.seatDatabase && typeof window.seatDatabase.getSeatCounts === 'function') {
+                    // Refresh data from Firebase to ensure we have latest data
+                    if (window.seatDatabase.refresh) {
+                        await window.seatDatabase.refresh();
+                    }
+                    
+                    // Clean up expired bookings before counting
+                    if (window.seatDatabase.cleanupExpiredBookings) {
+                        await window.seatDatabase.cleanupExpiredBookings();
+                    }
+                    
+                    // Get seat counts using the same method as chope page
+                    const seatCounts = await window.seatDatabase.getSeatCounts(foodCenterKey);
+                    return seatCounts.booked || 0;
+                }
+
+                // Fallback: Load seatDatabase from localStorage (for compatibility)
                 const seatDatabaseData = localStorage.getItem('seatDatabase');
                 if (!seatDatabaseData) {
                     return 0;
@@ -1985,7 +2019,7 @@
                     return 0;
                 }
 
-                // Count all seats with status 'booked' (seatDatabase automatically cleans expired bookings)
+                // Count all seats with status 'booked'
                 let activeCount = 0;
                 const now = new Date();
                 
@@ -2016,9 +2050,9 @@
 
         // Count active reservations for a specific hawker centre
         // Uses seatDatabase to match the chope page logic
-        function countActiveReservations(hawkerCentreName) {
+        async function countActiveReservations(hawkerCentreName) {
             // Use seatDatabase for accurate count that matches chope pages
-            return countActiveReservationsFromSeatDatabase(hawkerCentreName);
+            return await countActiveReservationsFromSeatDatabase(hawkerCentreName);
         }
 
         // Get total seats for a hawker centre
@@ -2039,19 +2073,29 @@
         }
 
         // Calculate occupancy 1 hour ago from seatDatabase
-        function calculateOccupancyOneHourAgo(hawkerCentreName) {
+        async function calculateOccupancyOneHourAgo(hawkerCentreName) {
             try {
                 const foodCenterKey = getSeatDatabaseKey(hawkerCentreName);
                 if (!foodCenterKey) {
                     return 0;
                 }
 
-                const seatDatabaseData = localStorage.getItem('seatDatabase');
-                if (!seatDatabaseData) {
-                    return 0;
+                // Try to use seatDatabase if available
+                let bookings = {};
+                if (window.seatDatabase && window.seatDatabase.initPromise) {
+                    await window.seatDatabase.initPromise;
+                    if (window.seatDatabase.refresh) {
+                        await window.seatDatabase.refresh();
+                    }
+                    bookings = window.seatDatabase.bookings || {};
+                } else {
+                    // Fallback to localStorage
+                    const seatDatabaseData = localStorage.getItem('seatDatabase');
+                    if (seatDatabaseData) {
+                        bookings = JSON.parse(seatDatabaseData);
+                    }
                 }
 
-                const bookings = JSON.parse(seatDatabaseData);
                 const foodCenterBookings = bookings[foodCenterKey];
                 
                 if (!foodCenterBookings) {
@@ -2093,14 +2137,14 @@
         }
 
         // Calculate current occupancy percentage from seatDatabase
-        function calculateCurrentOccupancy(hawkerCentreName) {
+        async function calculateCurrentOccupancy(hawkerCentreName) {
             try {
                 const totalSeats = getTotalSeatsForHawkerCentre(hawkerCentreName);
                 if (totalSeats === 0) {
                     return 0;
                 }
 
-                const bookedSeats = countActiveReservationsFromSeatDatabase(hawkerCentreName);
+                const bookedSeats = await countActiveReservationsFromSeatDatabase(hawkerCentreName);
                 const occupancy = Math.round((bookedSeats / totalSeats) * 100);
                 
                 return occupancy;
@@ -2111,10 +2155,10 @@
         }
 
         // Calculate occupancy change from 1 hour ago
-        function calculateOccupancyChange(hawkerCentreName) {
+        async function calculateOccupancyChange(hawkerCentreName) {
             try {
-                const currentOccupancy = calculateCurrentOccupancy(hawkerCentreName);
-                const occupancyOneHourAgo = calculateOccupancyOneHourAgo(hawkerCentreName);
+                const currentOccupancy = await calculateCurrentOccupancy(hawkerCentreName);
+                const occupancyOneHourAgo = await calculateOccupancyOneHourAgo(hawkerCentreName);
                 const change = currentOccupancy - occupancyOneHourAgo;
                 
                 return {
@@ -2192,6 +2236,33 @@
         function addActivity(icon, text) {
             // No longer adding non-reservation activities to the feed
             // Only reservations are displayed in the recent activity section
+        }
+
+        // Function to enable/disable stall dropdowns based on hawker centre selection
+        function toggleStallDropdowns(enabled) {
+            // Desktop stall dropdown
+            const stallInput = document.getElementById('stall-select');
+            const stallWrapper = document.getElementById('stallSelectWrapper');
+            if (stallInput && stallWrapper) {
+                stallInput.disabled = !enabled;
+                if (!enabled) {
+                    stallWrapper.classList.remove('open');
+                    stallInput.value = '';
+                    stallInput.placeholder = 'Please select a food stall';
+                }
+            }
+            
+            // Mobile stall dropdown
+            const stallInputMobile = document.getElementById('stall-select-mobile');
+            const stallWrapperMobile = document.getElementById('stallSelectWrapperMobile');
+            if (stallInputMobile && stallWrapperMobile) {
+                stallInputMobile.disabled = !enabled;
+                if (!enabled) {
+                    stallWrapperMobile.classList.remove('open');
+                    stallInputMobile.value = '';
+                    stallInputMobile.placeholder = 'Please select a food stall';
+                }
+            }
         }
 
         // Function to update stall dropdown based on selected hawker centre
@@ -2426,7 +2497,7 @@
         }
 
         // Function to update dashboard with hawker centre data
-        function updateDashboard(hawkerKey, stallSlug = null) {
+        async function updateDashboard(hawkerKey, stallSlug = null) {
             // If no hawker key is provided or invalid, clear dashboard
             if (!hawkerKey || !hawkerKey.trim()) {
                 clearDashboard();
@@ -2440,16 +2511,16 @@
             }
 
             // Count active reservations for this hawker centre
-            const activeReservationsCount = countActiveReservations(hawker.name);
+            const activeReservationsCount = await countActiveReservations(hawker.name);
             
             // Count new reservations in the last 1 hour
             const newReservationsCount = countNewReservationsLastHour(hawker.name);
             
             // Calculate current occupancy from seatDatabase (matching chope page)
-            const currentOccupancy = calculateCurrentOccupancy(hawker.name);
+            const currentOccupancy = await calculateCurrentOccupancy(hawker.name);
             
             // Calculate occupancy change from 1 hour ago
-            const occupancyChange = calculateOccupancyChange(hawker.name);
+            const occupancyChange = await calculateOccupancyChange(hawker.name);
 
             // Update stats cards
             const statValues = document.querySelectorAll('.stat-value');
@@ -2855,6 +2926,9 @@
                     dropdownSearch.value = '';
                     updateSelectedOption(value);
                     
+                    // Enable stall dropdowns when hawker centre is selected
+                    toggleStallDropdowns(true);
+                    
                     const stallDropdown = document.getElementById('stallDropdown');
                     if (stallDropdown) {
                         updateStallOptions(value, stallDropdown);
@@ -2881,6 +2955,8 @@
                     input.value = '';
                     wrapper.classList.remove('open');
                     dropdownSearch.value = '';
+                    // Disable stall dropdowns when no hawker centre is selected
+                    toggleStallDropdowns(false);
                     clearDashboard();
                 }
             });
@@ -2889,6 +2965,8 @@
             input.value = '';
             // Clear dashboard on initial load since nothing is selected
             clearDashboard();
+            // Disable stall dropdowns initially since no hawker centre is selected
+            toggleStallDropdowns(false);
             
             input.addEventListener('focus', () => {
                 wrapper.classList.add('open');
@@ -2998,12 +3076,16 @@
             input.placeholder = 'Please select a food stall';
             
             input.addEventListener('focus', () => {
+                // Don't open if disabled
+                if (input.disabled) return;
                 wrapper.classList.add('open');
                 dropdownSearch.focus();
                 filterOptions();
             });
             
             input.addEventListener('click', () => {
+                // Don't open if disabled
+                if (input.disabled) return;
                 wrapper.classList.add('open');
                 dropdownSearch.focus();
                 filterOptions();
@@ -3088,7 +3170,7 @@
         }
 
         // Function to update mobile dashboard
-        function updateMobileDashboard(hawkerKey, stallSlug = null) {
+        async function updateMobileDashboard(hawkerKey, stallSlug = null) {
             // If no hawker key is provided or invalid, clear dashboard
             if (!hawkerKey || !hawkerKey.trim()) {
                 clearMobileDashboard();
@@ -3102,13 +3184,13 @@
             }
 
             // Count active reservations for this hawker centre
-            const activeReservationsCount = countActiveReservations(hawker.name);
+            const activeReservationsCount = await countActiveReservations(hawker.name);
             
             // Calculate current occupancy from seatDatabase (matching chope page)
-            const currentOccupancy = calculateCurrentOccupancy(hawker.name);
+            const currentOccupancy = await calculateCurrentOccupancy(hawker.name);
             
             // Calculate occupancy change from 1 hour ago
-            const occupancyChange = calculateOccupancyChange(hawker.name);
+            const occupancyChange = await calculateOccupancyChange(hawker.name);
             
             // Update mobile stats
             const mobileStats = document.querySelectorAll('.mobile-view .stat-value');
@@ -3423,6 +3505,9 @@
                     dropdownSearch.value = '';
                     updateSelectedOption(value);
                     
+                    // Enable stall dropdowns when hawker centre is selected
+                    toggleStallDropdowns(true);
+                    
                     const stallDropdownMobile = document.getElementById('stallDropdownMobile');
                     if (stallDropdownMobile) {
                         updateStallOptions(value, stallDropdownMobile);
@@ -3449,6 +3534,8 @@
                     input.value = '';
                     wrapper.classList.remove('open');
                     dropdownSearch.value = '';
+                    // Disable stall dropdowns when no hawker centre is selected
+                    toggleStallDropdowns(false);
                     clearMobileDashboard();
                 }
             });
@@ -3457,6 +3544,8 @@
             input.value = '';
             // Clear mobile dashboard on initial load since nothing is selected
             clearMobileDashboard();
+            // Disable stall dropdowns initially since no hawker centre is selected
+            toggleStallDropdowns(false);
             
             input.addEventListener('focus', () => {
                 wrapper.classList.add('open');
@@ -3566,12 +3655,16 @@
             input.placeholder = 'Please select a food stall';
             
             input.addEventListener('focus', () => {
+                // Don't open if disabled
+                if (input.disabled) return;
                 wrapper.classList.add('open');
                 dropdownSearch.focus();
                 filterOptions();
             });
             
             input.addEventListener('click', () => {
+                // Don't open if disabled
+                if (input.disabled) return;
                 wrapper.classList.add('open');
                 dropdownSearch.focus();
                 filterOptions();
