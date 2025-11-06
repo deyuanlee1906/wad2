@@ -1631,6 +1631,7 @@
   </div>
   </div>
   <script type="module" src="/scripts/firebaseauth.js"></script>
+  <script src="/pages/chope/seatDatabase.js"></script>
   <script>
         // Track current time filter
         let currentTimeFilter = 'Today';
@@ -1975,7 +1976,7 @@
         }
 
         // Count active reservations from seatDatabase (matching chope page logic)
-        function countActiveReservationsFromSeatDatabase(hawkerCentreName) {
+        async function countActiveReservationsFromSeatDatabase(hawkerCentreName) {
             try {
                 // Get the seatDatabase key for this hawker centre
                 const foodCenterKey = getSeatDatabaseKey(hawkerCentreName);
@@ -1983,7 +1984,33 @@
                     return 0;
                 }
 
-                // Load seatDatabase from localStorage
+                // Try to use window.seatDatabase.getSeatCounts() if available (matches chope page exactly)
+                if (window.seatDatabase && typeof window.seatDatabase.getSeatCounts === 'function') {
+                    try {
+                        // Wait for seatDatabase to be initialized
+                        if (window.seatDatabase.initPromise) {
+                            await window.seatDatabase.initPromise;
+                        }
+                        
+                        // Refresh data from Firebase to ensure we have latest data
+                        if (window.seatDatabase.refresh) {
+                            await window.seatDatabase.refresh();
+                        }
+                        
+                        // Clean up expired bookings before counting
+                        if (window.seatDatabase.cleanupExpiredBookings) {
+                            await window.seatDatabase.cleanupExpiredBookings();
+                        }
+                        
+                        // Get seat counts using the same method as chope page
+                        const seatCounts = await window.seatDatabase.getSeatCounts(foodCenterKey);
+                        return seatCounts.booked || 0;
+                    } catch (error) {
+                        console.warn('Error using seatDatabase.getSeatCounts, falling back to localStorage:', error);
+                    }
+                }
+
+                // Fallback: Load seatDatabase from localStorage (for compatibility)
                 const seatDatabaseData = localStorage.getItem('seatDatabase');
                 if (!seatDatabaseData) {
                     return 0;
@@ -1996,7 +2023,7 @@
                     return 0;
                 }
 
-                // Count all seats with status 'booked' (seatDatabase automatically cleans expired bookings)
+                // Count all seats with status 'booked' and check expiration
                 let activeCount = 0;
                 const now = new Date();
                 
@@ -2027,9 +2054,9 @@
 
         // Count active reservations for a specific hawker centre
         // Uses seatDatabase to match the chope page logic
-        function countActiveReservations(hawkerCentreName) {
+        async function countActiveReservations(hawkerCentreName) {
             // Use seatDatabase for accurate count that matches chope pages
-            return countActiveReservationsFromSeatDatabase(hawkerCentreName);
+            return await countActiveReservationsFromSeatDatabase(hawkerCentreName);
         }
 
         // Get total seats for a hawker centre
@@ -2104,14 +2131,14 @@
         }
 
         // Calculate current occupancy percentage from seatDatabase
-        function calculateCurrentOccupancy(hawkerCentreName) {
+        async function calculateCurrentOccupancy(hawkerCentreName) {
             try {
                 const totalSeats = getTotalSeatsForHawkerCentre(hawkerCentreName);
                 if (totalSeats === 0) {
                     return 0;
                 }
 
-                const bookedSeats = countActiveReservationsFromSeatDatabase(hawkerCentreName);
+                const bookedSeats = await countActiveReservationsFromSeatDatabase(hawkerCentreName);
                 const occupancy = Math.round((bookedSeats / totalSeats) * 100);
                 
                 return occupancy;
@@ -2122,9 +2149,9 @@
         }
 
         // Calculate occupancy change from 1 hour ago
-        function calculateOccupancyChange(hawkerCentreName) {
+        async function calculateOccupancyChange(hawkerCentreName) {
             try {
-                const currentOccupancy = calculateCurrentOccupancy(hawkerCentreName);
+                const currentOccupancy = await calculateCurrentOccupancy(hawkerCentreName);
                 const occupancyOneHourAgo = calculateOccupancyOneHourAgo(hawkerCentreName);
                 const change = currentOccupancy - occupancyOneHourAgo;
                 
@@ -2464,7 +2491,7 @@
         }
 
         // Function to update dashboard with hawker centre data
-        function updateDashboard(hawkerKey, stallSlug = null) {
+        async function updateDashboard(hawkerKey, stallSlug = null) {
             // If no hawker key is provided or invalid, clear dashboard
             if (!hawkerKey || !hawkerKey.trim()) {
                 clearDashboard();
@@ -2478,16 +2505,16 @@
             }
 
             // Count active reservations for this hawker centre
-            const activeReservationsCount = countActiveReservations(hawker.name);
+            const activeReservationsCount = await countActiveReservations(hawker.name);
             
             // Count new reservations in the last 1 hour
             const newReservationsCount = countNewReservationsLastHour(hawker.name);
             
             // Calculate current occupancy from seatDatabase (matching chope page)
-            const currentOccupancy = calculateCurrentOccupancy(hawker.name);
+            const currentOccupancy = await calculateCurrentOccupancy(hawker.name);
             
             // Calculate occupancy change from 1 hour ago
-            const occupancyChange = calculateOccupancyChange(hawker.name);
+            const occupancyChange = await calculateOccupancyChange(hawker.name);
 
             // Update stats cards
             const statValues = document.querySelectorAll('.stat-value');
@@ -3137,7 +3164,7 @@
         }
 
         // Function to update mobile dashboard
-        function updateMobileDashboard(hawkerKey, stallSlug = null) {
+        async function updateMobileDashboard(hawkerKey, stallSlug = null) {
             // If no hawker key is provided or invalid, clear dashboard
             if (!hawkerKey || !hawkerKey.trim()) {
                 clearMobileDashboard();
@@ -3151,13 +3178,13 @@
             }
 
             // Count active reservations for this hawker centre
-            const activeReservationsCount = countActiveReservations(hawker.name);
+            const activeReservationsCount = await countActiveReservations(hawker.name);
             
             // Calculate current occupancy from seatDatabase (matching chope page)
-            const currentOccupancy = calculateCurrentOccupancy(hawker.name);
+            const currentOccupancy = await calculateCurrentOccupancy(hawker.name);
             
             // Calculate occupancy change from 1 hour ago
-            const occupancyChange = calculateOccupancyChange(hawker.name);
+            const occupancyChange = await calculateOccupancyChange(hawker.name);
             
             // Update mobile stats
             const mobileStats = document.querySelectorAll('.mobile-view .stat-value');
