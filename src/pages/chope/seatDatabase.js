@@ -63,7 +63,7 @@ class SeatDatabase {
 
             snapshot.forEach((docSnap) => {
                 const data = docSnap.data();
-                const { foodCenter, table, seat, status, bookedBy, bookedAt, expiresAt } = data;
+                const { foodCenter, table, seat, status, bookedBy, bookedAt, expiresAt, timeslot, duration } = data;
 
                 if (!this.bookings[foodCenter]) {
                     this.bookings[foodCenter] = {};
@@ -76,7 +76,9 @@ class SeatDatabase {
                     status: status || 'available',
                     bookedBy: bookedBy || null,
                     bookedAt: bookedAt || null,
-                    expiresAt: expiresAt || null
+                    expiresAt: expiresAt || null,
+                    timeslot: timeslot || null,
+                    duration: duration || null
                 };
             });
 
@@ -201,7 +203,9 @@ class SeatDatabase {
                 status: seatData.status,
                 bookedBy: seatData.bookedBy || null,
                 bookedAt: seatData.bookedAt || null,
-                expiresAt: seatData.expiresAt || null
+                expiresAt: seatData.expiresAt || null,
+                timeslot: seatData.timeslot || null,
+                duration: seatData.duration || null
             }, { merge: true });
 
             // Update local cache
@@ -218,7 +222,7 @@ class SeatDatabase {
     }
 
     // Book a seat
-    async bookSeat(foodCenter, table, seat, duration = 60) {
+    async bookSeat(foodCenter, table, seat, duration = 60, timeslot = null) {
         await this.initPromise;
 
         if (!this.bookings[foodCenter]) {
@@ -237,7 +241,9 @@ class SeatDatabase {
             status: 'booked',
             bookedBy: userId,
             bookedAt: now.toISOString(),
-            expiresAt: expiresAt.toISOString()
+            expiresAt: expiresAt.toISOString(),
+            timeslot: timeslot || null,
+            duration: duration || null
         };
 
         if (this.db) {

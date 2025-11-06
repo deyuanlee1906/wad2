@@ -614,9 +614,10 @@
                     const durationRaw = chopeDuration || params.get("duration");
                     const durationMinutes = (typeof durationRaw === 'string' && durationRaw.includes('hour')) ? 
                         parseInt(durationRaw) * 60 : parseInt(durationRaw);
+                    const time = chopeTime || params.get("time");
                     
                     // Book the seat in database
-                    const success = await window.seatDatabase.bookSeat('maxwell', selectedSeat.table, selectedSeat.seat, durationMinutes);
+                    const success = await window.seatDatabase.bookSeat('maxwell', selectedSeat.table, selectedSeat.seat, durationMinutes, time);
                     
                     if (success) {
                         // Update visual status

@@ -63,6 +63,69 @@ class BookingHistory {
         });
     }
 
+    // Parse timeslot string (e.g., "8:00 AM") and return Date object for today
+    parseTimeslot(timeslotStr) {
+        if (!timeslotStr) return null;
+        
+        const today = new Date();
+        const [time, period] = timeslotStr.split(' ');
+        const [hours, minutes] = time.split(':').map(Number);
+        
+        let hour24 = hours;
+        if (period === 'PM' && hours !== 12) hour24 += 12;
+        if (period === 'AM' && hours === 12) hour24 = 0;
+        
+        const date = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hour24, minutes, 0);
+        return date;
+    }
+
+    // Parse duration string (e.g., "30 mins" or "1 hour") and return minutes
+    parseDuration(durationStr) {
+        if (!durationStr) return 0;
+        
+        if (typeof durationStr === 'number') {
+            return durationStr;
+        }
+        
+        if (typeof durationStr === 'string') {
+            if (durationStr.includes('hour')) {
+                const hours = parseInt(durationStr);
+                return hours * 60;
+            } else if (durationStr.includes('mins') || durationStr.includes('min')) {
+                return parseInt(durationStr);
+            } else {
+                // Try to parse as number
+                const num = parseInt(durationStr);
+                return isNaN(num) ? 0 : num;
+            }
+        }
+        
+        return 0;
+    }
+
+    // Calculate expiresAt from timeslot + duration
+    calculateExpiresAt(timeslot, duration) {
+        if (!timeslot) return null;
+        
+        const timeslotDate = this.parseTimeslot(timeslot);
+        if (!timeslotDate) return null;
+        
+        const durationMinutes = this.parseDuration(duration);
+        const expiresAt = new Date(timeslotDate.getTime() + durationMinutes * 60000);
+        
+        return expiresAt;
+    }
+
+    // Format time for display (e.g., "8:30 AM")
+    formatTime(date) {
+        if (!date) return '';
+        return date.toLocaleString('en-US', {
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+    }
+
     // Get current user ID
     getCurrentUserId() {
         return localStorage.getItem('loggedInUserId');
@@ -179,6 +242,15 @@ class BookingHistory {
                         if (expiresAt > now) {
                             foundActiveBookings = true;
                             
+                            // Calculate expiresAt from timeslot + duration if available
+                            let displayExpiresAt = booking.expiresAt;
+                            if (booking.timeslot && booking.duration) {
+                                const calculatedExpiresAt = this.calculateExpiresAt(booking.timeslot, booking.duration);
+                                if (calculatedExpiresAt) {
+                                    displayExpiresAt = calculatedExpiresAt.toISOString();
+                                }
+                            }
+                            
                             // Create booking card HTML
                             const cardHtml = `
                                 <div class="detail-item">
@@ -199,7 +271,7 @@ class BookingHistory {
                                 </div>
                                 <div class="detail-item">
                                     <span class="detail-label">Expires At:</span>
-                                    <span class="detail-value">${this.formatDateTime(booking.expiresAt)}</span>
+                                    <span class="detail-value">${this.formatDateTime(displayExpiresAt)}</span>
                                 </div>
                                 <div class="text-center mt-3">
                                     <button class="btn custom-btn-danger btn-sm" 
