@@ -37,7 +37,7 @@
 
     @media (max-width: 768px) {
       body {
-        padding-top: env(safe-area-inset-top);
+        padding-top: 0;
         padding-bottom: calc(80px + env(safe-area-inset-bottom));
       }
     }
@@ -46,7 +46,6 @@
     .desktop-view {
       display: block;
       padding: var(--space-32);
-      padding-top: var(--space-8);
       max-width: 1400px;
       margin: 0 auto;
       width: 100%;
@@ -57,7 +56,7 @@
     .mobile-view {
       display: none;
       padding: var(--space-16);
-      padding-top: var(--space-8);
+      padding-top: var(--space-16);
       width: 100%;
       max-width: 100vw;
       box-sizing: border-box;
@@ -67,6 +66,9 @@
     /* Header styling matching crowd-view */
     .header {
       margin-bottom: var(--space-32);
+      padding-top: var(--space-16);
+      padding-left: var(--space-16);
+      padding-right: var(--space-16);
     }
 
     .header h1 {
@@ -235,9 +237,11 @@
       font-weight: 600;
       line-height: 1;
       text-align: left;
-      min-width: 20px;
-      display: flex;
-      align-items: center;
+      min-width: 28px;
+      width: auto;
+      display: inline-block;
+      flex-shrink: 0;
+      padding-left: 5px;
     }
 
     .like-btn.liked,
@@ -270,6 +274,139 @@
       overflow: hidden;
       text-overflow: ellipsis;
       word-break: break-word;
+      padding-left: 5px;
+    }
+
+    /* Comments section styles */
+    .comments-section {
+      background-color: #ffffff;
+      border-top: 1px solid #e0e0e0;
+      padding: 12px 20px;
+    }
+
+    .comments-list {
+      max-height: 300px;
+      overflow-y: auto;
+      margin-bottom: 12px;
+    }
+
+    .comment-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .comment-item:last-child {
+      border-bottom: none;
+    }
+
+    .comment-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #6c757d, #adb5bd);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      flex-shrink: 0;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .comment-content {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .comment-author {
+      font-weight: 600;
+      color: #1a1a1a;
+      font-size: 14px;
+    }
+
+    .comment-text {
+      color: #1a1a1a;
+      font-size: 14px;
+      word-break: break-word;
+    }
+
+    .comment-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .comment-like-btn {
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px;
+    }
+
+    .comment-like-btn:hover {
+      color: #ff3040;
+    }
+
+    .comment-like-btn.liked {
+      color: #ff3040;
+    }
+
+    .delete-comment-btn {
+      background: none;
+      border: none;
+      color: #dc3545;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 4px;
+    }
+
+    .delete-comment-btn:hover {
+      color: #c82333;
+    }
+
+    .add-comment {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-top: 8px;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    .comment-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-size: 14px;
+      padding: 8px 0;
+      color: #1a1a1a;
+    }
+
+    .comment-input::placeholder {
+      color: #999;
+    }
+
+    .post-comment-btn {
+      background: none;
+      border: none;
+      color: #C9784F;
+      cursor: pointer;
+      font-size: 16px;
+      padding: 4px 8px;
+    }
+
+    .post-comment-btn:hover {
+      color: #b36a43;
     }
 
     .instagram-post {
@@ -325,13 +462,14 @@
 
       .mobile-view {
         display: block;
-        padding-top: var(--space-8);
+        padding-top: var(--space-16);
       }
 
       .mobile-view .header {
         margin-bottom: var(--space-32);
-        padding: 0;
-        padding-top: 0;
+        padding-top: var(--space-16);
+        padding-left: var(--space-16);
+        padding-right: var(--space-16);
       }
 
       .mobile-view .header h1 {
@@ -366,12 +504,12 @@
     /* iPhone 14 Pro Max specific optimizations (430x932) */
     @media (max-width: 430px) {
       body {
-        padding-top: max(70px, env(safe-area-inset-top));
+        padding-top: 0;
         padding-bottom: calc(80px + env(safe-area-inset-bottom));
       }
 
       .mobile-view {
-        padding-top: var(--space-8);
+        padding-top: var(--space-16);
       }
 
       .mobile-view .header h1 {
@@ -410,18 +548,20 @@
 
     @media (max-width: 430px) and (min-height: 900px) {
       body {
-        padding-top: max(70px, env(safe-area-inset-top));
+        padding-top: 0;
         padding-bottom: calc(80px + env(safe-area-inset-bottom));
       }
 
       .mobile-view {
         padding: var(--space-16);
-        padding-top: var(--space-8);
+        padding-top: var(--space-16);
         padding-bottom: max(var(--space-16), env(safe-area-inset-bottom));
       }
 
       .mobile-view .header {
-        padding-top: 0;
+        padding-top: var(--space-16);
+        padding-left: var(--space-16);
+        padding-right: var(--space-16);
         margin-bottom: var(--space-32);
       }
 
@@ -458,7 +598,7 @@
     <div class="header">
       <div style="display: flex; justify-content: space-between; align-items: start;">
         <div>
-          <h1></i>Community</h1>
+          <h1>Community</h1>
           <p class="header-subtitle">Share your hawker food experiences and connect with the community</p>
         </div>
       </div>
@@ -478,7 +618,7 @@
     <div class="header">
       <div style="display: flex; justify-content: space-between; align-items: start;">
         <div>
-          <h1><i class="bi bi-people-fill"></i> Community</h1>
+          <h1>👥 Community</h1>
           <p class="header-subtitle">Share your hawker food experiences and connect with the community</p>
         </div>
       </div>
@@ -692,6 +832,7 @@ async function renderInstagramFeed() {
   feedMobile.innerHTML = '';
 
   // Load current user's likes, follows, and bookmarks from Firestore
+  // First load without sample threads, then reload after sample threads are loaded
   try {
     await loadUserLikes();
     await loadUserFollows();
@@ -721,6 +862,11 @@ async function renderInstagramFeed() {
     });
     // Render posts (renderOne is async but we don't need to wait)
     firePosts.forEach(thread => renderOne(thread).catch(e => console.error('Error rendering post:', e)));
+    
+    // Update UI after a short delay to ensure posts are rendered
+    setTimeout(() => {
+      updatePostLikeStates();
+    }, 100);
   } catch (e) {
     console.error('Failed to load Firestore posts', e);
     // Continue to load sample threads even if Firestore fails
@@ -755,6 +901,16 @@ async function renderInstagramFeed() {
     console.log(`Rendering ${sampleThreads.length} sample threads`);
     // Render sample threads (renderOne is async but we don't need to wait)
     sampleThreads.forEach(thread => renderOne(thread).catch(e => console.error('Error rendering post:', e)));
+    
+    // Reload likes now that sample threads are loaded and rendered
+    // Then update the UI to reflect the loaded likes and bookmarks
+    try {
+      await loadUserLikes(); // Reload to include sample threads
+      await loadUserBookmarks(); // Reload bookmarks to include sample threads
+      updatePostLikeStates(); // Update UI for already-rendered posts
+    } catch (e) {
+      console.error('Error reloading likes/bookmarks after sample threads loaded:', e);
+    }
   } else {
     console.warn('threads is not a valid array or is empty, skipping sample threads');
     console.warn('sampleThreads value:', sampleThreads);
@@ -794,6 +950,64 @@ async function renderInstagramFeed() {
   } catch (_) {}
 }
 
+// Update UI for already-rendered posts to reflect loaded likes and bookmarks
+function updatePostLikeStates() {
+  // Update all rendered posts (both desktop and mobile)
+  const allPosts = document.querySelectorAll('.instagram-post');
+  allPosts.forEach(postElement => {
+    const likeBtn = postElement.querySelector('.like-btn');
+    const likeCount = postElement.querySelector('.like-count');
+    if (!likeBtn) return;
+    
+    const postId = likeBtn.dataset.postId;
+    if (!postId) return;
+    
+    const isLiked = userLikes.has(postId);
+    const count = likeCounts[postId] || 0;
+    
+    // Update like button state
+    if (isLiked) {
+      likeBtn.classList.add('liked');
+      const icon = likeBtn.querySelector('i');
+      if (icon) {
+        icon.className = 'bi bi-heart-fill';
+      }
+    } else {
+      likeBtn.classList.remove('liked');
+      const icon = likeBtn.querySelector('i');
+      if (icon) {
+        icon.className = 'bi bi-heart';
+      }
+    }
+    
+    // Update like count
+    if (likeCount) {
+      likeCount.textContent = count;
+    }
+    
+    // Update bookmark button state
+    const bookmarkBtn = postElement.querySelector('.bookmark-btn');
+    if (bookmarkBtn) {
+      const bookmarkPostId = bookmarkBtn.dataset.postId || postId;
+      const isBookmarked = bookmarkStatus[bookmarkPostId] || false;
+      
+      if (isBookmarked) {
+        bookmarkBtn.classList.add('bookmarked');
+        const bookmarkIcon = bookmarkBtn.querySelector('i');
+        if (bookmarkIcon) {
+          bookmarkIcon.className = 'bi bi-bookmark-fill';
+        }
+      } else {
+        bookmarkBtn.classList.remove('bookmarked');
+        const bookmarkIcon = bookmarkBtn.querySelector('i');
+        if (bookmarkIcon) {
+          bookmarkIcon.className = 'bi bi-bookmark';
+        }
+      }
+    }
+  });
+}
+
 // Load current user's likes and like counts from Firestore
 async function loadUserLikes() {
   try {
@@ -807,13 +1021,19 @@ async function loadUserLikes() {
     
     console.log('Loading likes for user:', user.uid);
     
-    // Load user's liked posts
+    // First, load all posts that the user has liked from users/{uid}/likes
     const likesRef = collection(db, 'users', user.uid, 'likes');
     const likesSnap = await getDocs(likesRef);
-    userLikes.clear();
-    likeCounts = {};
+    const userLikedPostIds = new Set();
+    likesSnap.docs.forEach(doc => {
+      userLikedPostIds.add(doc.id);
+    });
     
     console.log(`User has ${likesSnap.size} likes in their collection`);
+    
+    // Initialize like counts
+    likeCounts = {};
+    userLikes.clear();
     
     // Count likes for each post by checking posts/{postId}/likes subcollections
     const postsRef = collection(db, 'posts');
@@ -826,24 +1046,30 @@ async function loadUserLikes() {
       likeCounts[postId] = likesSubSnap.size;
       
       // Check if current user liked this post
-      const userLikeDoc = likesSubSnap.docs.find(doc => doc.id === user.uid);
-      if (userLikeDoc) {
+      if (userLikedPostIds.has(postId)) {
         userLikes.add(postId);
       }
     }
     
-    // Also check likes for sample threads (local data)
+    // Also check likes for sample threads (local data) - check ALL sample threads
     const sampleThreads = window.threads || [];
     for (const thread of sampleThreads) {
-      if (!likeCounts[thread.id]) {
-        const likesSubRef = collection(db, 'posts', thread.id, 'likes');
+      const postId = thread.id;
+      try {
+        const likesSubRef = collection(db, 'posts', postId, 'likes');
         const likesSubSnap = await getDocs(likesSubRef);
-        likeCounts[thread.id] = likesSubSnap.size;
+        likeCounts[postId] = likesSubSnap.size;
         
-        const userLikeDoc = likesSubSnap.docs.find(doc => doc.id === user.uid);
-        if (userLikeDoc) {
-          userLikes.add(thread.id);
+        // Check if current user liked this post
+        if (userLikedPostIds.has(postId)) {
+          userLikes.add(postId);
         }
+      } catch (e) {
+        // If post doesn't exist in Firestore yet, set defaults
+        if (!likeCounts[postId]) {
+          likeCounts[postId] = 0;
+        }
+        console.warn(`Could not load likes for post ${postId}:`, e);
       }
     }
     
@@ -942,6 +1168,10 @@ async function renderOne(thread) {
     }
   }
   
+  // Use existing comments for initial render - don't load comments here to avoid blocking
+  // Comments will be loaded asynchronously by the comment count listener if needed
+  let commentsWithAvatars = thread.comments || [];
+  
   // Create avatar HTML - show profile picture if available, otherwise show initial
   const avatarInitial = thread.author.charAt(0).toUpperCase();
   const avatarHTML = authorPhotoURL 
@@ -1006,11 +1236,19 @@ async function renderOne(thread) {
       
       <div class="comments-section" id="comments-${thread.id}" style="display: none;">
         <div class="comments-list">
-          ${thread.comments.map((comment, commentIndex) => `
+          ${thread.comments.map((comment, commentIndex) => {
+            const commentAuthor = comment.author || comment.authorName || 'User';
+            const commentInitial = commentAuthor.charAt(0).toUpperCase();
+            const commentAvatar = comment.avatar || comment.photoURL || null;
+            const commentAvatarHTML = commentAvatar
+              ? `<div class="comment-avatar" style="background-image: url('${commentAvatar}'); background-size: cover; background-position: center; background-repeat: no-repeat; color: transparent; text-indent: -9999px;">${commentInitial}</div>`
+              : `<div class="comment-avatar">${commentInitial}</div>`;
+            return `
             <div class="comment-item" data-comment-index="${commentIndex}">
+              ${commentAvatarHTML}
               <div class="comment-content">
-                <span class="comment-author">${comment.author}</span>
-                <span class="comment-text">${comment.content}</span>
+                <span class="comment-author">${commentAuthor}</span>
+                <span class="comment-text">${comment.content || comment.text || ''}</span>
               </div>
               <div class="comment-actions">
                 <button class="comment-like-btn">
@@ -1019,7 +1257,8 @@ async function renderOne(thread) {
                 ${comment.author === "You" ? `<button class="delete-comment-btn"><i class="bi bi-trash"></i></button>` : ''}
               </div>
             </div>
-          `).join('')}
+          `;
+          }).join('')}
         </div>
         
         <div class="add-comment">
@@ -1340,8 +1579,26 @@ function setupPostInteractions(postElement, thread) {
   // Comment button - navigate to post detail page
   const commentBtn = postElement.querySelector('.comment-btn');
   
-  commentBtn.addEventListener('click', function(e) {
+  commentBtn.addEventListener('click', async function(e) {
     e.stopPropagation(); // Prevent triggering the post click handler
+    
+    // Load comments with profile pictures before navigating
+    const commentsSection = postElement.querySelector(`#comments-${thread.id}`);
+    if (commentsSection && commentsSection.style.display === 'none') {
+      // Load comments from Firestore if not already loaded
+      if (db) {
+        try {
+          const commentsRef = collection(db, 'posts', thread.id, 'comments');
+          const commentsSnap = await getDocs(commentsRef);
+          if (commentsSnap.docs.length > 0) {
+            await loadCommentsWithAvatars(postElement, thread.id, commentsSnap);
+          }
+        } catch (e) {
+          console.log('No comments found for post', thread.id);
+        }
+      }
+    }
+    
     // Navigate to detail page with comments open
     window.location.href = `/pages/community/post-detail.html?id=${thread.id}&open=comments`;
   });
@@ -1354,10 +1611,17 @@ function setupCommentCountListenerForPost(postElement, postId) {
   // Listen to comments collection changes
   try {
     const commentsRef = collection(db, 'posts', postId, 'comments');
-    const unsubscribe = onSnapshot(commentsRef, (snapshot) => {
+    const unsubscribe = onSnapshot(commentsRef, async (snapshot) => {
       const count = snapshot.size;
       if (commentCountElement) {
+        // Update count without causing layout shift
         commentCountElement.textContent = count;
+      }
+      
+      // Load comments with profile pictures when comments section is visible
+      const commentsSection = postElement.querySelector(`#comments-${postId}`);
+      if (commentsSection && commentsSection.style.display !== 'none') {
+        await loadCommentsWithAvatars(postElement, postId, snapshot);
       }
     }, (error) => {
       // Silently fail if comments collection doesn't exist yet
@@ -1371,6 +1635,77 @@ function setupCommentCountListenerForPost(postElement, postId) {
   } catch (e) {
     // If collection doesn't exist or other error, just ignore
     console.log('Could not set up comment listener for post', postId);
+  }
+}
+
+// Load comments with profile pictures and update the comments list
+async function loadCommentsWithAvatars(postElement, postId, commentsSnapshot) {
+  if (!db || !commentsSnapshot) return;
+  
+  try {
+    const commentsList = postElement.querySelector(`#comments-${postId} .comments-list`);
+    if (!commentsList) return;
+    
+    const loadedComments = [];
+    for (const docSnap of commentsSnapshot.docs) {
+      const commentData = docSnap.data();
+      let commentAvatar = null;
+      const commentAuthorId = commentData.authorId || null;
+      
+      // Load profile picture for comment author
+      if (commentAuthorId) {
+        try {
+          const userDocRef = doc(db, 'users', commentAuthorId);
+          const userDocSnap = await getDoc(userDocRef);
+          if (userDocSnap.exists()) {
+            const userData = userDocSnap.data();
+            commentAvatar = userData.photoURL || null;
+          }
+        } catch (e) {
+          console.warn('Failed to load comment author profile:', e);
+        }
+      }
+      
+      loadedComments.push({
+        ...commentData,
+        id: docSnap.id,
+        avatar: commentAvatar,
+        author: commentData.author || commentData.authorName || 'User',
+        content: commentData.content || commentData.text || ''
+      });
+    }
+    
+    // Update comments list without affecting post position
+    commentsList.innerHTML = loadedComments.map((comment, commentIndex) => {
+      const commentAuthor = comment.author || comment.authorName || 'User';
+      const commentInitial = commentAuthor.charAt(0).toUpperCase();
+      const commentAvatar = comment.avatar || comment.photoURL || null;
+      const commentAvatarHTML = commentAvatar
+        ? `<div class="comment-avatar" style="background-image: url('${commentAvatar}'); background-size: cover; background-position: center; background-repeat: no-repeat; color: transparent; text-indent: -9999px;">${commentInitial}</div>`
+        : `<div class="comment-avatar">${commentInitial}</div>`;
+      return `
+        <div class="comment-item" data-comment-index="${commentIndex}">
+          ${commentAvatarHTML}
+          <div class="comment-content">
+            <span class="comment-author">${commentAuthor}</span>
+            <span class="comment-text">${comment.content || comment.text || ''}</span>
+          </div>
+          <div class="comment-actions">
+            <button class="comment-like-btn">
+              <i class="bi bi-heart"></i>
+            </button>
+            ${comment.author === "You" || (auth && auth.currentUser && comment.authorId === auth.currentUser.uid) ? `<button class="delete-comment-btn"><i class="bi bi-trash"></i></button>` : ''}
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+    // Setup interactions for new comments
+    commentsList.querySelectorAll('.comment-item').forEach(commentItem => {
+      setupCommentInteractions(commentItem, { id: postId, comments: loadedComments });
+    });
+  } catch (e) {
+    console.warn('Failed to load comments with avatars:', e);
   }
 }
 

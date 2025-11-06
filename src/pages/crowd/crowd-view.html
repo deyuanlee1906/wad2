@@ -136,6 +136,9 @@
         /* Header */
         .header {
             margin-bottom: var(--space-32);
+            padding-top: var(--space-16);
+            padding-left: var(--space-16);
+            padding-right: var(--space-16);
         }
 
         .header h1 {
@@ -147,7 +150,7 @@
 
         .header-subtitle {
             font-size: var(--font-size-base);
-            color: var(--color-text-secondary);
+            color: #666;
         }
 
         .hawker-selector {
@@ -920,19 +923,27 @@
 
             .mobile-view .header {
                 margin-bottom: var(--space-24);
-                padding: 0 var(--space-16);
-                padding-top: max(var(--space-8), env(safe-area-inset-top));
+                padding-top: var(--space-16);
+                padding-left: var(--space-16);
+                padding-right: var(--space-16);
             }
 
             .mobile-view .header > div:first-child {
+                display: flex;
+                flex-direction: column;
+                gap: var(--space-8);
+                width: 100%;
+                position: relative;
+                margin-bottom: var(--space-12);
+            }
+
+            .mobile-view .header > div:first-child > div:first-child {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
                 gap: var(--space-8);
                 flex-wrap: nowrap;
                 width: 100%;
-                position: relative;
-                margin-bottom: var(--space-12);
             }
 
             .mobile-view .header h1 {
@@ -984,6 +995,7 @@
             .hawker-selector {
                 flex-direction: column;
                 gap: var(--space-16);
+                margin-top: 0;
             }
 
             .select-wrapper {
@@ -1046,7 +1058,9 @@
             }
 
             .mobile-view .header {
-                padding-top: max(var(--space-16), env(safe-area-inset-top));
+                padding-top: var(--space-16);
+                padding-left: var(--space-16);
+                padding-right: var(--space-16);
             }
 
             .stats-grid {
@@ -1402,11 +1416,14 @@
     <div class="mobile-view">
         <div class="header">
             <div>
-                <h1>🍜 Crowd View</h1>
-                <div class="live-indicator">
-                    <span class="live-dot"></span>
-                    LIVE
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-8); width: 100%;">
+                    <h1>👁️ Crowd View</h1>
+                    <div class="live-indicator">
+                        <span class="live-dot"></span>
+                        LIVE
+                    </div>
                 </div>
+                <p class="header-subtitle">Real-time crowd analytics for food centres in Singapore</p>
             </div>
             
             <div class="hawker-selector">
