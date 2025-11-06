@@ -1,4 +1,4 @@
-# ChopeLah 🍜
+# ChopeLah! 🍜
 
 A web application that allows users to "chope" (reserve) seats at hawker centres in Singapore. Built with HTML, CSS, JavaScript, Express.js, Firebase, and Stripe.
 
@@ -61,8 +61,7 @@ You'll also need accounts for:
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repository-url>
-cd wad2
+git clone https://github.com/deyuanlee1906/wad2.git
 ```
 
 ### 2. Install Dependencies
