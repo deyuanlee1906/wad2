@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Post Detail</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
@@ -15,8 +15,10 @@
     --font-size-base: 14px;
     --font-weight-bold: 600;
     --space-32: 32px;
-    --space-16: 16px;
     --space-24: 24px;
+    --space-20: 20px;
+    --space-16: 16px;
+    --space-12: 12px;
     --space-8: 8px;
     --color-text-secondary: #666;
   }
@@ -29,10 +31,20 @@
     -webkit-font-smoothing: antialiased;
     padding-top: 70px;
     padding-bottom: 80px;
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100vw;
+  }
+
+  @media (max-width: 768px) {
+    body {
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
   }
 
   .post-detail-container {
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
     padding: var(--space-32);
   }
@@ -300,6 +312,88 @@
     
     .post-image-section img {
       max-height: 50vh;
+    }
+
+    .post-detail-container {
+      padding: var(--space-16);
+      padding-top: max(var(--space-16), env(safe-area-inset-top));
+    }
+  }
+
+  /* iPhone 14 Pro Max specific optimizations (430x932) */
+  @media (max-width: 430px) {
+    body {
+      padding-top: max(70px, env(safe-area-inset-top));
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+
+    .post-detail-container {
+      padding: var(--space-16);
+      padding-top: max(var(--space-16), env(safe-area-inset-top));
+      padding-bottom: max(var(--space-16), env(safe-area-inset-bottom));
+      min-height: calc(100vh - 150px);
+    }
+
+    .back-btn {
+      width: 100%;
+      margin-bottom: var(--space-12);
+      padding: 10px 16px;
+      min-height: 44px;
+    }
+
+    .post-image-section {
+      min-height: 250px;
+    }
+
+    .post-image-section img {
+      max-height: 40vh;
+    }
+
+    .post-content-section {
+      max-height: calc(100vh - 300px);
+    }
+
+    .post-content-header {
+      padding: var(--space-16);
+    }
+
+    .comments-section-detail {
+      padding: var(--space-16);
+      max-height: calc(100vh - 450px);
+    }
+
+    .add-comment {
+      padding: var(--space-12) var(--space-16);
+    }
+  }
+
+  @media (max-width: 430px) and (min-height: 900px) {
+    body {
+      padding-top: max(70px, env(safe-area-inset-top));
+      padding-bottom: calc(80px + env(safe-area-inset-bottom));
+    }
+
+    .post-detail-container {
+      padding: var(--space-20);
+      padding-top: max(var(--space-20), env(safe-area-inset-top));
+      padding-bottom: max(var(--space-20), env(safe-area-inset-bottom));
+      min-height: calc(100vh - 150px);
+    }
+
+    .post-image-section {
+      min-height: 300px;
+    }
+
+    .post-image-section img {
+      max-height: 45vh;
+    }
+
+    .post-content-section {
+      max-height: calc(100vh - 350px);
+    }
+
+    .comments-section-detail {
+      max-height: calc(100vh - 500px);
     }
   }
 </style>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Checkout</title>
 
   <!-- Bootstrap & Icons -->
@@ -544,6 +544,59 @@
       .btn-pay,
       .btn-order-more {
         width: 100%;
+      }
+    }
+
+    /* iPhone 14 Pro Max specific optimizations (430x932) */
+    @media (max-width: 430px) {
+      body {
+        padding-top: max(70px, env(safe-area-inset-top));
+        padding-bottom: calc(100px + env(safe-area-inset-bottom));
+      }
+
+      .main-content {
+        padding-top: max(0px, env(safe-area-inset-top));
+      }
+
+      .checkout-container {
+        padding: var(--space-16) var(--space-12);
+        padding-top: max(var(--space-16), env(safe-area-inset-top));
+        padding-bottom: calc(140px + env(safe-area-inset-bottom));
+      }
+
+      .page-title {
+        font-size: 1.4rem;
+      }
+
+      .back-btn {
+        margin-bottom: var(--space-12);
+        padding: 10px 16px;
+        min-height: 44px;
+      }
+
+      .cart-section {
+        padding: var(--space-16);
+      }
+    }
+
+    @media (max-width: 430px) and (min-height: 900px) {
+      body {
+        padding-top: max(70px, env(safe-area-inset-top));
+        padding-bottom: calc(100px + env(safe-area-inset-bottom));
+      }
+
+      .checkout-container {
+        padding: var(--space-20) var(--space-16);
+        padding-top: max(var(--space-20), env(safe-area-inset-top));
+        padding-bottom: calc(140px + env(safe-area-inset-bottom));
+      }
+
+      .cart-section {
+        padding: var(--space-20);
+      }
+
+      .page-title {
+        font-size: 1.5rem;
       }
     }
 

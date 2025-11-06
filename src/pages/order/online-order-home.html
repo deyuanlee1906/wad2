@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Online Order - Select Stall</title>
 
   <!-- Bootstrap & Icons -->
@@ -15,6 +15,53 @@
 
   <!-- Firebase -->
   <script type="module" src="/scripts/firebaseauth.js"></script>
+
+  <style>
+    /* CRITICAL: Fallback CSS to ensure mobile view is visible before JS runs */
+    /* This prevents FOUC (Flash of Unstyled Content) and ensures mobile view appears immediately */
+    /* MUST come before other styles to ensure proper cascade */
+    
+    /* Default: Show mobile view on small screens, hide desktop */
+    @media screen and (max-width: 767px) {
+      .desktop-view {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+      }
+      .mobile-view {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        background: #f8f9fa !important;
+        color: #222 !important;
+        position: relative !important;
+        z-index: 1 !important;
+        width: 100% !important;
+        min-height: calc(100vh - 100px) !important;
+        height: auto !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+      }
+      .mobile-view * {
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+    }
+    
+    /* Desktop: Show desktop view, hide mobile */
+    @media screen and (min-width: 768px) {
+      .desktop-view {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+      .mobile-view {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+      }
+    }
+  </style>
 
   <style>
     :root {
@@ -35,17 +82,18 @@
     }
 
     body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       color: var(--clr-ink);
       background: var(--clr-cloud);
       margin: 0;
       padding-top: 70px;
       padding-bottom: 100px;
-      display: flex;
-      flex-direction: column;
-      min-height: 100vh;
       overflow-x: hidden;
       width: 100%;
       max-width: 100vw;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
     }
     
     @media (max-width: 768px) {
@@ -55,25 +103,37 @@
       }
     }
 
-    /* Desktop View */
+    /* Desktop View - Default: visible on desktop (overridden by media query on mobile) */
     .desktop-view {
       display: block;
       padding: var(--space-32);
-        max-width: 1400px;
-        margin: 0 auto;
+      max-width: 1400px;
+      margin: 0 auto;
       width: 100%;
       box-sizing: border-box;
+      flex: 1;
+      min-height: 0;
     }
 
-    /* Mobile View */
+    /* Mobile View - Visibility controlled by media queries above */
+    /* DO NOT set display: none here - let media queries handle it */
     .mobile-view {
-      display: none;
       padding: var(--space-16);
-      padding-top: max(var(--space-16), env(safe-area-inset-top));
+      padding-top: var(--space-8);
       width: 100%;
       max-width: 100vw;
       box-sizing: border-box;
       overflow-x: hidden;
+      overflow-y: auto;
+      background: var(--clr-cloud);
+      position: relative;
+      z-index: 1;
+      color: var(--clr-ink);
+      visibility: visible;
+      opacity: 1;
+      flex: 1 1 auto;
+      min-height: calc(100vh - 100px);
+      /* Display is controlled by media queries in the first style block */
     }
 
     /* Header styling matching crowd-view */
@@ -104,8 +164,8 @@
     
     .header-controls {
       display: flex;
-      flex-direction: row;
-      align-items: center;
+      flex-direction: column;
+      align-items: stretch;
       gap: 16px;
       width: 100%;
       margin-top: 20px;
@@ -113,9 +173,7 @@
 
     .food-centre-select {
       position: relative;
-      flex: 1;
-      min-width: 200px;
-      max-width: 400px;
+      width: 100%;
       display: flex;
       align-items: center;
     }
@@ -246,8 +304,7 @@
 
     .search-wrap {
       position: relative;
-      flex: 1;
-      min-width: 200px;
+      width: 100%;
       display: flex;
       align-items: center;
     }
@@ -437,33 +494,53 @@
 
     .stars { color: #FFC107; }
 
+    /* Responsive - Mobile (max-width: 767px) */
+    /* CRITICAL: This ensures mobile view is ALWAYS visible on mobile devices */
     @media (max-width: 767px) {
-      body { padding-bottom: 120px; }
-      .main-content { padding: 0 16px; }
-      .stall-card {
-        height: 200px; 
-        align-items: center;
+      body { 
+        padding-bottom: 120px; 
       }
-      .stall-img-wrap { width: 100px; height: 170px; }
-      .stall-info {
-        justify-content: center;
-      }
-    }
-
-    /* Responsive - Mobile */
-    @media (max-width: 430px) {
+      
+      /* Hide desktop view on mobile */
       .desktop-view {
-        display: none;
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
       }
 
+      /* Show mobile view on mobile - MUST be visible */
       .mobile-view {
-        display: block;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        padding: var(--space-16) !important;
+        padding-top: var(--space-8) !important;
+        position: relative !important;
+        z-index: 1 !important;
+        background: var(--clr-cloud) !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        color: var(--clr-ink) !important;
+        height: auto !important;
+        min-height: calc(100vh - 100px) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        flex: 1 1 auto !important;
+        margin: 0 !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+      }
+      
+      /* Ensure all child elements are visible */
+      .mobile-view * {
+        visibility: visible !important;
+        opacity: 1 !important;
       }
 
       .mobile-view .header {
         margin-bottom: var(--space-24);
-        padding: 0 var(--space-16);
-        padding-top: var(--space-8);
+        padding: 0;
       }
 
       .mobile-view .header h1 {
@@ -475,6 +552,8 @@
         flex-direction: column;
         align-items: stretch;
         gap: var(--space-8);
+        padding: 0;
+        margin-top: var(--space-16);
       }
 
       .food-centre-select {
@@ -484,6 +563,91 @@
       
       .search-wrap {
         min-width: 100%;
+      }
+
+      .stall-card {
+        padding: var(--space-12);
+        height: 200px; 
+        align-items: center;
+      }
+      
+      .stall-img-wrap { 
+        width: 100px; 
+        height: 170px; 
+      }
+      
+      .stall-info {
+        justify-content: center;
+      }
+      
+      #availableStallsMobile, #closedStallsMobile {
+        display: grid;
+        gap: 16px;
+      }
+    }
+
+    /* iPhone 14 Pro Max specific optimizations (430x932) */
+    @media (max-width: 430px) {
+      .desktop-view {
+        display: none !important;
+        visibility: hidden !important;
+      }
+
+      .mobile-view {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        padding: var(--space-16) !important;
+        padding-top: var(--space-8) !important;
+        padding-bottom: max(var(--space-16), env(safe-area-inset-bottom)) !important;
+        position: relative !important;
+        z-index: 1 !important;
+        background: var(--clr-cloud) !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+        color: var(--clr-ink) !important;
+        height: auto !important;
+        min-height: calc(100vh - 100px) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        flex: 1 1 auto !important;
+        margin: 0 !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+      }
+      
+      .mobile-view * {
+        visibility: visible !important;
+        opacity: 1 !important;
+      }
+
+      .mobile-view .header {
+        padding-top: 0;
+        margin-bottom: var(--space-20);
+      }
+
+      .header-controls {
+        margin-top: var(--space-16);
+        gap: var(--space-12);
+      }
+
+      .stall-card {
+        padding: var(--space-16);
+      }
+
+      .stall-img-wrap {
+        width: 100px;
+        height: 140px;
+      }
+
+      #availableStallsMobile, #closedStallsMobile {
+        gap: var(--space-16);
+      }
+
+      .stall-list-title {
+        font-size: 1.2rem;
+        margin: var(--space-20) 0 var(--space-12);
       }
     }
 
@@ -646,7 +810,7 @@
   </div>
 
   <!-- MOBILE VIEW -->
-  <div class="mobile-view">
+  <div class="mobile-view" id="mobileViewContainer">
     <div class="header">
       <div style="display: flex; justify-content: space-between; align-items: start;">
         <div>
@@ -694,7 +858,7 @@
       </div>
     </div>
 
-    <div id="emptyStateMobile" style="display: none;">
+    <div id="emptyStateMobile" style="display: block;">
       <div style="text-align: center; padding: 60px 20px; color: #666;">
         <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" fill="currentColor" style="opacity: 0.3; margin-bottom: 20px;" viewBox="0 0 16 16">
           <path d="M8 16s6-5.686 6-10A6 6 0 1 0 2 6c0 4.314 6 10 6 10Zm0-8a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"/>
@@ -704,10 +868,10 @@
       </div>
     </div>
 
-    <div class="stall-list-title" id="availableStallsTitleMobile">Available Stalls</div>
+    <div class="stall-list-title" id="availableStallsTitleMobile" style="display: none;">Available Stalls</div>
     <div id="availableStallsMobile" aria-live="polite"></div>
 
-    <div class="stall-list-title mt-4" id="closedStallsTitleMobile">Closed Stalls</div>
+    <div class="stall-list-title mt-4" id="closedStallsTitleMobile" style="display: none;">Closed Stalls</div>
     <div id="closedStallsMobile" aria-live="polite"></div>
   </div>
 
@@ -746,21 +910,45 @@
 
     function renderStalls(filter='') {
       if (!selectedFoodCentre || selectedFoodCentre.trim() === '') {
+        // Desktop
         document.getElementById('availableStallsTitle').style.display = 'none';
         document.getElementById('closedStallsTitle').style.display = 'none';
         document.getElementById('availableStalls').innerHTML = '';
         document.getElementById('closedStalls').innerHTML = '';
         document.getElementById('emptyState').style.display = 'block';
+        // Mobile
+        const availableStallsTitleMobile = document.getElementById('availableStallsTitleMobile');
+        const closedStallsTitleMobile = document.getElementById('closedStallsTitleMobile');
+        const emptyStateMobile = document.getElementById('emptyStateMobile');
+        if (availableStallsTitleMobile) availableStallsTitleMobile.style.display = 'none';
+        if (closedStallsTitleMobile) closedStallsTitleMobile.style.display = 'none';
+        if (document.getElementById('availableStallsMobile')) document.getElementById('availableStallsMobile').innerHTML = '';
+        if (document.getElementById('closedStallsMobile')) document.getElementById('closedStallsMobile').innerHTML = '';
+        if (emptyStateMobile) emptyStateMobile.style.display = 'block';
         return;
       }
 
+      // Desktop
       document.getElementById('emptyState').style.display = 'none';
       document.getElementById('availableStallsTitle').style.display = 'block';
       document.getElementById('closedStallsTitle').style.display = 'block';
+      // Mobile
+      const emptyStateMobile = document.getElementById('emptyStateMobile');
+      const availableStallsTitleMobile = document.getElementById('availableStallsTitleMobile');
+      const closedStallsTitleMobile = document.getElementById('closedStallsTitleMobile');
+      if (emptyStateMobile) emptyStateMobile.style.display = 'none';
+      if (availableStallsTitleMobile) availableStallsTitleMobile.style.display = 'block';
+      if (closedStallsTitleMobile) closedStallsTitleMobile.style.display = 'block';
 
       if (!loaded) {
         document.getElementById('availableStalls').innerHTML = '<div class="text-muted">Loading stalls...</div>';
         document.getElementById('closedStalls').innerHTML = '';
+        if (document.getElementById('availableStallsMobile')) {
+          document.getElementById('availableStallsMobile').innerHTML = '<div class="text-muted">Loading stalls...</div>';
+        }
+        if (document.getElementById('closedStallsMobile')) {
+          document.getElementById('closedStallsMobile').innerHTML = '';
+        }
         return;
       }
       
@@ -794,14 +982,27 @@
           </div>
         </div>`;
 
-      document.getElementById('availableStalls').innerHTML = available.length
+      const availableHTML = available.length
         ? available.map(makeCard).join('')
         : '<div class="text-muted">No available stalls found.</div>';
-
-      document.getElementById('closedStalls').innerHTML = closed.length
+      
+      const closedHTML = closed.length
         ? closed.map(makeCard).join('')
         : '<div class="text-muted">No closed stalls found.</div>';
 
+      // Desktop
+      document.getElementById('availableStalls').innerHTML = availableHTML;
+      document.getElementById('closedStalls').innerHTML = closedHTML;
+      
+      // Mobile
+      if (document.getElementById('availableStallsMobile')) {
+        document.getElementById('availableStallsMobile').innerHTML = availableHTML;
+      }
+      if (document.getElementById('closedStallsMobile')) {
+        document.getElementById('closedStallsMobile').innerHTML = closedHTML;
+      }
+
+      // Attach click handlers to all stall cards (both desktop and mobile)
       document.querySelectorAll('.stall-card').forEach(c => {
         c.onclick = (e) => {
           e.preventDefault();
@@ -872,6 +1073,10 @@
         if (searchInput) {
           searchInput.disabled = false;
         }
+        const searchInputMobile = document.getElementById('stallSearchMobile');
+        if (searchInputMobile) {
+          searchInputMobile.disabled = false;
+        }
         renderStalls();
       } catch (err) {
         console.error('Error loading stalls:', err);
@@ -880,9 +1085,19 @@
         stalls = [];
         document.getElementById('availableStalls').innerHTML = `<div class="text-muted">Error loading stalls: ${err.message}</div>`;
         document.getElementById('closedStalls').innerHTML = '';
+        if (document.getElementById('availableStallsMobile')) {
+          document.getElementById('availableStallsMobile').innerHTML = `<div class="text-muted">Error loading stalls: ${err.message}</div>`;
+        }
+        if (document.getElementById('closedStallsMobile')) {
+          document.getElementById('closedStallsMobile').innerHTML = '';
+        }
         const searchInput = document.getElementById('stallSearch');
         if (searchInput) {
           searchInput.disabled = false;
+        }
+        const searchInputMobile = document.getElementById('stallSearchMobile');
+        if (searchInputMobile) {
+          searchInputMobile.disabled = false;
         }
       }
     }
@@ -936,11 +1151,36 @@
         input.value = previouslySelected;
         selectedFoodCentre = previouslySelected;
         updateSelectedOption(previouslySelected);
+        // Also update mobile input
+        const inputMobile = document.getElementById('foodCentreSelectMobile');
+        if (inputMobile) {
+          inputMobile.value = previouslySelected;
+        }
+        const wrapperMobile = document.getElementById('foodCentreSelectWrapperMobile');
+        if (wrapperMobile) {
+          const optionsMobile = wrapperMobile.querySelectorAll('.food-centre-option');
+          optionsMobile.forEach(opt => {
+            opt.classList.remove('selected');
+            if (opt.dataset.value === previouslySelected) {
+              opt.classList.add('selected');
+            }
+          });
+        }
         document.getElementById('stallSearch').disabled = false;
+        const searchInputMobile = document.getElementById('stallSearchMobile');
+        if (searchInputMobile) {
+          searchInputMobile.disabled = false;
+        }
         // Hide empty state and show stalls
         document.getElementById('emptyState').style.display = 'none';
         document.getElementById('availableStallsTitle').style.display = 'block';
         document.getElementById('closedStallsTitle').style.display = 'block';
+        const emptyStateMobile = document.getElementById('emptyStateMobile');
+        const availableStallsTitleMobile = document.getElementById('availableStallsTitleMobile');
+        const closedStallsTitleMobile = document.getElementById('closedStallsTitleMobile');
+        if (emptyStateMobile) emptyStateMobile.style.display = 'none';
+        if (availableStallsTitleMobile) availableStallsTitleMobile.style.display = 'block';
+        if (closedStallsTitleMobile) closedStallsTitleMobile.style.display = 'block';
         // Trigger stall loading immediately
         loadStalls();
       } else {
@@ -951,11 +1191,28 @@
         sessionStorage.removeItem('selectedFoodCentre');
         sessionStorage.removeItem('navigatedToStall');
         document.getElementById('stallSearch').disabled = true;
+        const searchInputMobile = document.getElementById('stallSearchMobile');
+        if (searchInputMobile) {
+          searchInputMobile.disabled = true;
+        }
+        const inputMobile = document.getElementById('foodCentreSelectMobile');
+        if (inputMobile) {
+          inputMobile.value = '';
+          inputMobile.placeholder = 'Please select a food centre';
+        }
         document.getElementById('availableStallsTitle').style.display = 'none';
         document.getElementById('closedStallsTitle').style.display = 'none';
         document.getElementById('availableStalls').innerHTML = '';
         document.getElementById('closedStalls').innerHTML = '';
         document.getElementById('emptyState').style.display = 'block';
+        const availableStallsTitleMobile = document.getElementById('availableStallsTitleMobile');
+        const closedStallsTitleMobile = document.getElementById('closedStallsTitleMobile');
+        if (availableStallsTitleMobile) availableStallsTitleMobile.style.display = 'none';
+        if (closedStallsTitleMobile) closedStallsTitleMobile.style.display = 'none';
+        if (document.getElementById('availableStallsMobile')) document.getElementById('availableStallsMobile').innerHTML = '';
+        if (document.getElementById('closedStallsMobile')) document.getElementById('closedStallsMobile').innerHTML = '';
+        const emptyStateMobile = document.getElementById('emptyStateMobile');
+        if (emptyStateMobile) emptyStateMobile.style.display = 'block';
       }
       
       input.addEventListener('focus', () => {
@@ -983,11 +1240,33 @@
           wrapper.classList.remove('open');
           dropdownSearch.value = '';
           updateSelectedOption(value);
+          // Also update mobile dropdown
+          const wrapperMobile = document.getElementById('foodCentreSelectWrapperMobile');
+          const dropdownMobile = document.getElementById('foodCentreDropdownMobile');
+          const dropdownSearchMobile = document.getElementById('dropdownSearchInputMobile');
+          const inputMobile = document.getElementById('foodCentreSelectMobile');
+          if (wrapperMobile && inputMobile) {
+            inputMobile.value = value;
+            wrapperMobile.classList.remove('open');
+            if (dropdownSearchMobile) dropdownSearchMobile.value = '';
+            const optionsMobile = dropdownMobile ? dropdownMobile.querySelectorAll('.food-centre-option') : [];
+            optionsMobile.forEach(opt => {
+              opt.classList.remove('selected');
+              if (opt.dataset.value === value) {
+                opt.classList.add('selected');
+              }
+            });
+          }
           document.getElementById('stallSearch').disabled = false;
+          const searchInputMobile = document.getElementById('stallSearchMobile');
+          if (searchInputMobile) {
+            searchInputMobile.disabled = false;
+          }
           if (!loaded) {
             loadStalls();
           } else {
-            renderStalls(document.getElementById('stallSearch').value);
+            const searchValue = document.getElementById('stallSearch').value;
+            renderStalls(searchValue);
           }
         });
       });
@@ -1003,7 +1282,13 @@
             selectedFoodCentre = '';
             sessionStorage.removeItem('selectedFoodCentre');
             document.getElementById('stallSearch').disabled = true;
+            const searchInputMobile = document.getElementById('stallSearchMobile');
+            if (searchInputMobile) {
+              searchInputMobile.disabled = true;
+            }
             document.getElementById('emptyState').style.display = 'block';
+            const emptyStateMobile = document.getElementById('emptyStateMobile');
+            if (emptyStateMobile) emptyStateMobile.style.display = 'block';
             renderStalls('');
           }
         }
@@ -1073,6 +1358,163 @@
         });
       }
     })();
+
+    // Mobile food centre selection handler
+    (() => {
+      const inputMobile = document.getElementById('foodCentreSelectMobile');
+      const wrapperMobile = document.getElementById('foodCentreSelectWrapperMobile');
+      const dropdownMobile = document.getElementById('foodCentreDropdownMobile');
+      const dropdownSearchMobile = document.getElementById('dropdownSearchInputMobile');
+      
+      if (!inputMobile || !wrapperMobile || !dropdownMobile || !dropdownSearchMobile) {
+        return;
+      }
+      
+      const optionsMobile = dropdownMobile.querySelectorAll('.food-centre-option');
+      const foodCentres = ['Maxwell Food Centre', 'Newton Food Centre', 'Changi Village Food Centre'];
+      
+      function updateSelectedOptionMobile(value) {
+        optionsMobile.forEach(opt => {
+          opt.classList.remove('selected');
+          if (opt.dataset.value === value) {
+            opt.classList.add('selected');
+          }
+        });
+      }
+      
+      function filterOptionsMobile() {
+        const searchTerm = dropdownSearchMobile.value.toLowerCase().trim();
+        optionsMobile.forEach(option => {
+          const value = option.dataset.value.toLowerCase();
+          if (value.includes(searchTerm) || searchTerm === '') {
+            option.classList.remove('hidden');
+          } else {
+            option.classList.add('hidden');
+          }
+        });
+      }
+      
+      inputMobile.addEventListener('focus', () => {
+        wrapperMobile.classList.add('open');
+        dropdownSearchMobile.focus();
+        filterOptionsMobile();
+      });
+      
+      inputMobile.addEventListener('click', () => {
+        wrapperMobile.classList.add('open');
+        dropdownSearchMobile.focus();
+        filterOptionsMobile();
+      });
+      
+      dropdownSearchMobile.addEventListener('input', (e) => {
+        filterOptionsMobile();
+      });
+      
+      optionsMobile.forEach(option => {
+        option.addEventListener('click', () => {
+          const value = option.dataset.value;
+          inputMobile.value = value;
+          selectedFoodCentre = value;
+          sessionStorage.setItem('selectedFoodCentre', selectedFoodCentre);
+          wrapperMobile.classList.remove('open');
+          dropdownSearchMobile.value = '';
+          updateSelectedOptionMobile(value);
+          // Also update desktop dropdown
+          const input = document.getElementById('foodCentreSelect');
+          const wrapper = document.getElementById('foodCentreSelectWrapper');
+          const dropdown = document.getElementById('foodCentreDropdown');
+          if (input && wrapper) {
+            input.value = value;
+            wrapper.classList.remove('open');
+            const dropdownSearch = document.getElementById('dropdownSearchInput');
+            if (dropdownSearch) dropdownSearch.value = '';
+            const options = dropdown ? dropdown.querySelectorAll('.food-centre-option') : [];
+            options.forEach(opt => {
+              opt.classList.remove('selected');
+              if (opt.dataset.value === value) {
+                opt.classList.add('selected');
+              }
+            });
+          }
+          document.getElementById('stallSearchMobile').disabled = false;
+          const searchInput = document.getElementById('stallSearch');
+          if (searchInput) {
+            searchInput.disabled = false;
+          }
+          if (!loaded) {
+            loadStalls();
+          } else {
+            const searchValue = document.getElementById('stallSearchMobile').value;
+            renderStalls(searchValue);
+          }
+        });
+      });
+      
+      document.addEventListener('click', (e) => {
+        if (!wrapperMobile.contains(e.target)) {
+          wrapperMobile.classList.remove('open');
+          dropdownSearchMobile.value = '';
+          if (!inputMobile.value.trim() && selectedFoodCentre) {
+            inputMobile.value = selectedFoodCentre;
+          }
+          else if (!inputMobile.value.trim() && !selectedFoodCentre) {
+            selectedFoodCentre = '';
+            sessionStorage.removeItem('selectedFoodCentre');
+            document.getElementById('stallSearchMobile').disabled = true;
+            const searchInput = document.getElementById('stallSearch');
+            if (searchInput) {
+              searchInput.disabled = true;
+            }
+            const emptyStateMobile = document.getElementById('emptyStateMobile');
+            if (emptyStateMobile) emptyStateMobile.style.display = 'block';
+            document.getElementById('emptyState').style.display = 'block';
+            renderStalls('');
+          }
+        }
+      });
+      
+      inputMobile.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          wrapperMobile.classList.add('open');
+          const visibleOptions = Array.from(optionsMobile).filter(opt => !opt.classList.contains('hidden'));
+          if (visibleOptions.length > 0) {
+            visibleOptions[0].focus();
+          }
+        } else if (e.key === 'Escape') {
+          wrapperMobile.classList.remove('open');
+          inputMobile.blur();
+        }
+      });
+      
+      dropdownSearchMobile.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          const visibleOptions = Array.from(optionsMobile).filter(opt => !opt.classList.contains('hidden'));
+          if (visibleOptions.length > 0) {
+            visibleOptions[0].focus();
+          }
+        } else if (e.key === 'Escape') {
+          wrapperMobile.classList.remove('open');
+          inputMobile.blur();
+        }
+      });
+      
+      optionsMobile.forEach(option => {
+        option.setAttribute('tabindex', '0');
+        option.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            option.click();
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            dropdownSearchMobile.focus();
+          }
+        });
+      });
+    })();
+
+    // View mode functions will be moved to end of body
   </script>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
@@ -1095,5 +1537,65 @@
 </div>
   </div>
   <script src="/scripts/notification.js"></script>
+  
+  <!-- Initialize page after all content is loaded -->
+  <!-- CRITICAL: These functions ensure view mode is correct after page loads -->
+  <script>
+    // View mode check function - ensures correct view is displayed
+    // CSS handles initial display, but JS ensures it stays correct
+    function checkViewMode() {
+      const isMobile = window.innerWidth <= 767;
+      const mobileView = document.querySelector('.mobile-view');
+      const desktopView = document.querySelector('.desktop-view');
+      
+      // Safety check: ensure elements exist
+      if (!mobileView || !desktopView) {
+        return;
+      }
+      
+      if (isMobile) {
+        // Mobile: ensure mobile view is visible, desktop is hidden
+        mobileView.style.display = 'block';
+        mobileView.style.visibility = 'visible';
+        mobileView.style.opacity = '1';
+        desktopView.style.display = 'none';
+        desktopView.style.visibility = 'hidden';
+      } else {
+        // Desktop: ensure desktop view is visible, mobile is hidden
+        desktopView.style.display = 'block';
+        desktopView.style.visibility = 'visible';
+        mobileView.style.display = 'none';
+        mobileView.style.visibility = 'hidden';
+      }
+    }
+    
+    // Initialize page function - called after DOM is ready
+    function initializePage() {
+      // Ensure correct view is shown (CSS handles initial display, JS ensures it stays correct)
+      checkViewMode();
+      // Render stalls
+      if (typeof renderStalls === 'function') {
+        renderStalls();
+      }
+    }
+    
+    // Wait for window load to ensure all resources are ready
+    window.addEventListener('load', function() {
+      initializePage();
+    });
+    
+    // Also run on DOMContentLoaded as fallback for faster initial render
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() {
+        checkViewMode();
+      });
+    } else {
+      // DOM already loaded, run immediately
+      checkViewMode();
+    }
+    
+    // Handle resize events to update view mode
+    window.addEventListener('resize', checkViewMode);
+  </script>
 </body>
 </html>

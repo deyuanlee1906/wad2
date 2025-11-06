@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Community</title>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
@@ -46,23 +46,22 @@
     .desktop-view {
       display: block;
       padding: var(--space-32);
+      padding-top: var(--space-8);
       max-width: 1400px;
       margin: 0 auto;
       width: 100%;
       box-sizing: border-box;
-      min-height: calc(100vh - 150px);
     }
 
     /* Mobile View */
     .mobile-view {
       display: none;
       padding: var(--space-16);
-      padding-top: max(var(--space-16), env(safe-area-inset-top));
+      padding-top: var(--space-8);
       width: 100%;
       max-width: 100vw;
       box-sizing: border-box;
       overflow-x: hidden;
-      min-height: calc(100vh - 150px);
     }
 
     /* Header styling matching crowd-view */
@@ -80,10 +79,12 @@
     .header-subtitle {
       font-size: var(--font-size-base);
       color: var(--color-text-secondary);
+      margin-bottom: 0;
     }
 
     .header-search {
-      margin-top: 20px;
+      margin-top: var(--space-20);
+      margin-bottom: 0;
       width: 100%;
     }
 
@@ -149,7 +150,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px 16px;
+      padding: 12px 20px;
       background-color: #ffffff;
     }
 
@@ -176,7 +177,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 8px 16px 4px 16px;
+      padding: 8px 20px 4px 20px;
       background-color: #ffffff;
     }
 
@@ -274,10 +275,17 @@
       transition: transform 0.2s ease;
       display: flex;
       flex-direction: column;
+      background-color: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: var(--space-24);
+      padding: 0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
     }
 
     .instagram-post:hover {
       transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     .instagram-feed {
@@ -299,7 +307,7 @@
     }
 
     .post-caption {
-      padding: 0px 16px 8px 16px;
+      padding: 0px 20px 8px 20px;
       margin-top: -4px;
       background-color: #ffffff;
       line-height: 1.5;
@@ -315,12 +323,13 @@
 
       .mobile-view {
         display: block;
+        padding-top: var(--space-8);
       }
 
       .mobile-view .header {
-        margin-bottom: var(--space-24);
-        padding: 0 var(--space-16);
-        padding-top: var(--space-8);
+        margin-bottom: var(--space-32);
+        padding: 0;
+        padding-top: 0;
       }
 
       .mobile-view .header h1 {
@@ -328,8 +337,115 @@
         margin-bottom: var(--space-8);
       }
 
+      .mobile-view .header-subtitle {
+        margin-bottom: 0;
+      }
+
       .header-search {
         width: 100%;
+        padding: 0;
+        margin-top: var(--space-20);
+        margin-bottom: 0;
+      }
+
+      .search-container {
+        width: 100%;
+      }
+
+      .instagram-post {
+        margin-bottom: var(--space-16);
+      }
+
+      .post-image {
+        height: 300px;
+      }
+    }
+
+    /* iPhone 14 Pro Max specific optimizations (430x932) */
+    @media (max-width: 430px) {
+      body {
+        padding-top: max(70px, env(safe-area-inset-top));
+        padding-bottom: calc(80px + env(safe-area-inset-bottom));
+      }
+
+      .mobile-view {
+        padding-top: var(--space-8);
+      }
+
+      .mobile-view .header h1 {
+        margin-bottom: var(--space-8);
+      }
+
+      .mobile-view .header-subtitle {
+        margin-bottom: 0;
+      }
+
+      .header-search {
+        margin-top: var(--space-20);
+        margin-bottom: 0;
+      }
+
+      .instagram-post {
+        margin-bottom: var(--space-20);
+      }
+
+      .post-image {
+        height: 300px;
+      }
+
+      .post-header {
+        padding: 12px 16px;
+      }
+
+      .post-actions-bar {
+        padding: var(--space-12) 16px;
+      }
+
+      .post-caption {
+        padding: var(--space-8) 16px var(--space-12);
+      }
+    }
+
+    @media (max-width: 430px) and (min-height: 900px) {
+      body {
+        padding-top: max(70px, env(safe-area-inset-top));
+        padding-bottom: calc(80px + env(safe-area-inset-bottom));
+      }
+
+      .mobile-view {
+        padding: var(--space-16);
+        padding-top: var(--space-8);
+        padding-bottom: max(var(--space-16), env(safe-area-inset-bottom));
+      }
+
+      .mobile-view .header {
+        padding-top: 0;
+        margin-bottom: var(--space-32);
+      }
+
+      .mobile-view .header h1 {
+        margin-bottom: var(--space-8);
+      }
+
+      .mobile-view .header-subtitle {
+        margin-bottom: 0;
+      }
+
+      .header-search {
+        margin-top: var(--space-20);
+        margin-bottom: 0;
+      }
+
+      .post-image {
+        height: 350px;
+      }
+
+      .instagram-feed {
+        padding-bottom: var(--space-24);
+      }
+
+      .instagram-post {
+        margin-bottom: var(--space-24);
       }
     }
   </style>
@@ -504,6 +620,7 @@ import { getStorage, ref, deleteObject } from "https://www.gstatic.com/firebasej
 // Wait for Firebase to initialize before using it
 let auth, db, storage;
 const feed = document.getElementById('instagramFeed');
+const feedMobile = document.getElementById('instagramFeedMobile');
 let likeCounts = {}; // Will be loaded from Firestore per user
 let followStatus = {}; // Will be loaded from Firestore per user
 let bookmarkStatus = {}; // Will be loaded from Firestore per user
@@ -564,12 +681,13 @@ let userLikes = new Set();
 
 async function renderInstagramFeed() {
   console.log('renderInstagramFeed called');
-  if (!feed) {
-    console.error('Feed element not found!');
+  if (!feed || !feedMobile) {
+    console.error('Feed element(s) not found!', { feed: !!feed, feedMobile: !!feedMobile });
     return;
   }
   
   feed.innerHTML = '';
+  feedMobile.innerHTML = '';
 
   // Load current user's likes, follows, and bookmarks from Firestore
   try {
@@ -646,7 +764,9 @@ async function renderInstagramFeed() {
   
   if (renderedPosts.length === 0) {
     console.warn('No posts were rendered!');
-    feed.innerHTML = '<div style="padding: 40px; text-align: center; color: #666;"><p>No posts to display.</p><p style="font-size: 0.9em; margin-top: 10px;">Check the console for details.</p></div>';
+    const emptyMessage = '<div style="padding: 40px; text-align: center; color: #666;"><p>No posts to display.</p><p style="font-size: 0.9em; margin-top: 10px;">Check the console for details.</p></div>';
+    feed.innerHTML = emptyMessage;
+    feedMobile.innerHTML = emptyMessage;
   }
 
   // Handle deep link: ?postId=...&open=comments
@@ -655,7 +775,12 @@ async function renderInstagramFeed() {
     const pid = params.get('postId');
     const open = params.get('open');
     if (pid) {
-      const el = document.getElementById(`post-${pid}`);
+      // Try desktop post first
+      let el = document.getElementById(`post-${pid}`);
+      // If not found, try mobile post
+      if (!el) {
+        el = document.getElementById(`post-mobile-${pid}`);
+      }
       if (el) {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         if (open === 'comments') {
@@ -904,14 +1029,38 @@ async function renderOne(thread) {
       </div>
     `;
     
+  // Clone the post element for mobile view
+  const postElementMobile = postElement.cloneNode(true);
+  postElementMobile.id = `post-mobile-${thread.id}`;
+  
+  // Append to both feeds
   feed.appendChild(postElement);
+  feedMobile.appendChild(postElementMobile);
+  
+  // Setup interactions for both elements
   setupPostInteractions(postElement, thread);
+  setupPostInteractions(postElementMobile, thread);
   
   // Set up real-time comment count listener for this post
   setupCommentCountListenerForPost(postElement, thread.id);
+  setupCommentCountListenerForPost(postElementMobile, thread.id);
   
   // Make post clickable to navigate to detail page
   postElement.addEventListener('click', function(e) {
+    // Don't navigate if clicking on buttons or interactive elements
+    if (e.target.closest('.action-btn') || 
+        e.target.closest('.follow-btn') || 
+        e.target.closest('.more-btn') ||
+        e.target.closest('.more-menu') ||
+        e.target.closest('.comments-section')) {
+      return;
+    }
+    // Navigate to detail page
+    window.location.href = `/pages/community/post-detail.html?id=${thread.id}`;
+  });
+  
+  // Same for mobile element
+  postElementMobile.addEventListener('click', function(e) {
     // Don't navigate if clicking on buttons or interactive elements
     if (e.target.closest('.action-btn') || 
         e.target.closest('.follow-btn') || 
@@ -1150,13 +1299,29 @@ function setupPostInteractions(postElement, thread) {
         // Remove from UI with fade out animation
         postElement.style.transition = 'opacity 0.3s ease';
         postElement.style.opacity = '0';
+        
+        // Also remove mobile version if it exists
+        const postElementMobile = document.getElementById(`post-mobile-${postId}`);
+        if (postElementMobile) {
+          postElementMobile.style.transition = 'opacity 0.3s ease';
+          postElementMobile.style.opacity = '0';
+        }
+        
         setTimeout(() => {
           postElement.remove();
+          if (postElementMobile) {
+            postElementMobile.remove();
+          }
           
-          // Check if feed is now empty
+          // Check if feeds are now empty
           const feed = document.getElementById('instagramFeed');
+          const feedMobile = document.getElementById('instagramFeedMobile');
+          const emptyMessage = '<div style="padding: 40px; text-align: center; color: #666;"><p>No posts to display.</p></div>';
           if (feed && feed.children.length === 0) {
-            feed.innerHTML = '<div style="padding: 40px; text-align: center; color: #666;"><p>No posts to display.</p></div>';
+            feed.innerHTML = emptyMessage;
+          }
+          if (feedMobile && feedMobile.children.length === 0) {
+            feedMobile.innerHTML = emptyMessage;
           }
         }, 300);
         
@@ -1241,8 +1406,7 @@ function setupCommentInteractions(commentItem, thread) {
 }
 
 // Search functionality - searches by username only (starts with, case-insensitive)
-document.getElementById('searchInput').addEventListener('input', function() {
-  const searchTerm = this.value.toLowerCase().trim();
+function handleSearch(searchTerm) {
   const posts = document.querySelectorAll('.instagram-post');
   
   posts.forEach(post => {
@@ -1251,7 +1415,33 @@ document.getElementById('searchInput').addEventListener('input', function() {
     const isVisible = searchTerm === '' || username.startsWith(searchTerm);
     post.style.display = isVisible ? 'block' : 'none';
   });
-});
+}
+
+// Setup search for both desktop and mobile
+const searchInput = document.getElementById('searchInput');
+const searchInputMobile = document.getElementById('searchInputMobile');
+
+if (searchInput) {
+  searchInput.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase().trim();
+    handleSearch(searchTerm);
+    // Sync with mobile search
+    if (searchInputMobile) {
+      searchInputMobile.value = this.value;
+    }
+  });
+}
+
+if (searchInputMobile) {
+  searchInputMobile.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase().trim();
+    handleSearch(searchTerm);
+    // Sync with desktop search
+    if (searchInput) {
+      searchInput.value = this.value;
+    }
+  });
+}
 
 // Initialize the feed AFTER auth is ready
 // This ensures likes/follows/bookmarks load correctly
@@ -1314,8 +1504,12 @@ async function initializeFeed() {
       } catch (e) {
         console.error('Failed to render feed after error:', e);
         // Show error message to user
+        const errorMessage = '<div style="padding: 20px; text-align: center; color: #666;">Unable to load feed. Please refresh the page.</div>';
         if (feed) {
-          feed.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">Unable to load feed. Please refresh the page.</div>';
+          feed.innerHTML = errorMessage;
+        }
+        if (feedMobile) {
+          feedMobile.innerHTML = errorMessage;
         }
       }
     }

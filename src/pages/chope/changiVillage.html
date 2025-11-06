@@ -12,6 +12,34 @@
     <script type="module" src="/scripts/firebaseauth.js"></script>
     <script src="seatDatabase.js"></script>
     <style>
+        :root {
+            --space-32: 32px;
+            --space-24: 24px;
+            --space-20: 20px;
+            --space-16: 16px;
+            --space-12: 12px;
+            --space-8: 8px;
+        }
+
+        body {
+            padding-top: 70px;
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            }
+        }
+
+        .container-fluid {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: var(--space-24);
+        }
+
         .back-btn {
             margin-bottom: 16px;
             padding: 8px 16px;
@@ -21,10 +49,79 @@
             cursor: pointer;
             color: #1a1a1a;
             font-weight: 600;
+            min-height: 44px;
         }
 
         .back-btn:hover {
             background-color: #e0e0e0;
+        }
+
+        .floor-plan-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-bottom: var(--space-24);
+        }
+
+        #floorPlan {
+            min-width: 100%;
+            height: auto;
+        }
+
+        @media (max-width: 430px) {
+            body {
+                padding-top: max(70px, env(safe-area-inset-top));
+                padding-bottom: calc(80px + env(safe-area-inset-bottom));
+            }
+
+            .container-fluid {
+                padding: var(--space-16);
+                padding-top: max(var(--space-16), env(safe-area-inset-top));
+            }
+
+            h2 {
+                font-size: 1.5rem;
+                margin-bottom: var(--space-12);
+            }
+
+            h5 {
+                font-size: 1.1rem;
+            }
+
+            .back-btn {
+                width: 100%;
+                margin-bottom: var(--space-12);
+            }
+
+            .floor-plan-container {
+                margin-bottom: var(--space-16);
+            }
+
+            #floorPlan {
+                min-height: 400px;
+            }
+
+            .legend-box {
+                width: 16px;
+                height: 16px;
+            }
+
+            .d-flex.justify-content-center {
+                flex-wrap: wrap;
+                gap: var(--space-8);
+            }
+        }
+
+        /* iPhone 14 Pro Max specific optimizations (430x932) */
+        @media (max-width: 430px) and (min-height: 900px) {
+            .container-fluid {
+                padding: var(--space-20);
+                padding-top: max(var(--space-20), env(safe-area-inset-top));
+                padding-bottom: max(var(--space-20), env(safe-area-inset-bottom));
+            }
+
+            #floorPlan {
+                min-height: 450px;
+            }
         }
     </style>
 </head>
