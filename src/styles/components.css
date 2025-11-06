@@ -860,7 +860,7 @@ input::placeholder {
   color: #1a1a1a !important;
   cursor: pointer;
   padding: 0 !important;
-  border-radius: 50% !important;
+  border-radius: 0 !important;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
@@ -886,6 +886,7 @@ input::placeholder {
 
 .like-btn.liked {
   color: #C9784F;
+  border-radius: 0 !important;
 }
 
 .comment-btn.active {
@@ -896,6 +897,7 @@ input::placeholder {
 .bookmark-btn.bookmarked {
   color: #C9784F;
   font-weight: bold;
+  border-radius: 0 !important;
 }
 
 /* === Post Stats & Caption === */
