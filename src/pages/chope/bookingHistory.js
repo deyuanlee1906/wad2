@@ -32,22 +32,6 @@ class BookingHistory {
         }
     }
 
-    // calculate the remaining time of the booking
-    formatTimeRemaining(expiresAt) {
-        const now = new Date();
-        const expiry = new Date(expiresAt);
-        const diff = expiry - now;
-        
-        if (diff <= 0) return 'Expired';
-        
-        const minutes = Math.floor(diff / 60000);
-        if (minutes < 60) {
-            return `${minutes} minutes remaining`;
-        }
-        const hours = Math.floor(minutes / 60);
-        const remainingMinutes = minutes % 60;
-        return `${hours}h ${remainingMinutes}m remaining`;
-    }
 
     formatDateTime(dateStr) {
         const date = new Date(dateStr);
@@ -155,9 +139,6 @@ class BookingHistory {
                                 <div class="detail-item">
                                     <span class="detail-label">Expires At:</span>
                                     <span class="detail-value">${this.formatDateTime(booking.expiresAt)}</span>
-                                </div>
-                                <div class="time-remaining">
-                                    ${this.formatTimeRemaining(booking.expiresAt)}
                                 </div>
                                 <div class="text-center mt-3">
                                     <button class="btn custom-btn-danger btn-sm" 

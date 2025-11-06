@@ -16,7 +16,7 @@
     <h1><i class="bi bi-people-fill"></i> Community</h1>
     <div class="search-container">
       <i class="bi bi-search"></i>
-      <input type="search" placeholder="Search posts..." id="searchInput" />
+      <input type="search" placeholder="Search by username..." id="searchInput" />
     </div>
   </div>
 
@@ -904,15 +904,15 @@ function setupCommentInteractions(commentItem, thread) {
   }
 }
 
-// Search functionality
+// Search functionality - searches by username only (starts with, case-insensitive)
 document.getElementById('searchInput').addEventListener('input', function() {
-  const searchTerm = this.value.toLowerCase();
+  const searchTerm = this.value.toLowerCase().trim();
   const posts = document.querySelectorAll('.instagram-post');
   
   posts.forEach(post => {
     const username = post.querySelector('.username').textContent.toLowerCase();
-    const caption = post.querySelector('.caption').textContent.toLowerCase();
-    const isVisible = username.includes(searchTerm) || caption.includes(searchTerm);
+    // Only show posts where username starts with search term (case-insensitive)
+    const isVisible = searchTerm === '' || username.startsWith(searchTerm);
     post.style.display = isVisible ? 'block' : 'none';
   });
 });

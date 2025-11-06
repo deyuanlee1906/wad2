@@ -161,6 +161,46 @@
         color: #6c757d;
       }
 
+      .order-notification-item-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #e9ecef;
+      }
+
+      .order-notification-confirm-btn {
+        flex: 1;
+        padding: 10px 16px;
+        background: #D98566;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+
+      .order-notification-confirm-btn:hover:not(:disabled) {
+        background: #C9784F;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(217, 133, 102, 0.3);
+      }
+
+      .order-notification-confirm-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .order-notification-confirm-btn i {
+        font-size: 1rem;
+      }
+
       /* Detail/QR View Styles */
       .order-qr-code-container {
         text-align: center;
@@ -294,6 +334,40 @@
         color: #1a1a1a;
         font-weight: 600;
         text-align: right;
+      }
+
+      .order-notification-detail-actions {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #e9ecef;
+      }
+
+      .order-notification-detail-confirm-btn {
+        width: 100%;
+        padding: 12px 24px;
+        background: #D98566;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+
+      .order-notification-detail-confirm-btn:hover:not(:disabled) {
+        background: #C9784F;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(217, 133, 102, 0.3);
+      }
+
+      .order-notification-detail-confirm-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
       }
 
       .order-notification-backdrop {
@@ -594,6 +668,150 @@
     }
   }
 
+  // Confirm order and save to order history
+  window.confirmOrder = async function(orderId) {
+    try {
+      // Get notification data
+      const allNotificationsStr = localStorage.getItem('orderNotifications');
+      if (!allNotificationsStr) {
+        alert('Order not found');
+        return;
+      }
+      
+      const allNotifications = JSON.parse(allNotificationsStr);
+      const notification = allNotifications.find(n => n.orderId === orderId);
+      
+      if (!notification) {
+        alert('Order not found');
+        return;
+      }
+      
+      // Disable buttons during processing
+      // Find all confirm buttons that reference this orderId
+      const allButtons = document.querySelectorAll('.order-notification-confirm-btn, .order-notification-detail-confirm-btn');
+      const buttonsToDisable = [];
+      
+      allButtons.forEach(btn => {
+        const onclickAttr = btn.getAttribute('onclick');
+        if (onclickAttr && onclickAttr.includes(orderId)) {
+          buttonsToDisable.push(btn);
+        }
+      });
+      
+      buttonsToDisable.forEach(btn => {
+        btn.disabled = true;
+        const originalHTML = btn.innerHTML;
+        btn.setAttribute('data-original-html', originalHTML);
+        btn.innerHTML = '<i class="bi bi-hourglass-split"></i> Saving...';
+      });
+      
+      // Prepare order data for history
+      const confirmedOrder = {
+        orderId: notification.orderId,
+        total: notification.total,
+        stall: notification.stall || '',
+        foodCentre: notification.foodCentre || '',
+        items: notification.items || [],
+        timestamp: notification.timestamp || new Date().toISOString(),
+        selectedTime: notification.selectedTime || '',
+        confirmedAt: new Date().toISOString()
+      };
+      
+      // Try to save to Firebase first
+      let firebaseSaved = false;
+      try {
+        // Check if Firebase is available
+        if (window.auth && window.db && window.doc && window.setDoc && window.collection) {
+          const user = window.auth.currentUser;
+          if (user && user.uid) {
+            // Save to Firebase Firestore
+            const orderHistoryRef = window.doc(window.db, 'users', user.uid, 'orderHistory', orderId);
+            await window.setDoc(orderHistoryRef, confirmedOrder, { merge: true });
+            firebaseSaved = true;
+            console.log('✅ Order saved to Firebase:', orderId);
+          }
+        }
+      } catch (firebaseError) {
+        console.warn('⚠️ Failed to save to Firebase, using localStorage:', firebaseError);
+      }
+      
+      // Always save to localStorage as backup/fallback
+      try {
+        const historyStr = localStorage.getItem('orderHistory');
+        const history = historyStr ? JSON.parse(historyStr) : [];
+        
+        // Check if order already exists in history
+        const existingIndex = history.findIndex(o => o.orderId === orderId);
+        if (existingIndex >= 0) {
+          history[existingIndex] = confirmedOrder;
+        } else {
+          history.push(confirmedOrder);
+        }
+        
+        // Sort by confirmedAt (newest first)
+        history.sort((a, b) => {
+          const dateA = new Date(a.confirmedAt || a.timestamp || 0);
+          const dateB = new Date(b.confirmedAt || b.timestamp || 0);
+          return dateB - dateA;
+        });
+        
+        localStorage.setItem('orderHistory', JSON.stringify(history));
+        console.log('✅ Order saved to localStorage:', orderId);
+      } catch (localError) {
+        console.error('❌ Failed to save to localStorage:', localError);
+        alert('Failed to save order. Please try again.');
+        // Re-enable buttons
+        buttonsToDisable.forEach(btn => {
+          btn.disabled = false;
+          const originalHTML = btn.getAttribute('data-original-html');
+          btn.innerHTML = originalHTML || '<i class="bi bi-check-circle"></i> Confirm Order';
+        });
+        return;
+      }
+      
+      // Remove notification from active notifications immediately
+      const filtered = allNotifications.filter(n => n.orderId !== orderId);
+      saveOrderNotifications(filtered);
+      
+      // Update badge count immediately
+      updateNotificationBadge();
+      
+      // If we're viewing the detail of the confirmed order, reset view state
+      if (currentOrderId === orderId) {
+        currentOrderId = null;
+        currentView = 'list';
+      }
+      
+      // Always refresh the list view to show updated notifications
+      // This ensures the confirmed notification disappears immediately
+      showNotificationList();
+      
+      // Dispatch events to update UIs
+      window.dispatchEvent(new CustomEvent('orderNotificationUpdated'));
+      window.dispatchEvent(new CustomEvent('orderHistoryUpdated', { 
+        detail: { orderId, confirmedOrder } 
+      }));
+      
+      // Show success feedback
+      const successMsg = firebaseSaved 
+        ? 'Order confirmed and saved to history!' 
+        : 'Order confirmed and saved to history!';
+      console.log('✅', successMsg);
+      
+    } catch (error) {
+      console.error('❌ Error confirming order:', error);
+      alert('Failed to confirm order. Please try again.');
+      
+      // Re-enable buttons
+      const allConfirmButtons = document.querySelectorAll('.order-notification-confirm-btn, .order-notification-detail-confirm-btn');
+      allConfirmButtons.forEach(btn => {
+        btn.disabled = false;
+        const originalHTML = btn.getAttribute('data-original-html');
+        btn.innerHTML = originalHTML || '<i class="bi bi-check-circle"></i> Confirm Order';
+      });
+    }
+  };
+
   // Dismiss/remove a notification
   function dismissNotification(orderId) {
     const allNotificationsStr = localStorage.getItem('orderNotifications');
@@ -655,14 +873,22 @@
         : parseFloat(notification.total) || 0;
       
       html += `
-        <div class="order-notification-item" onclick="showNotificationDetail('${notification.orderId}')">
-          <div class="order-notification-item-header">
-            <span class="order-notification-item-id">${notification.orderId}</span>
-            <span class="order-notification-item-total">$${total.toFixed(2)}</span>
+        <div class="order-notification-item">
+          <div onclick="showNotificationDetail('${notification.orderId}')" style="cursor: pointer;">
+            <div class="order-notification-item-header">
+              <span class="order-notification-item-id">${notification.orderId}</span>
+              <span class="order-notification-item-total">$${total.toFixed(2)}</span>
+            </div>
+            <div class="order-notification-item-details">
+              <span class="order-notification-item-stall">${notification.stall || '-'}</span>
+              <span class="order-notification-item-time">${notification.foodCentre || '-'}</span>
+            </div>
           </div>
-          <div class="order-notification-item-details">
-            <span class="order-notification-item-stall">${notification.stall || '-'}</span>
-            <span class="order-notification-item-time">${notification.foodCentre || '-'}</span>
+          <div class="order-notification-item-actions">
+            <button class="order-notification-confirm-btn" onclick="event.stopPropagation(); confirmOrder('${notification.orderId}')">
+              <i class="bi bi-check-circle"></i>
+              Confirm Order
+            </button>
           </div>
         </div>
       `;
@@ -733,6 +959,12 @@
         <div class="order-notification-detail-item">
           <span class="order-notification-detail-label">Total</span>
           <span class="order-notification-detail-value">$${total.toFixed(2)}</span>
+        </div>
+        <div class="order-notification-detail-actions">
+          <button class="order-notification-detail-confirm-btn" onclick="confirmOrder('${notification.orderId}')">
+            <i class="bi bi-check-circle"></i>
+            Confirm Order
+          </button>
         </div>
       `;
     }

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>ChopeLah - Crowd View Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet" />
@@ -102,12 +102,15 @@
             -webkit-font-smoothing: antialiased;
             padding-top: 70px;
             padding-bottom: 80px;
+            overflow-x: hidden;
+            width: 100%;
+            max-width: 100vw;
         }
 
         @media (max-width: 768px) {
             body {
-                padding-top: 0;
-                padding-bottom: 80px;
+                padding-top: env(safe-area-inset-top);
+                padding-bottom: calc(80px + env(safe-area-inset-bottom));
             }
         }
 
@@ -123,6 +126,11 @@
         .mobile-view {
             display: none;
             padding: var(--space-16);
+            padding-top: max(var(--space-16), env(safe-area-inset-top));
+            width: 100%;
+            max-width: 100vw;
+            box-sizing: border-box;
+            overflow-x: hidden;
         }
 
         /* Header */
@@ -143,8 +151,8 @@
         }
 
         .hawker-selector {
-  display: flex;
-            gap: var(--space-12);
+            display: flex;
+            gap: var(--space-16);
             margin-top: var(--space-20);
             flex-wrap: wrap;
         }
@@ -152,44 +160,318 @@
         .select-wrapper {
             flex: 1;
             min-width: 200px;
+            position: relative;
         }
 
         .select-wrapper label {
             display: block;
-            position: static;
             font-size: var(--font-size-sm);
             font-weight: var(--font-weight-medium);
             color: #1a1a1a;
             margin-bottom: var(--space-8);
-            left: auto;
-            top: auto;
-            transform: none;
-            pointer-events: auto;
+        }
+
+        /* Custom searchable dropdown for hawker centre */
+        .hawker-centre-select {
+            position: relative;
+            width: 100%;
+        }
+
+        .hawker-centre-input-wrapper {
+            position: relative;
+        }
+
+        .hawker-centre-input {
+            width: 100%;
+            padding: 10px 36px 10px 12px;
+            border: 1px solid #1a1a1a;
+            border-radius: 6px;
+            background: white;
+            color: #1a1a1a;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        .hawker-centre-input::placeholder {
+            color: rgba(26, 26, 26, 0.5);
+            font-weight: 500;
+        }
+
+        .hawker-centre-input:hover {
+            border-color: #4285f4;
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+        }
+
+        .hawker-centre-input:focus {
+            outline: none;
+            border-color: #4285f4;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+        }
+
+        .hawker-centre-dropdown-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            width: 12px;
+            height: 12px;
+            transition: transform 0.2s;
+        }
+
+        .hawker-centre-select.open .hawker-centre-dropdown-icon {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .hawker-centre-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #1a1a1a;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+            margin-top: 4px;
+        }
+
+        .hawker-centre-select.open .hawker-centre-dropdown {
+            display: block;
+        }
+
+        .dropdown-label-above {
+            display: block;
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            padding: 8px 12px 4px 12px;
+            margin-bottom: 4px;
+            font-size: var(--font-size-sm);
+            font-weight: bold;
+            color: #1a1a1a;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            z-index: 1001;
+            white-space: nowrap;
+        }
+
+        .dropdown-search-bar {
+            padding: 12px;
+            border-bottom: 1px solid rgba(26, 26, 26, 0.1);
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .dropdown-search-bar input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid rgba(26, 26, 26, 0.2);
+            border-radius: 4px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .dropdown-search-bar input:focus {
+            outline: none;
+            border-color: #4285f4;
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+        }
+
+        .hawker-centre-option {
+            padding: 12px;
+            cursor: pointer;
+            transition: background-color 0.15s;
+            border-bottom: 1px solid rgba(26, 26, 26, 0.1);
+            font-weight: 500;
+        }
+
+        .hawker-centre-option:last-child {
+            border-bottom: none;
+        }
+
+        .hawker-centre-option:hover {
+            background-color: rgba(66, 133, 244, 0.1);
+        }
+
+        .hawker-centre-option.selected {
+            background-color: rgba(66, 133, 244, 0.15);
+            font-weight: 600;
+        }
+
+        .hawker-centre-option.hidden {
+            display: none;
+        }
+
+        /* Custom searchable dropdown for stall (same styling as hawker centre) */
+        .stall-select {
+            position: relative;
+            width: 100%;
+        }
+
+        .stall-input-wrapper {
+            position: relative;
+        }
+
+        .stall-input {
+            width: 100%;
+            padding: 10px 36px 10px 12px;
+            border: 1px solid #1a1a1a;
+            border-radius: 6px;
+            background: white;
+            color: #1a1a1a;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-sizing: border-box;
+        }
+
+        .stall-input::placeholder {
+            color: rgba(26, 26, 26, 0.5);
+            font-weight: 500;
+        }
+
+        .stall-input:hover {
+            border-color: #4285f4;
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
+        }
+
+        .stall-input:focus {
+            outline: none;
+            border-color: #4285f4;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+        }
+
+        .stall-dropdown-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            width: 12px;
+            height: 12px;
+            transition: transform 0.2s;
+        }
+
+        .stall-select.open .stall-dropdown-icon {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .stall-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #1a1a1a;
+            border-radius: 6px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1001;
+            display: none;
+            margin-top: 4px;
+        }
+
+        .stall-select.open .stall-dropdown {
+            display: block;
+        }
+
+        .stall-option {
+            padding: 12px;
+            cursor: pointer;
+            transition: background-color 0.15s;
+            border-bottom: 1px solid rgba(26, 26, 26, 0.1);
+            font-weight: 500;
+        }
+
+        .stall-option:last-child {
+            border-bottom: none;
+        }
+
+        .stall-option:hover {
+            background-color: rgba(66, 133, 244, 0.1);
+        }
+
+        .stall-option.selected {
+            background-color: rgba(66, 133, 244, 0.15);
+            font-weight: 600;
+        }
+
+        .stall-option.hidden {
+            display: none;
         }
 
         select {
   width: 100%;
-            padding: var(--space-12);
-  border: 2px solid #F2C6B6;
-            border-radius: var(--radius-base);
-  background-color: #F2F2F2;
-  color: #262626;
-            font-size: var(--font-size-base);
+            padding: 10px 36px 10px 12px;
+            border: 1px solid #1a1a1a;
+            border-radius: 6px;
+            background-color: white;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%231a1a1a' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 12px;
+            color: #1a1a1a;
+            font-size: 16px;
+            font-weight: 600;
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            appearance: none;
+            box-sizing: border-box;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s;
         }
 
         select:hover {
-            border-color: #D98566;
-            background-color: #ffffff;
+            border-color: #4285f4;
+            box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.1);
         }
 
         select:focus {
             outline: none;
-            border-color: #C9784F;
-            box-shadow: 0 0 0 3px rgba(201, 120, 79, 0.1);
-            background-color: #ffffff;
+            border-color: #4285f4;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
+        }
+
+        select:disabled {
+            background-color: #e9ecef;
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        select option {
+            color: #1a1a1a;
+            background: white;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 10px 12px;
+        }
+
+        select option:disabled {
+            color: rgba(26, 26, 26, 0.5);
+            font-weight: 500;
+        }
+
+        select option:hover,
+        select option:focus {
+            background-color: rgba(66, 133, 244, 0.1);
+        }
+
+        /* Maintain focus style when dropdown is open */
+        select:focus:not(:disabled) {
+            border-color: #4285f4;
+            box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.2);
         }
 
         /* Stats Cards */
@@ -332,10 +614,12 @@
         .bar-item:nth-child(7) { animation-delay: 0.35s; }
 
         .bar-label {
-            min-width: 80px;
+            width: 120px;
+            min-width: 120px;
             font-size: var(--font-size-sm);
             color: #1a1a1a;
             font-weight: var(--font-weight-medium);
+            flex-shrink: 0;
         }
 
         .bar-track {
@@ -372,11 +656,13 @@
         }
 
         .bar-value {
+            width: 50px;
             min-width: 50px;
             text-align: right;
             font-size: var(--font-size-sm);
             font-weight: var(--font-weight-semibold);
             color: #1a1a1a;
+            flex-shrink: 0;
         }
 
         /* Leaderboard */
@@ -503,6 +789,18 @@
             border-radius: 0 var(--radius-base) var(--radius-base) 0;
             animation: fadeInUp 0.4s ease-out forwards;
             opacity: 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .activity-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border-left-color: var(--color-primary-hover);
+        }
+
+        .activity-item.reservation-item {
+            border-left-color: var(--color-primary);
         }
 
         /* Staggered animation delays for activity items */
@@ -605,41 +903,65 @@
 
             .mobile-view .header {
                 margin-bottom: var(--space-24);
-                padding: 0 var(--space-4);
+                padding: 0 var(--space-16);
+                padding-top: var(--space-8);
             }
 
             .mobile-view .header > div:first-child {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                gap: var(--space-12);
+                gap: var(--space-8);
                 flex-wrap: nowrap;
                 width: 100%;
                 position: relative;
+                margin-bottom: var(--space-12);
             }
 
             .mobile-view .header h1 {
                 font-size: var(--font-size-2xl);
                 margin: 0;
-                flex: 1;
+                flex: 1 1 0%;
                 min-width: 0;
+                max-width: calc(100% - 85px);
                 white-space: nowrap;
                 overflow: hidden;
                 text-overflow: ellipsis;
                 -webkit-font-smoothing: antialiased;
                 -moz-osx-font-smoothing: grayscale;
                 text-rendering: optimizeLegibility;
-                line-height: 1.2;
+                line-height: 1.3;
                 word-break: normal;
                 transform: translateZ(0);
                 -webkit-transform: translateZ(0);
                 backface-visibility: hidden;
                 -webkit-backface-visibility: hidden;
+                padding-right: var(--space-8);
+                box-sizing: border-box;
             }
 
             .mobile-view .live-indicator {
                 flex-shrink: 0;
                 white-space: nowrap;
+                padding: 4px 8px;
+                font-size: var(--font-size-xs);
+                min-width: 60px;
+                box-sizing: border-box;
+            }
+            
+            /* Specific adjustments for iPhone 14 Pro Max and similar sizes */
+            @media (max-width: 430px) {
+                .mobile-view .header h1 {
+                    font-size: var(--font-size-xl);
+                    max-width: calc(100% - 70px);
+                    padding-right: var(--space-4);
+                }
+                
+                .mobile-view .live-indicator {
+                    padding: 3px 6px;
+                    font-size: 10px;
+                    min-width: 55px;
+                }
             }
 
             .hawker-selector {
@@ -649,13 +971,27 @@
 
             .select-wrapper {
                 min-width: 100%;
-                width: 100%;
-            }
-            
-            .select-wrapper label {
                 margin-bottom: var(--space-8);
-                white-space: normal;
-                word-wrap: break-word;
+            }
+
+            .select-wrapper:last-child {
+                margin-bottom: 0;
+            }
+
+            .mobile-view .dropdown-label-above {
+                position: static;
+                display: block;
+                padding: 0;
+            }
+
+            .mobile-view .bar-label {
+                width: 80px;
+                min-width: 80px;
+            }
+
+            .mobile-view .bar-value {
+                width: 40px;
+                min-width: 40px;
             }
 
             .stats-grid {
@@ -744,17 +1080,68 @@
             <div class="hawker-selector">
                 <div class="select-wrapper">
                     <label for="hawker-select">Select Hawker Centre</label>
-                    <select id="hawker-select">
-                        <option value="maxwell">Maxwell Food Centre</option>
-                        <option value="newton">Newton Food Centre</option>
-                        <option value="changi">Changi Village Food Centre</option>
-                    </select>
+                    <div class="hawker-centre-select" id="hawkerCentreSelectWrapper">
+                        <div class="hawker-centre-input-wrapper">
+                            <input 
+                                type="text" 
+                                id="hawker-select" 
+                                class="hawker-centre-input" 
+                                placeholder="Please select a food centre"
+                                autocomplete="off"
+                                aria-label="Select Food Centre"
+                                readonly
+                                value=""
+                            />
+                            <svg class="hawker-centre-dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+                                <path fill="#1a1a1a" d="M6 9L1 4h10z"/>
+                            </svg>
+                        </div>
+                        <div class="dropdown-label-above">Select Hawker Centre</div>
+                        <div class="hawker-centre-dropdown" id="hawkerCentreDropdown" role="listbox">
+                            <div class="dropdown-search-bar">
+                                <input 
+                                    type="text" 
+                                    id="hawkerDropdownSearchInput" 
+                                    placeholder="Search food centre..."
+                                    autocomplete="off"
+                                />
+                            </div>
+                            <div class="hawker-centre-option" data-value="maxwell" data-label="Maxwell Food Centre">Maxwell Food Centre</div>
+                            <div class="hawker-centre-option" data-value="newton" data-label="Newton Food Centre">Newton Food Centre</div>
+                            <div class="hawker-centre-option" data-value="changi" data-label="Changi Village Food Centre">Changi Village Food Centre</div>
+                        </div>
+                    </div>
                 </div>
                 <div class="select-wrapper">
                     <label for="stall-select">Select Stall (Optional)</label>
-                    <select id="stall-select">
-                        <option value="">All Stalls</option>
-                    </select>
+                    <div class="stall-select" id="stallSelectWrapper">
+                        <div class="stall-input-wrapper">
+                            <input 
+                                type="text" 
+                                id="stall-select" 
+                                class="stall-input" 
+                                placeholder="Please select a food stall"
+                                autocomplete="off"
+                                aria-label="Select Stall"
+                                readonly
+                            />
+                            <svg class="stall-dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+                                <path fill="#1a1a1a" d="M6 9L1 4h10z"/>
+                            </svg>
+          </div>
+                        <div class="dropdown-label-above">Select Stall (Optional)</div>
+                        <div class="stall-dropdown" id="stallDropdown" role="listbox">
+                            <div class="dropdown-search-bar">
+                                <input 
+                                    type="text" 
+                                    id="stallDropdownSearchInput" 
+                                    placeholder="Search food stall..."
+                                    autocomplete="off"
+                                />
+                            </div>
+                            <div class="stall-option" data-value="" data-label="">All Stalls</div>
+                        </div>
+                    </div>
           </div>
         </div>
       </div>
@@ -988,18 +1375,67 @@
             
             <div class="hawker-selector">
                 <div class="select-wrapper">
-                    <label for="hawker-select-mobile">Hawker Centre</label>
-                    <select id="hawker-select-mobile">
-                        <option value="maxwell">Maxwell Food Centre</option>
-                        <option value="newton">Newton Food Centre</option>
-                        <option value="changi">Changi Village Food Centre</option>
-                    </select>
+                    <div class="dropdown-label-above">Hawker Centre</div>
+                    <div class="hawker-centre-select" id="hawkerCentreSelectWrapperMobile">
+                        <div class="hawker-centre-input-wrapper">
+                            <input 
+                                type="text" 
+                                id="hawker-select-mobile" 
+                                class="hawker-centre-input" 
+                                placeholder="Please select a food centre"
+                                autocomplete="off"
+                                aria-label="Select Food Centre"
+                                readonly
+                                value=""
+                            />
+                            <svg class="hawker-centre-dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+                                <path fill="#1a1a1a" d="M6 9L1 4h10z"/>
+                            </svg>
+                        </div>
+                        <div class="hawker-centre-dropdown" id="hawkerCentreDropdownMobile" role="listbox">
+                            <div class="dropdown-search-bar">
+                                <input 
+                                    type="text" 
+                                    id="hawkerDropdownSearchInputMobile" 
+                                    placeholder="Search food centre..."
+                                    autocomplete="off"
+                                />
+                            </div>
+                            <div class="hawker-centre-option" data-value="maxwell" data-label="Maxwell Food Centre">Maxwell Food Centre</div>
+                            <div class="hawker-centre-option" data-value="newton" data-label="Newton Food Centre">Newton Food Centre</div>
+                            <div class="hawker-centre-option" data-value="changi" data-label="Changi Village Food Centre">Changi Village Food Centre</div>
+                        </div>
+                    </div>
                 </div>
                 <div class="select-wrapper">
-                    <label for="stall-select-mobile">Stall (Optional)</label>
-                    <select id="stall-select-mobile">
-                        <option value="">All Stalls</option>
-                    </select>
+                    <div class="dropdown-label-above">Stall (Optional)</div>
+                    <div class="stall-select" id="stallSelectWrapperMobile">
+                        <div class="stall-input-wrapper">
+                            <input 
+                                type="text" 
+                                id="stall-select-mobile" 
+                                class="stall-input" 
+                                placeholder="Please select a food stall"
+                                autocomplete="off"
+                                aria-label="Select Stall"
+                                readonly
+                            />
+                            <svg class="stall-dropdown-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 12 12">
+                                <path fill="#1a1a1a" d="M6 9L1 4h10z"/>
+                            </svg>
+                </div>
+                        <div class="stall-dropdown" id="stallDropdownMobile" role="listbox">
+                            <div class="dropdown-search-bar">
+                                <input 
+                                    type="text" 
+                                    id="stallDropdownSearchInputMobile" 
+                                    placeholder="Search food stall..."
+                                    autocomplete="off"
+                                />
+                            </div>
+                            <div class="stall-option" data-value="" data-label="">All Stalls</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1215,8 +1651,14 @@
                 currentOccupancy: 78,
                 avgWaitTime: 15,
                 activeReservations: 34,
-                peakTimeToday: "12:30",
+                peakTimeToday: "12:30 PM",
                 peakExpectedOccupancy: 92,
+                occupancyChange: "+12%",
+                occupancyChangeText: "from 1hr ago",
+                reservationChange: "+8",
+                reservationChangeText: "new bookings",
+                waitTimeChange: "+3",
+                waitTimeChangeText: "mins",
                 crowdLevels1H: [65, 72, 78],
                 crowdLevels: [35, 58, 92, 65, 42, 88, 72, 45],
                 crowdLevelsWeek: [68, 72, 75, 70, 73, 78, 71],
@@ -1241,6 +1683,12 @@
                 activeReservations: 28,
                 peakTimeToday: "7:00 PM",
                 peakExpectedOccupancy: 89,
+                occupancyChange: "+10%",
+                occupancyChangeText: "from 1hr ago",
+                reservationChange: "+5",
+                reservationChangeText: "new bookings",
+                waitTimeChange: "+4",
+                waitTimeChangeText: "mins",
                 crowdLevels1H: [58, 68, 72],
                 crowdLevels: [30, 45, 68, 85, 55, 89, 82, 40],
                 crowdLevelsWeek: [65, 70, 72, 68, 71, 75, 69],
@@ -1262,6 +1710,12 @@
                 activeReservations: 22,
                 peakTimeToday: "12:00 PM",
                 peakExpectedOccupancy: 85,
+                occupancyChange: "+7%",
+                occupancyChangeText: "from 1hr ago",
+                reservationChange: "+4",
+                reservationChangeText: "new bookings",
+                waitTimeChange: "+2",
+                waitTimeChangeText: "mins",
                 crowdLevels1H: [55, 60, 65],
                 crowdLevels: [25, 42, 85, 70, 48, 75, 60, 35],
                 crowdLevelsWeek: [58, 63, 65, 62, 64, 67, 61],
@@ -1279,70 +1733,375 @@
             }
         };
 
-        // Activity feed data with realistic timestamps
-        function getActivityFeed(hawkerKey, stallSlug = null) {
-            const hawker = stallData[hawkerKey];
-            
-            // If no activity log exists, create initial activities with timestamps
-            if (activityLog.length === 0) {
-                const now = Date.now();
-                activityLog = [
-                    {
-                        icon: "📅",
-                        text: `New reservation at Hawker Centre for ${Math.floor(Math.random() * 4) + 2} people`,
-                        time: "2 minutes ago",
-                        timestamp: now - 2 * 60 * 1000
-                    },
-                    {
-                        icon: "⚠️",
-                        text: `High crowd alert - ${hawker.name} reached ${hawker.currentOccupancy}% capacity`,
-                        time: "8 minutes ago",
-                        timestamp: now - 8 * 60 * 1000
-                    },
-                    {
-                        icon: "✅",
-                        text: `Reservation completed - Table released`,
-                        time: "15 minutes ago",
-                        timestamp: now - 15 * 60 * 1000
-                    },
-                    {
-                        icon: "📊",
-                        text: `Crowd decreased - Now at ${hawker.currentOccupancy}% capacity (was ${hawker.currentOccupancy + 14}%)`,
-                        time: "22 minutes ago",
-                        timestamp: now - 22 * 60 * 1000
-                    },
-                    {
-                        icon: "🔥",
-                        text: `${hawker.stalls.filter(s => !s.closed).sort((a, b) => b.queue - a.queue)[0]?.name} has the longest queue with ${hawker.stalls.filter(s => !s.closed).sort((a, b) => b.queue - a.queue)[0]?.queue} people`,
-                        time: "30 minutes ago",
-                        timestamp: now - 30 * 60 * 1000
-                    }
-                ];
-            }
-            
-            // Update timestamps before returning
-            updateActivityTimestamps();
-            return activityLog;
-        }
-        
-        // Helper function to add new activity to the log
-        function addActivity(icon, text) {
-            activityLog.unshift({
-                icon: icon,
-                text: text,
-                time: "Just now",
-                timestamp: Date.now()
-            });
-            // Keep only the last 10 activities
-            if (activityLog.length > 10) {
-                activityLog = activityLog.slice(0, 10);
+        // Load raw reservations from localStorage
+        function loadRawReservations() {
+            try {
+                return JSON.parse(localStorage.getItem('reservations') || '[]');
+            } catch (e) {
+                console.warn('Could not load reservations', e);
+                return [];
             }
         }
 
+        // Load reservations from localStorage (formatted for activity feed)
+        function loadReservations() {
+            try {
+                const reservations = loadRawReservations();
+                return reservations.map(reservation => {
+                    const minutesAgo = Math.floor((Date.now() - reservation.timestamp) / (1000 * 60));
+                    return {
+                        icon: "📅",
+                        text: `Reservation for ${reservation.pax} ${reservation.pax === 1 ? 'person' : 'people'} at ${reservation.hawkerCentre} at ${reservation.time}`,
+                        time: getRelativeTime(minutesAgo),
+                        timestamp: reservation.timestamp,
+                        type: 'reservation',
+                        link: '/pages/chope/chope.html',
+                        hawkerCentre: reservation.hawkerCentre
+                    };
+                });
+            } catch (e) {
+                console.warn('Could not load reservations', e);
+                return [];
+            }
+        }
+
+        // Check if a reservation is still active (not expired)
+        function isReservationActive(reservation) {
+            if (!reservation.time || !reservation.timestamp) {
+                return false;
+            }
+            
+            const now = new Date();
+            const reservationCreatedDate = new Date(reservation.timestamp);
+            
+            // Parse time string (e.g., "12:00 PM", "1:30 PM", "11:45 AM")
+            const timeMatch = reservation.time.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+            if (!timeMatch) {
+                // If we can't parse, assume expired after duration from timestamp
+                const duration = reservation.duration ? parseInt(reservation.duration) : 60;
+                const expirationTime = new Date(reservationCreatedDate.getTime() + duration * 60 * 1000);
+                return now.getTime() < expirationTime.getTime();
+            }
+            
+            const hours = parseInt(timeMatch[1]);
+            const minutes = parseInt(timeMatch[2]);
+            const ampm = timeMatch[3].toUpperCase();
+            
+            // Convert to 24-hour format
+            let reservationHours = hours;
+            if (ampm === 'PM' && hours !== 12) {
+                reservationHours += 12;
+            } else if (ampm === 'AM' && hours === 12) {
+                reservationHours = 0;
+            }
+            
+            // Create reservation start time using the date from timestamp and time from reservation.time
+            const reservationStartTime = new Date(reservationCreatedDate);
+            reservationStartTime.setHours(reservationHours, minutes, 0, 0);
+            
+            // If the reservation time is in the past relative to creation time, assume it's for today
+            // (e.g., if created at 2 PM but reservation time is 12:00 PM, it might be for tomorrow)
+            // For simplicity, if reservation time is before creation time on same day, add 1 day
+            if (reservationStartTime.getTime() < reservationCreatedDate.getTime()) {
+                // Check if reservation time is significantly earlier (more than 2 hours before creation)
+                const timeDiff = reservationCreatedDate.getTime() - reservationStartTime.getTime();
+                if (timeDiff > 2 * 60 * 60 * 1000) {
+                    // Assume it's for the next day
+                    reservationStartTime.setDate(reservationStartTime.getDate() + 1);
+                }
+            }
+            
+            // Default duration is 60 minutes (1 hour)
+            const duration = reservation.duration ? parseInt(reservation.duration) : 60;
+            const reservationEndTime = new Date(reservationStartTime.getTime() + duration * 60 * 1000);
+            
+            // Check if current time is before reservation end time
+            return now.getTime() < reservationEndTime.getTime();
+        }
+
+        // Map hawker centre name to seatDatabase key
+        function getSeatDatabaseKey(hawkerCentreName) {
+            const nameLower = hawkerCentreName.toLowerCase();
+            if (nameLower.includes('maxwell')) {
+                return 'maxwell';
+            } else if (nameLower.includes('newton')) {
+                return 'newton';
+            } else if (nameLower.includes('changi')) {
+                return 'changiVillage';
+            }
+            return null;
+        }
+
+        // Count active reservations from seatDatabase (matching chope page logic)
+        function countActiveReservationsFromSeatDatabase(hawkerCentreName) {
+            try {
+                // Get the seatDatabase key for this hawker centre
+                const foodCenterKey = getSeatDatabaseKey(hawkerCentreName);
+                if (!foodCenterKey) {
+                    return 0;
+                }
+
+                // Load seatDatabase from localStorage
+                const seatDatabaseData = localStorage.getItem('seatDatabase');
+                if (!seatDatabaseData) {
+                    return 0;
+                }
+
+                const bookings = JSON.parse(seatDatabaseData);
+                const foodCenterBookings = bookings[foodCenterKey];
+                
+                if (!foodCenterBookings) {
+                    return 0;
+                }
+
+                // Count all seats with status 'booked' (seatDatabase automatically cleans expired bookings)
+                let activeCount = 0;
+                const now = new Date();
+                
+                for (const table in foodCenterBookings) {
+                    for (const seat in foodCenterBookings[table]) {
+                        const booking = foodCenterBookings[table][seat];
+                        if (booking.status === 'booked') {
+                            // Double-check expiration in case cleanup hasn't run yet
+                            if (booking.expiresAt) {
+                                const expiresAt = new Date(booking.expiresAt);
+                                if (now <= expiresAt) {
+                                    activeCount++;
+                                }
+                            } else {
+                                // If no expiration, count it as active
+                                activeCount++;
+                            }
+                        }
+                    }
+                }
+                
+                return activeCount;
+            } catch (e) {
+                console.warn('Error counting active reservations from seatDatabase:', e);
+                return 0;
+            }
+        }
+
+        // Count active reservations for a specific hawker centre
+        // Uses seatDatabase to match the chope page logic
+        function countActiveReservations(hawkerCentreName) {
+            // Use seatDatabase for accurate count that matches chope pages
+            return countActiveReservationsFromSeatDatabase(hawkerCentreName);
+        }
+
+        // Get total seats for a hawker centre
+        function getTotalSeatsForHawkerCentre(hawkerCentreName) {
+            const foodCenterKey = getSeatDatabaseKey(hawkerCentreName);
+            if (!foodCenterKey) {
+                return 0;
+            }
+
+            // Total seats configuration matching chope pages
+            const totalSeatsMap = {
+                'maxwell': 72,      // 6 tables × 12 seats each
+                'newton': 50,       // 5 tables × 10 seats each
+                'changiVillage': 60 // 6 tables × 10 seats each
+            };
+
+            return totalSeatsMap[foodCenterKey] || 0;
+        }
+
+        // Calculate occupancy 1 hour ago from seatDatabase
+        function calculateOccupancyOneHourAgo(hawkerCentreName) {
+            try {
+                const foodCenterKey = getSeatDatabaseKey(hawkerCentreName);
+                if (!foodCenterKey) {
+                    return 0;
+                }
+
+                const seatDatabaseData = localStorage.getItem('seatDatabase');
+                if (!seatDatabaseData) {
+                    return 0;
+                }
+
+                const bookings = JSON.parse(seatDatabaseData);
+                const foodCenterBookings = bookings[foodCenterKey];
+                
+                if (!foodCenterBookings) {
+                    return 0;
+                }
+
+                const now = new Date();
+                const oneHourAgo = new Date(now.getTime() - (60 * 60 * 1000)); // 1 hour ago
+                
+                let bookedSeatsOneHourAgo = 0;
+                
+                for (const table in foodCenterBookings) {
+                    for (const seat in foodCenterBookings[table]) {
+                        const booking = foodCenterBookings[table][seat];
+                        if (booking.status === 'booked' && booking.bookedAt && booking.expiresAt) {
+                            const bookedAt = new Date(booking.bookedAt);
+                            const expiresAt = new Date(booking.expiresAt);
+                            
+                            // Check if this booking was active 1 hour ago
+                            // It was active if: bookedAt <= oneHourAgo AND expiresAt > oneHourAgo
+                            if (bookedAt <= oneHourAgo && expiresAt > oneHourAgo) {
+                                bookedSeatsOneHourAgo++;
+                            }
+                        }
+                    }
+                }
+
+                const totalSeats = getTotalSeatsForHawkerCentre(hawkerCentreName);
+                if (totalSeats === 0) {
+                    return 0;
+                }
+
+                const occupancy = Math.round((bookedSeatsOneHourAgo / totalSeats) * 100);
+                return occupancy;
+            } catch (e) {
+                console.warn('Error calculating occupancy 1 hour ago:', e);
+                return 0;
+            }
+        }
+
+        // Calculate current occupancy percentage from seatDatabase
+        function calculateCurrentOccupancy(hawkerCentreName) {
+            try {
+                const totalSeats = getTotalSeatsForHawkerCentre(hawkerCentreName);
+                if (totalSeats === 0) {
+                    return 0;
+                }
+
+                const bookedSeats = countActiveReservationsFromSeatDatabase(hawkerCentreName);
+                const occupancy = Math.round((bookedSeats / totalSeats) * 100);
+                
+                return occupancy;
+            } catch (e) {
+                console.warn('Error calculating current occupancy:', e);
+                return 0;
+            }
+        }
+
+        // Calculate occupancy change from 1 hour ago
+        function calculateOccupancyChange(hawkerCentreName) {
+            try {
+                const currentOccupancy = calculateCurrentOccupancy(hawkerCentreName);
+                const occupancyOneHourAgo = calculateOccupancyOneHourAgo(hawkerCentreName);
+                const change = currentOccupancy - occupancyOneHourAgo;
+                
+                return {
+                    change: change,
+                    changeText: change >= 0 ? '+' + change + '%' : change + '%',
+                    isPositive: change >= 0
+                };
+            } catch (e) {
+                console.warn('Error calculating occupancy change:', e);
+                return {
+                    change: 0,
+                    changeText: '+0%',
+                    isPositive: true
+                };
+            }
+        }
+
+        // Count new reservations made in the last 1 hour for a specific hawker centre
+        function countNewReservationsLastHour(hawkerCentreName) {
+            const allReservations = loadRawReservations();
+            const now = Date.now();
+            const oneHourAgo = now - (60 * 60 * 1000); // 1 hour in milliseconds
+            
+            return allReservations.filter(reservation => {
+                // Match hawker centre (case-insensitive)
+                if (!reservation.hawkerCentre || 
+                    reservation.hawkerCentre.toLowerCase() !== hawkerCentreName.toLowerCase()) {
+                    return false;
+                }
+                
+                // Check if reservation was created in the last 1 hour
+                if (!reservation.timestamp) {
+                    return false;
+                }
+                
+                return reservation.timestamp >= oneHourAgo && reservation.timestamp <= now;
+            }).length;
+        }
+
+        // Activity feed data with realistic timestamps
+        function getActivityFeed(hawkerKey, stallSlug = null) {
+            // If no hawker centre is selected, return empty array
+            if (!hawkerKey || !hawkerKey.trim()) {
+                return [];
+            }
+            
+            // Get the hawker centre name from stallData
+            const hawker = stallData[hawkerKey];
+            if (!hawker) {
+                return [];
+            }
+            
+            // Load reservations from localStorage - only show reservations
+            const allReservations = loadReservations();
+            
+            // Filter reservations by the selected hawker centre and only show active ones
+            const filteredReservations = allReservations.filter(reservation => {
+                // Match by hawker centre name (case-insensitive)
+                if (!reservation.hawkerCentre || 
+                    reservation.hawkerCentre.toLowerCase() !== hawker.name.toLowerCase()) {
+                    return false;
+                }
+                
+                // Only show active reservations (not expired)
+                return isReservationActive(reservation);
+            });
+            
+            // Sort by timestamp (most recent first)
+            filteredReservations.sort((a, b) => b.timestamp - a.timestamp);
+            
+            return filteredReservations.slice(0, 10); // Return top 10 active reservations for this hawker centre
+        }
+        
+        // Helper function to add new activity to the log (deprecated - only reservations are shown now)
+        function addActivity(icon, text) {
+            // No longer adding non-reservation activities to the feed
+            // Only reservations are displayed in the recent activity section
+        }
+
         // Function to update stall dropdown based on selected hawker centre
-        function updateStallOptions(hawkerValue, selectElement) {
-            // Clear existing options except "All Stalls"
-            selectElement.innerHTML = '<option value="">All Stalls</option>';
+        function updateStallOptions(hawkerValue, stallElement) {
+            // Check if it's a custom dropdown (stall-dropdown) or native select
+            const isCustomDropdown = stallElement && stallElement.classList && stallElement.classList.contains('stall-dropdown');
+            
+            if (isCustomDropdown) {
+                // Clear existing options (but keep search bar structure)
+                const existingOptions = stallElement.querySelectorAll('.stall-option');
+                existingOptions.forEach(opt => opt.remove());
+                
+                // Add "All Stalls" option first
+                const allOption = document.createElement('div');
+                allOption.className = 'stall-option';
+                allOption.setAttribute('data-value', '');
+                allOption.setAttribute('data-label', '');
+                allOption.textContent = 'All Stalls';
+                stallElement.appendChild(allOption);
+                
+                // Add stall options
+                if (hawkerValue && stallData[hawkerValue]) {
+                    const stalls = stallData[hawkerValue].stalls;
+                    stalls.forEach(stall => {
+                        const option = document.createElement('div');
+                        option.className = 'stall-option';
+                        option.setAttribute('data-value', stall.slug);
+                        option.setAttribute('data-label', stall.name);
+                        option.textContent = stall.name;
+                        stallElement.appendChild(option);
+                    });
+                }
+                
+                // Select "All Stalls" by default
+                const allStallsOption = stallElement.querySelector('.stall-option[data-value=""]');
+                if (allStallsOption) {
+                    allStallsOption.classList.add('selected');
+                }
+            } else {
+                // Legacy native select (fallback)
+                stallElement.innerHTML = '<option value="" disabled selected>Please select a food stall</option>';
             
             if (hawkerValue && stallData[hawkerValue]) {
                 const stalls = stallData[hawkerValue].stalls;
@@ -1350,43 +2109,135 @@
                     const option = document.createElement('option');
                     option.value = stall.slug;
                     option.textContent = stall.name;
-                    selectElement.appendChild(option);
+                        stallElement.appendChild(option);
                 });
+                }
             }
         }
 
         // Initialize stall options on page load
         document.addEventListener('DOMContentLoaded', function() {
-            const hawkerSelect = document.getElementById('hawker-select');
-            const stallSelect = document.getElementById('stall-select');
-            const hawkerSelectMobile = document.getElementById('hawker-select-mobile');
-            const stallSelectMobile = document.getElementById('stall-select-mobile');
+            const stallDropdown = document.getElementById('stallDropdown');
+            const stallDropdownMobile = document.getElementById('stallDropdownMobile');
 
-            // Initialize desktop dropdowns
-            if (hawkerSelect && stallSelect) {
-                updateStallOptions(hawkerSelect.value, stallSelect);
-                updateDashboard(hawkerSelect.value);
+            // Initialize desktop dropdowns - custom dropdown will handle initialization
+            if (stallDropdown) {
+                // Wait a bit for custom dropdown to initialize
+                setTimeout(() => {
+                    const wrapper = document.getElementById('hawkerCentreSelectWrapper');
+                    const options = wrapper ? wrapper.querySelectorAll('.hawker-centre-option') : [];
+                    const selectedOption = Array.from(options).find(opt => opt.classList.contains('selected'));
+                    const hawkerKey = selectedOption ? selectedOption.dataset.value : 'maxwell';
+                    updateStallOptions(hawkerKey, stallDropdown);
+                }, 100);
             }
 
-            // Initialize mobile dropdowns
-            if (hawkerSelectMobile && stallSelectMobile) {
-                updateStallOptions(hawkerSelectMobile.value, stallSelectMobile);
-                updateMobileDashboard(hawkerSelectMobile.value);
+            // Initialize mobile dropdowns - custom dropdown will handle initialization
+            if (stallDropdownMobile) {
+                // Wait a bit for custom dropdown to initialize
+                setTimeout(() => {
+                    const wrapperMobile = document.getElementById('hawkerCentreSelectWrapperMobile');
+                    const optionsMobile = wrapperMobile ? wrapperMobile.querySelectorAll('.hawker-centre-option') : [];
+                    const selectedOptionMobile = Array.from(optionsMobile).find(opt => opt.classList.contains('selected'));
+                    const hawkerKeyMobile = selectedOptionMobile ? selectedOptionMobile.dataset.value : 'maxwell';
+                    updateStallOptions(hawkerKeyMobile, stallDropdownMobile);
+                }, 100);
             }
         });
 
+        // Function to clear dashboard (show nothing)
+        function clearDashboard() {
+            // Clear stats cards
+            const statValues = document.querySelectorAll('.stat-value');
+            statValues.forEach(stat => stat.textContent = '--');
+            
+            // Hide stat-change divs
+            const statChanges = document.querySelectorAll('.stat-change');
+            statChanges.forEach(change => {
+                change.style.display = 'none';
+            });
+            
+            // Clear crowd chart
+            const chartContainer = document.getElementById('hawker-chart');
+            if (chartContainer) {
+                chartContainer.innerHTML = '';
+            }
+            
+            // Clear leaderboard
+            const leaderboard = document.querySelector('.leaderboard');
+            if (leaderboard) {
+                leaderboard.innerHTML = '';
+            }
+            
+            // Clear stall crowd levels
+            clearStallCrowdLevels();
+            
+            // Clear peak hours
+            const peakGrid = document.getElementById('desktop-peak-hours') || document.querySelector('.desktop-view .peak-hours-grid');
+            if (peakGrid) {
+                peakGrid.innerHTML = '';
+            }
+            
+            // Clear activity feed
+            const feed = document.querySelector('.activity-feed');
+            if (feed) {
+                feed.innerHTML = '';
+            }
+        }
+
         // Function to update dashboard with hawker centre data
         function updateDashboard(hawkerKey, stallSlug = null) {
+            // If no hawker key is provided or invalid, clear dashboard
+            if (!hawkerKey || !hawkerKey.trim()) {
+                clearDashboard();
+                return;
+            }
+            
             const hawker = stallData[hawkerKey];
-            if (!hawker) return;
+            if (!hawker) {
+                clearDashboard();
+                return;
+            }
+
+            // Count active reservations for this hawker centre
+            const activeReservationsCount = countActiveReservations(hawker.name);
+            
+            // Count new reservations in the last 1 hour
+            const newReservationsCount = countNewReservationsLastHour(hawker.name);
+            
+            // Calculate current occupancy from seatDatabase (matching chope page)
+            const currentOccupancy = calculateCurrentOccupancy(hawker.name);
+            
+            // Calculate occupancy change from 1 hour ago
+            const occupancyChange = calculateOccupancyChange(hawker.name);
 
             // Update stats cards
             const statValues = document.querySelectorAll('.stat-value');
-            if (statValues.length >= 4) {
-                statValues[0].textContent = hawker.currentOccupancy + '%';
-                statValues[1].textContent = hawker.activeReservations;
+            const statChanges = document.querySelectorAll('.stat-change');
+            if (statValues.length >= 4 && statChanges.length >= 4) {
+                statValues[0].textContent = currentOccupancy + '%';
+                statValues[1].textContent = activeReservationsCount;
                 statValues[2].textContent = hawker.avgWaitTime + 'm';
                 statValues[3].textContent = hawker.peakTimeToday;
+                
+                // Update stat-change divs with hawker-specific values
+                // Use calculated occupancy change from 1 hour ago
+                statChanges[0].textContent = occupancyChange.changeText + ' ' + hawker.occupancyChangeText;
+                statChanges[0].className = 'stat-change ' + (occupancyChange.isPositive ? 'positive' : 'negative');
+                statChanges[0].style.display = 'flex';
+                
+                // Update reservation change with actual count from last 1 hour
+                statChanges[1].textContent = '+' + newReservationsCount + ' ' + hawker.reservationChangeText;
+                statChanges[1].className = 'stat-change positive';
+                statChanges[1].style.display = 'flex';
+                
+                statChanges[2].textContent = hawker.waitTimeChange + ' ' + hawker.waitTimeChangeText;
+                statChanges[2].className = 'stat-change negative';
+                statChanges[2].style.display = 'flex';
+                
+                statChanges[3].textContent = 'Expected at ' + hawker.peakExpectedOccupancy + '%';
+                statChanges[3].className = 'stat-change';
+                statChanges[3].style.display = 'flex';
             }
 
             // Update crowd level chart based on current time filter
@@ -1403,21 +2254,36 @@
             // Update top stalls leaderboard
             updateLeaderboard(hawker.stalls);
 
-            // Update stall-specific crowd levels
-            updateStallCrowdLevels(hawker.stalls);
-
             // Update peak hours (stall-specific if stall is selected)
-            const stallSelect = document.getElementById('stall-select');
-            const selectedStallSlug = stallSlug || (stallSelect ? stallSelect.value : null);
+            const stallSelectWrapper = document.getElementById('stallSelectWrapper');
+            let selectedStallSlug = stallSlug;
+            if (!selectedStallSlug && stallSelectWrapper) {
+                const stallDropdown = document.getElementById('stallDropdown');
+                const selectedStallOption = stallDropdown ? Array.from(stallDropdown.querySelectorAll('.stall-option')).find(opt => opt.classList.contains('selected')) : null;
+                selectedStallSlug = selectedStallOption ? selectedStallOption.dataset.value : null;
+            }
             
+            // Update stall-specific crowd levels
+            // If "All Stalls" is selected (empty value), show all stalls
+            // If a specific stall is selected, show only that stall
             if (selectedStallSlug && selectedStallSlug !== '') {
+                // Specific stall selected - show only that stall
                 const selectedStall = hawker.stalls.find(s => s.slug === selectedStallSlug);
-                if (selectedStall && selectedStall.peakHours) {
+                if (selectedStall) {
+                    updateStallCrowdLevels([selectedStall]);
+                    if (selectedStall.peakHours) {
                     updatePeakHours(selectedStall.peakHours, selectedStall.name);
                 } else {
                     updatePeakHours(hawker.peakHours, hawker.name);
                 }
             } else {
+                    // Clear stall-specific crowd levels if stall not found
+                    clearStallCrowdLevels();
+                    updatePeakHours(hawker.peakHours, hawker.name);
+                }
+            } else {
+                // "All Stalls" is selected - show all stalls
+                updateStallCrowdLevels(hawker.stalls);
                 updatePeakHours(hawker.peakHours, hawker.name);
             }
 
@@ -1499,9 +2365,22 @@
             });
         }
 
+        function clearStallCrowdLevels() {
+            const stallCrowdContainer = document.querySelector('.second-row .bar-chart');
+            if (stallCrowdContainer) {
+                stallCrowdContainer.innerHTML = '';
+            }
+        }
+
         function updateStallCrowdLevels(stalls) {
             const stallCrowdContainer = document.querySelector('.second-row .bar-chart');
             if (!stallCrowdContainer) return;
+
+            // If no stalls provided, clear the container
+            if (!stalls || stalls.length === 0) {
+                stallCrowdContainer.innerHTML = '';
+                return;
+            }
 
             const openStalls = stalls.filter(s => !s.closed).sort((a, b) => b.queue - a.queue);
             stallCrowdContainer.innerHTML = '';
@@ -1594,11 +2473,20 @@
             
             activities.forEach(activity => {
                 const item = document.createElement('div');
-                item.className = 'activity-item';
+                item.className = 'activity-item' + (activity.type === 'reservation' ? ' reservation-item' : '');
+                
+                // Make reservation items clickable
+                if (activity.type === 'reservation' && activity.link) {
+                    item.style.cursor = 'pointer';
+                    item.addEventListener('click', function() {
+                        window.location.href = activity.link;
+                    });
+                }
+                
                 item.innerHTML = `
                     <div class="activity-icon">${activity.icon}</div>
                     <div class="activity-content">
-                        <div class="activity-text"><strong>${activity.text}</strong></div>
+                        <div class="activity-text">${activity.type === 'reservation' ? '<strong>New reservation:</strong> ' : ''}<strong>${activity.text}</strong></div>
                         <div class="activity-time">${activity.time}</div>
                     </div>
                 `;
@@ -1608,9 +2496,13 @@
 
         // Simulate live data updates
         function updateCrowdData() {
-            const hawkerSelect = document.getElementById('hawker-select');
-            if (hawkerSelect) {
-                const hawker = stallData[hawkerSelect.value];
+            const wrapper = document.getElementById('hawkerCentreSelectWrapper');
+            const options = wrapper ? wrapper.querySelectorAll('.hawker-centre-option') : [];
+            const selectedOption = Array.from(options).find(opt => opt.classList.contains('selected'));
+            const hawkerKey = selectedOption ? selectedOption.dataset.value : 'maxwell';
+            
+            if (hawkerKey) {
+                const hawker = stallData[hawkerKey];
                 if (hawker) {
                     const oldOccupancy = hawker.currentOccupancy;
                     
@@ -1636,76 +2528,348 @@
                         }
                     });
                     
-                    // Log significant changes to activity feed
-                    const occupancyChange = hawker.currentOccupancy - oldOccupancy;
-                    if (Math.abs(occupancyChange) >= 3) {
-                        if (occupancyChange > 0) {
-                            addActivity("📈", `Crowd increased by ${occupancyChange}% - Now at ${hawker.currentOccupancy}% capacity`);
-                        } else {
-                            addActivity("📉", `Crowd decreased by ${Math.abs(occupancyChange)}% - Now at ${hawker.currentOccupancy}% capacity`);
-                        }
-                    }
-                    
-                    if (Math.abs(reservationChange) > 0) {
-                        if (reservationChange > 0) {
-                            addActivity("📅", `${reservationChange} new reservation${reservationChange > 1 ? 's' : ''} at ${hawker.name}`);
-                        } else {
-                            addActivity("✅", `${Math.abs(reservationChange)} reservation${reservationChange < -1 ? 's' : ''} completed`);
-                        }
-                    }
-                    
-                    // Occasionally add a random activity
-                    if (Math.random() > 0.7) {
-                        const randomStall = hawker.stalls.filter(s => !s.closed && Math.random() > 0.5)[0];
-                        if (randomStall) {
-                            addActivity("🔥", `${randomStall.name} - Queue now at ${randomStall.queue} people (${randomStall.waitTime}m wait)`);
-                        }
-                    }
-                    
-                    updateDashboard(hawkerSelect.value);
+                    // Activity feed now only shows reservations, so no need to add other activities
+                    updateDashboard(hawkerKey);
                 }
             }
         }
 
-        // Update every 1 minute
-        setInterval(updateCrowdData, 60000);
+        // Auto-refresh disabled
+        // setInterval(updateCrowdData, 60000);
         
-        // Update activity timestamps every 30 seconds to keep them current
-        setInterval(() => {
-            updateActivityTimestamps();
-            const hawkerSelect = document.getElementById('hawker-select');
-            if (hawkerSelect) {
-                updateDashboard(hawkerSelect.value);
-            }
-        }, 30000);
+        // Auto-refresh disabled - activity feed will only update when manually triggered
+        // setInterval(() => {
+        //     const hawkerSelect = document.getElementById('hawker-select');
+        //     if (hawkerSelect) {
+        //         updateDashboard(hawkerSelect.value);
+        //     }
+        //     const hawkerSelectMobile = document.getElementById('hawker-select-mobile');
+        //     if (hawkerSelectMobile) {
+        //         updateMobileDashboard(hawkerSelectMobile.value);
+        //     }
+        // }, 30000);
 
-        // Dropdown change handlers
-        document.getElementById('hawker-select')?.addEventListener('change', function(e) {
-            const hawkerKey = e.target.value;
-            const stallSelect = document.getElementById('stall-select');
-            if (stallSelect) {
-                updateStallOptions(hawkerKey, stallSelect);
-                updateDashboard(hawkerKey);
+        // Custom searchable dropdown for hawker centre (Desktop)
+        function initHawkerDropdown() {
+            const input = document.getElementById('hawker-select');
+            const wrapper = document.getElementById('hawkerCentreSelectWrapper');
+            const dropdown = document.getElementById('hawkerCentreDropdown');
+            const dropdownSearch = document.getElementById('hawkerDropdownSearchInput');
+            
+            if (!input || !wrapper || !dropdown || !dropdownSearch) return;
+            
+            function getOptions() {
+                return dropdown ? dropdown.querySelectorAll('.hawker-centre-option') : [];
             }
-        });
+            
+            function updateSelectedOption(value) {
+                const options = getOptions();
+                options.forEach(opt => {
+                    opt.classList.remove('selected');
+                    if (opt.dataset.value === value) {
+                        opt.classList.add('selected');
+                    }
+                });
+            }
+            
+            function filterOptions() {
+                const searchTerm = dropdownSearch.value.toLowerCase().trim();
+                const options = getOptions();
+                options.forEach(option => {
+                    const label = option.dataset.label ? option.dataset.label.toLowerCase() : option.textContent.toLowerCase();
+                    if (label.includes(searchTerm) || searchTerm === '') {
+                        option.classList.remove('hidden');
+                        } else {
+                        option.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Use event delegation instead of attaching listeners to each option
+            dropdown.addEventListener('click', (e) => {
+                const option = e.target.closest('.hawker-centre-option');
+                if (!option) return;
+                
+                const value = option.dataset.value;
+                const label = option.dataset.label || option.textContent;
+                
+                if (value && value.trim()) {
+                    input.value = label;
+                    wrapper.classList.remove('open');
+                    dropdownSearch.value = '';
+                    updateSelectedOption(value);
+                    
+                    const stallDropdown = document.getElementById('stallDropdown');
+                    if (stallDropdown) {
+                        updateStallOptions(value, stallDropdown);
+                        // Reset stall selection to "All Stalls"
+                        const stallInput = document.getElementById('stall-select');
+                        if (stallInput) {
+                            stallInput.value = '';
+                            stallInput.placeholder = 'Please select a food stall';
+                        }
+                        const stallWrapper = document.getElementById('stallSelectWrapper');
+                        if (stallWrapper) {
+                            const allStallsOption = stallDropdown.querySelector('.stall-option[data-value=""]');
+                            if (allStallsOption) {
+                                Array.from(stallDropdown.querySelectorAll('.stall-option')).forEach(opt => opt.classList.remove('selected'));
+                                allStallsOption.classList.add('selected');
+                            }
+                        }
+                        updateDashboard(value);
+                        } else {
+                        updateDashboard(value);
+                    }
+                } else {
+                    // If no value selected, clear everything
+                    input.value = '';
+                    wrapper.classList.remove('open');
+                    dropdownSearch.value = '';
+                    clearDashboard();
+                }
+            });
+            
+            // Keep input empty to show placeholder initially
+            input.value = '';
+            // Clear dashboard on initial load since nothing is selected
+            clearDashboard();
+            
+            input.addEventListener('focus', () => {
+                wrapper.classList.add('open');
+                dropdownSearch.focus();
+                filterOptions();
+            });
+            
+            input.addEventListener('click', () => {
+                wrapper.classList.add('open');
+                dropdownSearch.focus();
+                filterOptions();
+            });
+            
+            dropdownSearch.addEventListener('input', () => {
+                filterOptions();
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!wrapper.contains(e.target)) {
+                    wrapper.classList.remove('open');
+                    dropdownSearch.value = '';
+                }
+            });
+            
+            dropdownSearch.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    wrapper.classList.remove('open');
+                    input.blur();
+                }
+            });
+        }
+        
+        // Initialize desktop dropdown on DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initHawkerDropdown);
+        } else {
+            initHawkerDropdown();
+        }
 
-        document.getElementById('stall-select')?.addEventListener('change', function(e) {
-            const hawkerSelect = document.getElementById('hawker-select');
-            if (hawkerSelect) {
-                updateDashboard(hawkerSelect.value, e.target.value);
+        // Initialize stall dropdown (Desktop)
+        function initStallDropdown() {
+            const input = document.getElementById('stall-select');
+            const wrapper = document.getElementById('stallSelectWrapper');
+            const dropdown = document.getElementById('stallDropdown');
+            const dropdownSearch = document.getElementById('stallDropdownSearchInput');
+            
+            if (!input || !wrapper || !dropdown || !dropdownSearch) return;
+            
+            function getOptions() {
+                return dropdown ? dropdown.querySelectorAll('.stall-option') : [];
             }
-        });
+            
+            function updateSelectedOption(value) {
+                const options = getOptions();
+                options.forEach(opt => {
+                    opt.classList.remove('selected');
+                    if (opt.dataset.value === value) {
+                        opt.classList.add('selected');
+                    }
+                });
+            }
+            
+            function filterOptions() {
+                const searchTerm = dropdownSearch.value.toLowerCase().trim();
+                const options = getOptions();
+                options.forEach(option => {
+                    const label = option.dataset.label ? option.dataset.label.toLowerCase() : option.textContent.toLowerCase();
+                    if (label.includes(searchTerm) || searchTerm === '') {
+                        option.classList.remove('hidden');
+                    } else {
+                        option.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Use event delegation instead of attaching listeners to each option
+            dropdown.addEventListener('click', (e) => {
+                const option = e.target.closest('.stall-option');
+                if (!option) return;
+                
+                const value = option.dataset.value;
+                const label = option.dataset.label || option.textContent;
+                if (value === '') {
+                    input.value = '';
+                    input.placeholder = 'Please select a food stall';
+                } else {
+                    input.value = label;
+                }
+                wrapper.classList.remove('open');
+                dropdownSearch.value = '';
+                updateSelectedOption(value);
+                
+                // Update dashboard with selected stall
+                const hawkerWrapper = document.getElementById('hawkerCentreSelectWrapper');
+                const hawkerOptions = hawkerWrapper ? hawkerWrapper.querySelectorAll('.hawker-centre-option') : [];
+                const selectedHawkerOption = Array.from(hawkerOptions).find(opt => opt.classList.contains('selected'));
+                const hawkerKey = selectedHawkerOption ? selectedHawkerOption.dataset.value : null;
+                if (hawkerKey && hawkerKey.trim()) {
+                    updateDashboard(hawkerKey, value || null);
+                } else {
+                    clearDashboard();
+                }
+            });
+            
+            // Set initial value to "All Stalls"
+            input.value = '';
+            input.placeholder = 'Please select a food stall';
+            
+            input.addEventListener('focus', () => {
+                wrapper.classList.add('open');
+                dropdownSearch.focus();
+                filterOptions();
+            });
+            
+            input.addEventListener('click', () => {
+                wrapper.classList.add('open');
+                dropdownSearch.focus();
+                filterOptions();
+            });
+            
+            dropdownSearch.addEventListener('input', () => {
+                filterOptions();
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!wrapper.contains(e.target)) {
+                    wrapper.classList.remove('open');
+                    dropdownSearch.value = '';
+                }
+            });
+            
+            dropdownSearch.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    wrapper.classList.remove('open');
+                    input.blur();
+                }
+            });
+        }
+        
+        // Initialize desktop stall dropdown on DOM ready (after hawker dropdown initializes)
+        function initStallDropdownDelayed() {
+            setTimeout(() => {
+                initStallDropdown();
+            }, 200);
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initStallDropdownDelayed);
+        } else {
+            initStallDropdownDelayed();
+        }
+
+        // Function to clear mobile dashboard (show nothing)
+        function clearMobileDashboard() {
+            // Clear mobile stats
+            const mobileStats = document.querySelectorAll('.mobile-view .stat-value');
+            mobileStats.forEach(stat => stat.textContent = '--');
+            
+            // Hide mobile stat-change divs
+            const mobileStatChanges = document.querySelectorAll('.mobile-view .stat-change');
+            mobileStatChanges.forEach(change => {
+                change.style.display = 'none';
+            });
+            
+            // Clear mobile crowd chart
+            const mobileChart = document.querySelector('.mobile-view .bar-chart');
+            if (mobileChart && mobileChart.id !== 'hawker-chart') {
+                mobileChart.innerHTML = '';
+            }
+            
+            // Clear mobile leaderboard
+            const mobileLeaderboard = document.querySelector('.mobile-view .leaderboard');
+            if (mobileLeaderboard) {
+                mobileLeaderboard.innerHTML = '';
+            }
+            
+            // Clear mobile stall queues
+            const mobileStallQueues = document.querySelectorAll('.mobile-view .bar-chart');
+            if (mobileStallQueues.length > 1) {
+                const stallQueues = mobileStallQueues[mobileStallQueues.length - 1];
+                if (stallQueues) {
+                    stallQueues.innerHTML = '';
+                }
+            }
+            
+            // Clear mobile peak hours
+            const mobilePeakHours = document.getElementById('mobile-peak-hours') || document.querySelector('.mobile-view .peak-hours-grid');
+            if (mobilePeakHours) {
+                mobilePeakHours.innerHTML = '';
+            }
+            
+            // Clear mobile activity feed
+            const mobileActivity = document.querySelector('.mobile-view .activity-feed');
+            if (mobileActivity) {
+                mobileActivity.innerHTML = '';
+            }
+        }
 
         // Function to update mobile dashboard
-        function updateMobileDashboard(hawkerKey) {
+        function updateMobileDashboard(hawkerKey, stallSlug = null) {
+            // If no hawker key is provided or invalid, clear dashboard
+            if (!hawkerKey || !hawkerKey.trim()) {
+                clearMobileDashboard();
+                return;
+            }
+            
             const hawker = stallData[hawkerKey];
-            if (!hawker) return;
+            if (!hawker) {
+                clearMobileDashboard();
+                return;
+            }
 
+            // Count active reservations for this hawker centre
+            const activeReservationsCount = countActiveReservations(hawker.name);
+            
+            // Calculate current occupancy from seatDatabase (matching chope page)
+            const currentOccupancy = calculateCurrentOccupancy(hawker.name);
+            
+            // Calculate occupancy change from 1 hour ago
+            const occupancyChange = calculateOccupancyChange(hawker.name);
+            
             // Update mobile stats
             const mobileStats = document.querySelectorAll('.mobile-view .stat-value');
-            if (mobileStats.length >= 2) {
-                mobileStats[0].textContent = hawker.currentOccupancy + '%';
+            const mobileStatChanges = document.querySelectorAll('.mobile-view .stat-change');
+            if (mobileStats.length >= 2 && mobileStatChanges.length >= 2) {
+                mobileStats[0].textContent = currentOccupancy + '%';
                 mobileStats[1].textContent = hawker.avgWaitTime + 'm';
+                
+                // Update mobile stat-change divs with hawker-specific values
+                // Use calculated occupancy change from 1 hour ago
+                mobileStatChanges[0].textContent = occupancyChange.changeText;
+                mobileStatChanges[0].className = 'stat-change ' + (occupancyChange.isPositive ? 'positive' : 'negative');
+                mobileStatChanges[0].style.display = 'flex';
+                
+                mobileStatChanges[1].textContent = hawker.waitTimeChange + 'm';
+                mobileStatChanges[1].className = 'stat-change negative';
+                mobileStatChanges[1].style.display = 'flex';
             }
 
             // Update mobile crowd chart based on current time filter
@@ -1781,20 +2945,60 @@
                 });
             }
 
+            // Update mobile peak hours (stall-specific if stall is selected)
+            const mobilePeakHours = document.getElementById('mobile-peak-hours') || document.querySelector('.mobile-view .peak-hours-grid');
+            const mobilePeakTitle = document.getElementById('mobile-peak-hours-title') || document.querySelector('.mobile-view .chart-title');
+            let selectedMobileStallSlug = stallSlug;
+            if (!selectedMobileStallSlug) {
+                const stallDropdownMobile = document.getElementById('stallDropdownMobile');
+                const selectedMobileStallOption = stallDropdownMobile ? Array.from(stallDropdownMobile.querySelectorAll('.stall-option')).find(opt => opt.classList.contains('selected')) : null;
+                selectedMobileStallSlug = selectedMobileStallOption ? selectedMobileStallOption.dataset.value : null;
+            }
+
             // Update mobile stall queues
+            // If "All Stalls" is selected (empty value), show all stalls
+            // If a specific stall is selected, show only that stall
             const mobileStallQueues = document.querySelectorAll('.mobile-view .bar-chart');
             if (mobileStallQueues.length > 1) {
                 const stallQueues = mobileStallQueues[mobileStallQueues.length - 1];
-                const openStalls = hawker.stalls.filter(s => !s.closed).sort((a, b) => b.queue - a.queue);
                 stallQueues.innerHTML = '';
                 
+                if (selectedMobileStallSlug && selectedMobileStallSlug !== '') {
+                    // Specific stall selected - show only that stall
+                    const selectedStall = hawker.stalls.find(s => s.slug === selectedMobileStallSlug);
+                    if (selectedStall) {
+                        const occupancy = selectedStall.occupancy || 0;
+                        const levelClass = occupancy >= 80 ? 'high' : occupancy >= 50 ? 'medium' : 'low';
+                        const barItem = document.createElement('div');
+                        barItem.className = 'bar-item';
+                        barItem.innerHTML = `
+                            <div class="bar-label">${selectedStall.name.length > 10 ? selectedStall.name.substring(0, 10) + '...' : selectedStall.name}</div>
+                            <div class="bar-track">
+                                <div class="bar-fill ${levelClass}" style="width: 0;">0</div>
+                            </div>
+                            <div class="bar-value">${selectedStall.waitTime}m</div>
+                        `;
+                        stallQueues.appendChild(barItem);
+                        
+                        // Animate to the actual width using requestAnimationFrame
+                        requestAnimationFrame(() => {
+                            const barFill = barItem.querySelector('.bar-fill');
+                            if (barFill) {
+                                barFill.style.width = `${occupancy}%`;
+                                barFill.textContent = `${selectedStall.queue}`;
+                            }
+                        });
+                    }
+                } else {
+                    // "All Stalls" is selected - show all stalls
+                    const openStalls = hawker.stalls.filter(s => !s.closed).sort((a, b) => b.queue - a.queue);
                 openStalls.slice(0, 4).forEach(stall => {
                     const occupancy = stall.occupancy || 0;
                     const levelClass = occupancy >= 80 ? 'high' : occupancy >= 50 ? 'medium' : 'low';
                     const barItem = document.createElement('div');
                     barItem.className = 'bar-item';
                     barItem.innerHTML = `
-                        <div class="bar-label" style="min-width: 60px;">${stall.name.length > 10 ? stall.name.substring(0, 10) + '...' : stall.name}</div>
+                        <div class="bar-label">${stall.name.length > 10 ? stall.name.substring(0, 10) + '...' : stall.name}</div>
                         <div class="bar-track">
                             <div class="bar-fill ${levelClass}" style="width: 0;">0</div>
                         </div>
@@ -1811,13 +3015,8 @@
                         }
                     });
                 });
+                }
             }
-
-            // Update mobile peak hours (stall-specific if stall is selected)
-            const mobilePeakHours = document.getElementById('mobile-peak-hours') || document.querySelector('.mobile-view .peak-hours-grid');
-            const mobilePeakTitle = document.getElementById('mobile-peak-hours-title') || document.querySelector('.mobile-view .chart-title');
-            const mobileStallSelect = document.getElementById('stall-select-mobile');
-            const selectedMobileStallSlug = mobileStallSelect ? mobileStallSelect.value : null;
             
             if (mobilePeakHours) {
                 let peakHoursData = hawker.peakHours;
@@ -1882,11 +3081,20 @@
                 
                 activities.slice(0, 3).forEach(activity => {
                     const item = document.createElement('div');
-                    item.className = 'activity-item';
+                    item.className = 'activity-item' + (activity.type === 'reservation' ? ' reservation-item' : '');
+                    
+                    // Make reservation items clickable
+                    if (activity.type === 'reservation' && activity.link) {
+                        item.style.cursor = 'pointer';
+                        item.addEventListener('click', function() {
+                            window.location.href = activity.link;
+                        });
+                    }
+                    
                     item.innerHTML = `
                         <div class="activity-icon">${activity.icon}</div>
                         <div class="activity-content">
-                            <div class="activity-text">${activity.text}</div>
+                            <div class="activity-text">${activity.type === 'reservation' ? '<strong>New reservation:</strong> ' : ''}${activity.text}</div>
                             <div class="activity-time">${activity.time}</div>
                         </div>
                     `;
@@ -1895,22 +3103,241 @@
             }
         }
 
-        // Mobile dropdowns
-        document.getElementById('hawker-select-mobile')?.addEventListener('change', function(e) {
-            const hawkerKey = e.target.value;
-            const stallSelectMobile = document.getElementById('stall-select-mobile');
-            if (stallSelectMobile) {
-                updateStallOptions(hawkerKey, stallSelectMobile);
-                updateMobileDashboard(hawkerKey);
+        // Custom searchable dropdown for hawker centre (Mobile)
+        function initHawkerDropdownMobile() {
+            const input = document.getElementById('hawker-select-mobile');
+            const wrapper = document.getElementById('hawkerCentreSelectWrapperMobile');
+            const dropdown = document.getElementById('hawkerCentreDropdownMobile');
+            const dropdownSearch = document.getElementById('hawkerDropdownSearchInputMobile');
+            
+            if (!input || !wrapper || !dropdown || !dropdownSearch) return;
+            
+            function getOptions() {
+                return dropdown ? dropdown.querySelectorAll('.hawker-centre-option') : [];
             }
-        });
+            
+            function updateSelectedOption(value) {
+                const options = getOptions();
+                options.forEach(opt => {
+                    opt.classList.remove('selected');
+                    if (opt.dataset.value === value) {
+                        opt.classList.add('selected');
+                    }
+                });
+            }
+            
+            function filterOptions() {
+                const searchTerm = dropdownSearch.value.toLowerCase().trim();
+                const options = getOptions();
+                options.forEach(option => {
+                    const label = option.dataset.label ? option.dataset.label.toLowerCase() : option.textContent.toLowerCase();
+                    if (label.includes(searchTerm) || searchTerm === '') {
+                        option.classList.remove('hidden');
+                    } else {
+                        option.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Use event delegation instead of attaching listeners to each option
+            dropdown.addEventListener('click', (e) => {
+                const option = e.target.closest('.hawker-centre-option');
+                if (!option) return;
+                
+                const value = option.dataset.value;
+                const label = option.dataset.label || option.textContent;
+                
+                if (value && value.trim()) {
+                    input.value = label;
+                    wrapper.classList.remove('open');
+                    dropdownSearch.value = '';
+                    updateSelectedOption(value);
+                    
+                    const stallDropdownMobile = document.getElementById('stallDropdownMobile');
+                    if (stallDropdownMobile) {
+                        updateStallOptions(value, stallDropdownMobile);
+                        // Reset stall selection to "All Stalls"
+                        const stallInputMobile = document.getElementById('stall-select-mobile');
+                        if (stallInputMobile) {
+                            stallInputMobile.value = '';
+                            stallInputMobile.placeholder = 'Please select a food stall';
+                        }
+                        const stallWrapperMobile = document.getElementById('stallSelectWrapperMobile');
+                        if (stallWrapperMobile) {
+                            const allStallsOptionMobile = stallDropdownMobile.querySelector('.stall-option[data-value=""]');
+                            if (allStallsOptionMobile) {
+                                Array.from(stallDropdownMobile.querySelectorAll('.stall-option')).forEach(opt => opt.classList.remove('selected'));
+                                allStallsOptionMobile.classList.add('selected');
+                            }
+                        }
+                        updateMobileDashboard(value);
+                    } else {
+                        updateMobileDashboard(value);
+                    }
+                } else {
+                    // If no value selected, clear everything
+                    input.value = '';
+                    wrapper.classList.remove('open');
+                    dropdownSearch.value = '';
+                    clearMobileDashboard();
+                }
+            });
+            
+            // Keep input empty to show placeholder initially
+            input.value = '';
+            // Clear mobile dashboard on initial load since nothing is selected
+            clearMobileDashboard();
+            
+            input.addEventListener('focus', () => {
+                wrapper.classList.add('open');
+                dropdownSearch.focus();
+                filterOptions();
+            });
+            
+            input.addEventListener('click', () => {
+                wrapper.classList.add('open');
+                dropdownSearch.focus();
+                filterOptions();
+            });
+            
+            dropdownSearch.addEventListener('input', () => {
+                filterOptions();
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!wrapper.contains(e.target)) {
+                    wrapper.classList.remove('open');
+                    dropdownSearch.value = '';
+                }
+            });
+            
+            dropdownSearch.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    wrapper.classList.remove('open');
+                    input.blur();
+                }
+            });
+        }
+        
+        // Initialize mobile dropdown on DOM ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initHawkerDropdownMobile);
+        } else {
+            initHawkerDropdownMobile();
+        }
 
-        document.getElementById('stall-select-mobile')?.addEventListener('change', function(e) {
-            const hawkerSelectMobile = document.getElementById('hawker-select-mobile');
-            if (hawkerSelectMobile) {
-                updateMobileDashboard(hawkerSelectMobile.value);
+        // Initialize stall dropdown (Mobile)
+        function initStallDropdownMobile() {
+            const input = document.getElementById('stall-select-mobile');
+            const wrapper = document.getElementById('stallSelectWrapperMobile');
+            const dropdown = document.getElementById('stallDropdownMobile');
+            const dropdownSearch = document.getElementById('stallDropdownSearchInputMobile');
+            
+            if (!input || !wrapper || !dropdown || !dropdownSearch) return;
+            
+            function getOptions() {
+                return dropdown ? dropdown.querySelectorAll('.stall-option') : [];
             }
-        });
+            
+            function updateSelectedOption(value) {
+                const options = getOptions();
+                options.forEach(opt => {
+                    opt.classList.remove('selected');
+                    if (opt.dataset.value === value) {
+                        opt.classList.add('selected');
+                    }
+                });
+            }
+            
+            function filterOptions() {
+                const searchTerm = dropdownSearch.value.toLowerCase().trim();
+                const options = getOptions();
+                options.forEach(option => {
+                    const label = option.dataset.label ? option.dataset.label.toLowerCase() : option.textContent.toLowerCase();
+                    if (label.includes(searchTerm) || searchTerm === '') {
+                        option.classList.remove('hidden');
+                    } else {
+                        option.classList.add('hidden');
+                    }
+                });
+            }
+            
+            // Use event delegation instead of attaching listeners to each option
+            dropdown.addEventListener('click', (e) => {
+                const option = e.target.closest('.stall-option');
+                if (!option) return;
+                
+                const value = option.dataset.value;
+                const label = option.dataset.label || option.textContent;
+                if (value === '') {
+                    input.value = '';
+                    input.placeholder = 'Please select a food stall';
+                } else {
+                    input.value = label;
+                }
+                wrapper.classList.remove('open');
+                dropdownSearch.value = '';
+                updateSelectedOption(value);
+                
+                    // Update mobile dashboard with selected stall
+                    const hawkerWrapperMobile = document.getElementById('hawkerCentreSelectWrapperMobile');
+                    const hawkerOptionsMobile = hawkerWrapperMobile ? hawkerWrapperMobile.querySelectorAll('.hawker-centre-option') : [];
+                    const selectedHawkerOptionMobile = Array.from(hawkerOptionsMobile).find(opt => opt.classList.contains('selected'));
+                    const hawkerKeyMobile = selectedHawkerOptionMobile ? selectedHawkerOptionMobile.dataset.value : null;
+                    if (hawkerKeyMobile && hawkerKeyMobile.trim()) {
+                        updateMobileDashboard(hawkerKeyMobile, value || null);
+                    } else {
+                        clearMobileDashboard();
+                    }
+            });
+            
+            // Set initial value to "All Stalls"
+            input.value = '';
+            input.placeholder = 'Please select a food stall';
+            
+            input.addEventListener('focus', () => {
+                wrapper.classList.add('open');
+                dropdownSearch.focus();
+                filterOptions();
+            });
+            
+            input.addEventListener('click', () => {
+                wrapper.classList.add('open');
+                dropdownSearch.focus();
+                filterOptions();
+            });
+            
+            dropdownSearch.addEventListener('input', () => {
+                filterOptions();
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (!wrapper.contains(e.target)) {
+                    wrapper.classList.remove('open');
+                    dropdownSearch.value = '';
+                }
+            });
+            
+            dropdownSearch.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    wrapper.classList.remove('open');
+                    input.blur();
+                }
+            });
+        }
+        
+        // Initialize mobile stall dropdown on DOM ready (after hawker dropdown initializes)
+        function initStallDropdownMobileDelayed() {
+            setTimeout(() => {
+                initStallDropdownMobile();
+            }, 200);
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initStallDropdownMobileDelayed);
+        } else {
+            initStallDropdownMobileDelayed();
+        }
 
         // Time filter buttons
         document.querySelectorAll('.time-btn').forEach(btn => {
@@ -1924,14 +3351,20 @@
                 currentTimeFilter = this.textContent.trim();
                 
                 // Update the dashboard with new time filter (both desktop and mobile)
-                const hawkerSelect = document.getElementById('hawker-select');
-                if (hawkerSelect) {
-                    updateDashboard(hawkerSelect.value);
+                const wrapper = document.getElementById('hawkerCentreSelectWrapper');
+                const options = wrapper ? wrapper.querySelectorAll('.hawker-centre-option') : [];
+                const selectedOption = Array.from(options).find(opt => opt.classList.contains('selected'));
+                const hawkerKey = selectedOption ? selectedOption.dataset.value : 'maxwell';
+                if (hawkerKey) {
+                    updateDashboard(hawkerKey);
                 }
                 
-                const hawkerSelectMobile = document.getElementById('hawker-select-mobile');
-                if (hawkerSelectMobile) {
-                    updateMobileDashboard(hawkerSelectMobile.value);
+                const wrapperMobile = document.getElementById('hawkerCentreSelectWrapperMobile');
+                const optionsMobile = wrapperMobile ? wrapperMobile.querySelectorAll('.hawker-centre-option') : [];
+                const selectedOptionMobile = Array.from(optionsMobile).find(opt => opt.classList.contains('selected'));
+                const hawkerKeyMobile = selectedOptionMobile ? selectedOptionMobile.dataset.value : 'maxwell';
+                if (hawkerKeyMobile) {
+                    updateMobileDashboard(hawkerKeyMobile);
                 }
             });
         });

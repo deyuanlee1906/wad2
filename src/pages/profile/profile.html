@@ -1696,14 +1696,101 @@
       }
     }
 
-    // Load and display order history
-    function loadOrderHistory() {
-      const container = document.getElementById('orderHistoryContainer');
-      if (!container) return;
+    // Load order history from Firebase
+    async function loadOrderHistoryFromFirebase(uid) {
+      try {
+        if (!db || !collection || !getDocs || !query || !orderBy) {
+          console.warn('Firebase functions not available');
+          return [];
+        }
+        
+        const orderHistoryRef = collection(db, 'users', uid, 'orderHistory');
+        const q = query(orderHistoryRef, orderBy('confirmedAt', 'desc'));
+        const snapshot = await getDocs(q);
+        
+        const orders = [];
+        snapshot.forEach(doc => {
+          orders.push({ ...doc.data(), orderId: doc.id });
+        });
+        
+        console.log('✅ Loaded', orders.length, 'orders from Firebase');
+        return orders;
+      } catch (error) {
+        console.warn('⚠️ Failed to load from Firebase:', error);
+        return [];
+      }
+    }
 
+    // Load order history from localStorage
+    function loadOrderHistoryFromLocalStorage() {
       try {
         const historyStr = localStorage.getItem('orderHistory');
         const orders = historyStr ? JSON.parse(historyStr) : [];
+        console.log('✅ Loaded', orders.length, 'orders from localStorage');
+        return orders;
+      } catch (error) {
+        console.error('❌ Error loading from localStorage:', error);
+        return [];
+      }
+    }
+
+    // Merge and deduplicate orders from multiple sources
+    function mergeOrders(...orderArrays) {
+      const orderMap = new Map();
+      
+      // Add all orders to map (later orders overwrite earlier ones with same orderId)
+      orderArrays.forEach(orders => {
+        orders.forEach(order => {
+          if (order && order.orderId) {
+            orderMap.set(order.orderId, order);
+          }
+        });
+      });
+      
+      // Convert map back to array and sort by confirmedAt (newest first)
+      const merged = Array.from(orderMap.values());
+      merged.sort((a, b) => {
+        const dateA = new Date(a.confirmedAt || a.timestamp || 0);
+        const dateB = new Date(b.confirmedAt || b.timestamp || 0);
+        return dateB - dateA;
+      });
+      
+      return merged;
+    }
+
+    // Load and display order history
+    async function loadOrderHistory() {
+      const container = document.getElementById('orderHistoryContainer');
+      if (!container) return;
+
+      container.innerHTML = '<div style="text-align: center; padding: 20px; color: #6c757d;">Loading order history...</div>';
+
+      try {
+        let orders = [];
+        
+        // Try to load from Firebase first if user is authenticated
+        if (auth && db) {
+          const user = auth.currentUser;
+          if (user && user.uid) {
+            const firebaseOrders = await loadOrderHistoryFromFirebase(user.uid);
+            orders = firebaseOrders;
+          }
+        }
+        
+        // Also load from localStorage as backup
+        const localOrders = loadOrderHistoryFromLocalStorage();
+        
+        // Merge and deduplicate orders
+        orders = mergeOrders(orders, localOrders);
+        
+        // Update localStorage with merged data (for offline access)
+        if (orders.length > 0) {
+          try {
+            localStorage.setItem('orderHistory', JSON.stringify(orders));
+          } catch (e) {
+            console.warn('Could not update localStorage:', e);
+          }
+        }
 
         container.innerHTML = '';
 
