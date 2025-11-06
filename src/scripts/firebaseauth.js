@@ -416,14 +416,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('✅ Session stored');
         showMessage("Google login successful!", "signInMessage");
         
-        // If new user, redirect to onboarding flow; otherwise go to app
-        if (isNewUser) {
-          console.log('🔄 Redirecting to onboarding...');
-          window.location.href = '/pages/onboarding/choose-username.html';
-        } else {
-          console.log('🔄 Redirecting to app...');
-          window.location.href = '/pages/chope/chope.html';
-        }
+        // Redirect all users to app
+        console.log('🔄 Redirecting to app...');
+        window.location.href = '/pages/chope/chope.html';
       } catch (error) {
         console.error("❌ Google login failed:", error);
         console.error("Error details:", { code: error.code, message: error.message, stack: error.stack });
@@ -487,14 +482,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('✅ Session stored');
         showMessage("Facebook login successful!", "signInMessage");
         
-        // If new user, redirect to onboarding flow; otherwise go to app
-        if (isNewUser) {
-          console.log('🔄 Redirecting to onboarding...');
-          window.location.href = '/pages/onboarding/choose-username.html';
-        } else {
-          console.log('🔄 Redirecting to app...');
-          window.location.href = '/pages/chope/chope.html';
-        }
+        // Redirect all users to app
+        console.log('🔄 Redirecting to app...');
+        window.location.href = '/pages/chope/chope.html';
       } catch (error) {
         console.error("❌ Facebook login failed:", error);
         console.error("Error details:", { code: error.code, message: error.message });
