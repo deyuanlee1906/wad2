@@ -155,3 +155,20 @@ body.theme-gradient {
   }
 }
 
+/* iPhone 14 Pro Max and similar devices (430px width) */
+@media (max-width: 430px) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: calc(70px + env(safe-area-inset-bottom));
+  }
+  
+  body.theme-gradient {
+    padding: max(20px, env(safe-area-inset-top)) 16px calc(90px + env(safe-area-inset-bottom)) 16px;
+  }
+  
+  .container.tight {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+

@@ -112,16 +112,19 @@ input::placeholder {
   padding: 0.5rem 0;
   position: relative;
   margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .input-group i {
   position: absolute;
   left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
+  top: calc(1.5rem + 0.5rem + 1rem);
   color: #D98566;
   font-size: 1.1rem;
   transition: color 0.3s ease;
+  z-index: 1;
+  pointer-events: none;
 }
 
 .input-group-text {
@@ -130,27 +133,20 @@ input::placeholder {
   color: #262626;
 }
 
-label {
+.input-group label {
   color: #666;
-  position: absolute;
-  left: 3rem;
-  top: 1rem;
+  position: static;
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 14px;
+  font-weight: 500;
   cursor: text;
-  transition: all 0.3s ease;
-  font-size: 16px;
-  pointer-events: none;
   background: transparent;
+  order: -1;
 }
 
-input:focus ~ label,
-input:not(:placeholder-shown) ~ label {
-  top: -0.5rem;
-  left: 1rem;
+.input-group input:focus ~ label {
   color: #D98566;
-  font-size: 12px;
-  font-weight: 600;
-  background: white;
-  padding: 0 0.5rem;
 }
 
 .field-help {
@@ -1235,6 +1231,139 @@ input:not(:placeholder-shown) ~ label {
   }
 }
 
+/* iPhone 14 Pro Max and similar devices (430px width) */
+@media (max-width: 430px) {
+  .container {
+    width: calc(100% - 32px);
+    max-width: 100%;
+    padding: 1.5rem 1.25rem;
+    margin: 16px auto;
+  }
+
+  .form-title {
+    font-size: 1.4rem;
+    padding: 0 0 1.25rem 0;
+    margin-bottom: 1.25rem;
+  }
+
+  input {
+    font-size: 16px; /* Prevent zoom on iOS */
+    padding: 0.875rem 0.875rem 0.875rem 2.75rem;
+  }
+
+  .input-group i {
+    font-size: 1rem;
+    left: 0.875rem;
+  }
+
+  label {
+    left: 2.75rem;
+    font-size: 15px;
+  }
+
+  .icons i {
+    padding: 0.75rem 0.875rem;
+    font-size: 1.15rem;
+    margin: 0 4px;
+  }
+
+  .nav-bar {
+    padding: 10px 0;
+    height: auto;
+    min-height: 60px;
+  }
+
+  .nav-bar button {
+    padding: 6px !important;
+    min-width: 44px; /* Minimum touch target size */
+  }
+
+  .nav-bar button i {
+    font-size: 22px;
+  }
+
+  .search-container {
+    max-width: 100%;
+  }
+
+  .search-container input {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+
+  .instagram-container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .instagram-header {
+    padding: 16px 12px;
+  }
+
+  .instagram-header h1 {
+    font-size: 20px;
+  }
+
+  .post-image img {
+    height: 380px;
+  }
+
+  .post-image .image-placeholder,
+  .image-placeholder {
+    height: 380px;
+  }
+
+  .post-header,
+  .post-actions-bar {
+    padding: 10px 12px;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+
+  .username {
+    font-size: 13px;
+  }
+
+  .location {
+    font-size: 11px;
+  }
+
+  .action-btn {
+    font-size: 20px !important;
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .action-group .action-btn {
+    width: 32px !important;
+    height: 32px !important;
+    font-size: 20px !important;
+  }
+
+  .post-caption {
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+
+  .comment-input {
+    font-size: 16px; /* Prevent zoom on iOS */
+    padding: 6px 14px;
+  }
+
+  .comments-list {
+    max-height: 180px;
+    padding: 8px 12px;
+  }
+
+  .comment-author,
+  .comment-text {
+    font-size: 12px;
+  }
+}
+
 @media (max-width: 375px) {
   .instagram-container {
     padding: 0 10px;
@@ -1245,23 +1374,36 @@ input:not(:placeholder-shown) ~ label {
   }
 
   .instagram-header h1 {
-    font-size: 20px;
+    font-size: 18px;
   }
 
   .post-image .image-placeholder {
-    height: 300px;
+    height: 320px;
+  }
+
+  .post-image img {
+    height: 320px;
   }
 
   .action-btn {
-    font-size: 20px;
-    width: 35px;
-    height: 35px;
+    font-size: 18px;
+    width: 32px;
+    height: 32px;
   }
 
   .avatar {
-    width: 35px;
-    height: 35px;
-    font-size: 14px;
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+
+  .container {
+    width: calc(100% - 24px);
+    padding: 1.25rem 1rem;
+  }
+
+  .form-title {
+    font-size: 1.3rem;
   }
 }
 

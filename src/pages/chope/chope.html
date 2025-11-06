@@ -268,8 +268,33 @@
           }
 
           .timeslot-group {
-            flex-direction: column;
-            gap: var(--space-12);
+            flex-direction: column !important;
+            gap: var(--space-12) !important;
+            width: 100% !important;
+            position: relative !important;
+          }
+
+          .timeslot-group .form-group {
+            width: 100% !important;
+            display: flex !important;
+            flex-direction: column !important;
+            position: relative !important;
+            margin-bottom: 0 !important;
+            align-items: stretch !important;
+          }
+
+          .timeslot-group .form-group label {
+            display: block !important;
+            position: relative !important;
+            width: 100% !important;
+            margin-bottom: var(--space-8) !important;
+            font-size: var(--font-size-sm) !important;
+            font-weight: var(--font-weight-medium) !important;
+            color: #1a1a1a !important;
+            left: auto !important;
+            right: auto !important;
+            top: auto !important;
+            float: none !important;
           }
 
           .button-group {
@@ -348,7 +373,7 @@
 
         <div class="timeslot-group">
           <div class="form-group">
-            Select Timeslot
+            <label for="timeslot">Timing</label>
             <select id="timeslot" class="form-select" required>
               <option value="8:00 AM" selected>8:00 AM</option>
               <option value="8:30 AM">8:30 AM</option>
@@ -379,7 +404,7 @@
           </div>
 
           <div class="form-group">
-            Duration
+            <label for="duration">Duration</label>
             <select id="duration" class="form-select" required>
               <option value="30 mins" selected>30 mins</option>
               <option value="1 hour">1 hr</option>
@@ -431,7 +456,7 @@
 
         <div class="timeslot-group">
           <div class="form-group">
-            <label for="timeslotMobile">Select Timeslot</label>
+            <label for="timeslotMobile">Timing</label>
             <select id="timeslotMobile" class="form-select" required>
               <option value="8:00 AM" selected>8:00 AM</option>
               <option value="8:30 AM">8:30 AM</option>
@@ -481,13 +506,30 @@
 
     <script>
         var map;
+        var mapMobile;
         var userMark; // a mark for user's location
         // function for the maps
         function initMap(){
-            map = new google.maps.Map(document.getElementById('map'),{
-                center: {lat: 1.352, lng: 103.819},
-                zoom: 15
-            });
+            // Initialize desktop map
+            const mapElement = document.getElementById('map');
+            if (mapElement) {
+                map = new google.maps.Map(mapElement, {
+                    center: {lat: 1.352, lng: 103.819},
+                    zoom: 15
+                });
+            }
+
+            // Initialize mobile map
+            const mapMobileElement = document.getElementById('mapMobile');
+            if (mapMobileElement) {
+                mapMobile = new google.maps.Map(mapMobileElement, {
+                    center: {lat: 1.352, lng: 103.819},
+                    zoom: 15
+                });
+            }
+
+            // Use the appropriate map based on viewport
+            const activeMap = map || mapMobile;
 
             // Food centres data
             const centres = [
@@ -516,22 +558,41 @@
                 scaledSize: new google.maps.Size(32, 32)
             };
 
-            // Add markers for centres
+            // Add markers for centres to both maps
             centres.forEach((c) => {
-                const marker = new google.maps.Marker({
-                    position: c.position,
-                    map,
-                    title: c.name,
-                    icon: foodIcon
-                });
-                bounds.extend(c.position);
+                if (map) {
+                    const marker = new google.maps.Marker({
+                        position: c.position,
+                        map: map,
+                        title: c.name,
+                        icon: foodIcon
+                    });
+                    bounds.extend(c.position);
 
-                marker.addListener('click', () => {
-                    infoWindow.setContent(
-                        `<div style="min-width:180px"><strong>${c.name}</strong><br><a href="${c.link}">View details</a></div>`
-                    );
-                    infoWindow.open({ anchor: marker, map });
-                });
+                    marker.addListener('click', () => {
+                        infoWindow.setContent(
+                            `<div style="min-width:180px"><strong>${c.name}</strong><br><a href="${c.link}">View details</a></div>`
+                        );
+                        infoWindow.open({ anchor: marker, map: map });
+                    });
+                }
+
+                if (mapMobile) {
+                    const markerMobile = new google.maps.Marker({
+                        position: c.position,
+                        map: mapMobile,
+                        title: c.name,
+                        icon: foodIcon
+                    });
+                    if (!map) bounds.extend(c.position);
+
+                    markerMobile.addListener('click', () => {
+                        infoWindow.setContent(
+                            `<div style="min-width:180px"><strong>${c.name}</strong><br><a href="${c.link}">View details</a></div>`
+                        );
+                        infoWindow.open({ anchor: markerMobile, map: mapMobile });
+                    });
+                }
             });
             
             //get the user's location
@@ -543,16 +604,34 @@
                             lng: pos.coords.longitude
                         };
                         // marks the user's current location
-                        userMark = new google.maps.Marker({
-                            position: userLoc,
-                            map,
-                            title: "You are here",
-                            icon: {
-                                url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png" // the google map's blue dot like on mobile app
+                        if (map) {
+                            userMark = new google.maps.Marker({
+                                position: userLoc,
+                                map: map,
+                                title: "You are here",
+                                icon: {
+                                    url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png" // the google map's blue dot like on mobile app
+                                }
+                            });
+                            bounds.extend(userLoc);
+                            map.fitBounds(bounds);
+                        }
+                        if (mapMobile) {
+                            const userMarkMobile = new google.maps.Marker({
+                                position: userLoc,
+                                map: mapMobile,
+                                title: "You are here",
+                                icon: {
+                                    url: "https://maps.google.com/mapfiles/ms/icons/blue-dot.png"
+                                }
+                            });
+                            if (!map) {
+                                bounds.extend(userLoc);
+                                mapMobile.fitBounds(bounds);
+                            } else {
+                                mapMobile.fitBounds(bounds);
                             }
-                        });
-                        bounds.extend(userLoc);
-                        map.fitBounds(bounds);
+                        }
                     }, // when cannot locate the user's location
                     () => alert("Could not access location.")
                 );
@@ -562,7 +641,8 @@
             // If geolocation is pending/blocked, still show centres
             setTimeout(() => {
                 if (!bounds.isEmpty()) {
-                    map.fitBounds(bounds);
+                    if (map) map.fitBounds(bounds);
+                    if (mapMobile) mapMobile.fitBounds(bounds);
                 }
             }, 800);
         }
@@ -572,9 +652,23 @@
             const now = new Date();
             const currentMinutes = now.getHours() * 60 + now.getMinutes(); // convert to total minutes of the day
 
+            // Update desktop view
             const select = document.getElementById("timeslot");
             const checkBtn = document.getElementById("checkBtn");
-            
+            if (select && checkBtn) {
+                updateTimeSlotSelect(select, checkBtn, currentMinutes);
+            }
+
+            // Update mobile view
+            const selectMobile = document.getElementById("timeslotMobile");
+            const checkBtnMobile = document.getElementById("checkBtnMobile");
+            if (selectMobile && checkBtnMobile) {
+                updateTimeSlotSelect(selectMobile, checkBtnMobile, currentMinutes);
+            }
+        }
+
+        // Helper function to update a single timeslot select
+        function updateTimeSlotSelect(select, checkBtn, currentMinutes) {
             const options = Array.from(select.options);
 
             // Loop through all options in the dropdown
@@ -621,33 +715,71 @@
             }
         }
 
-        // add event listener to the reset button
-        document.getElementById("resetBtn").addEventListener("click", () =>{
-            // Reset timeslot to first available slot (same logic as updateTimeSlots)
-            updateTimeSlots();
-            // Reset duration to default
-            document.getElementById("duration").selectedIndex = 0;
-        });
+        // add event listener to the reset button (desktop)
+        const resetBtn = document.getElementById("resetBtn");
+        if (resetBtn) {
+            resetBtn.addEventListener("click", () => {
+                // Reset timeslot to first available slot (same logic as updateTimeSlots)
+                updateTimeSlots();
+                // Reset duration to default
+                const duration = document.getElementById("duration");
+                if (duration) duration.selectedIndex = 0;
+            });
+        }
 
-        // add event listener to the check button
-        document.getElementById("checkBtn").addEventListener("click", () => {
-            const time = document.getElementById("timeslot").value;
-            const duration = document.getElementById("duration").value;
+        // add event listener to the reset button (mobile)
+        const resetBtnMobile = document.getElementById("resetBtnMobile");
+        if (resetBtnMobile) {
+            resetBtnMobile.addEventListener("click", () => {
+                // Reset timeslot to first available slot (same logic as updateTimeSlots)
+                updateTimeSlots();
+                // Reset duration to default
+                const durationMobile = document.getElementById("durationMobile");
+                if (durationMobile) durationMobile.selectedIndex = 0;
+            });
+        }
 
-            // Save selection to sessionStorage so don't depend on query string behavior
-            try {
-                sessionStorage.setItem('chope_time', time);
-                sessionStorage.setItem('chope_duration', duration);
-            } catch (e) {
-                console.warn('Could not write to sessionStorage', e);
-            }
+        // add event listener to the check button (desktop)
+        const checkBtn = document.getElementById("checkBtn");
+        if (checkBtn) {
+            checkBtn.addEventListener("click", () => {
+                const time = document.getElementById("timeslot").value;
+                const duration = document.getElementById("duration").value;
 
-            
+                // Save selection to sessionStorage so don't depend on query string behavior
+                try {
+                    sessionStorage.setItem('chope_time', time);
+                    sessionStorage.setItem('chope_duration', duration);
+                } catch (e) {
+                    console.warn('Could not write to sessionStorage', e);
+                }
 
-            // Build the URL and redirect (keep params as fallback) instead to set it directly
-            const url = 'availableFoodCenter.html?time=' + encodeURIComponent(time) + '&duration=' + encodeURIComponent(duration);
-            window.location.href = url;
-        });
+                // Build the URL and redirect (keep params as fallback) instead to set it directly
+                const url = 'availableFoodCenter.html?time=' + encodeURIComponent(time) + '&duration=' + encodeURIComponent(duration);
+                window.location.href = url;
+            });
+        }
+
+        // add event listener to the check button (mobile)
+        const checkBtnMobile = document.getElementById("checkBtnMobile");
+        if (checkBtnMobile) {
+            checkBtnMobile.addEventListener("click", () => {
+                const time = document.getElementById("timeslotMobile").value;
+                const duration = document.getElementById("durationMobile").value;
+
+                // Save selection to sessionStorage so don't depend on query string behavior
+                try {
+                    sessionStorage.setItem('chope_time', time);
+                    sessionStorage.setItem('chope_duration', duration);
+                } catch (e) {
+                    console.warn('Could not write to sessionStorage', e);
+                }
+
+                // Build the URL and redirect (keep params as fallback) instead to set it directly
+                const url = 'availableFoodCenter.html?time=' + encodeURIComponent(time) + '&duration=' + encodeURIComponent(duration);
+                window.location.href = url;
+            });
+        }
 
         // load the map and initialize booking history
         window.onload = function() {
