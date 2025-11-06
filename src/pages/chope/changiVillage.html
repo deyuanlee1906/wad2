@@ -9,6 +9,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="/styles/main.css">
     <link rel="stylesheet" href="/styles/components.css">
+    <script type="module" src="/scripts/firebaseauth.js"></script>
     <script src="seatDatabase.js"></script>
 </head>
 <body class="theme-gradient">
@@ -444,7 +445,7 @@
             const seats = document.querySelectorAll('.seat');
             bookingModal = new bootstrap.Modal(document.getElementById('bookingModal'));
             
-            // Load seat status from database
+            // Load seat status from database (wait for Firebase)
             loadSeatStatus();
             
             seats.forEach(seat => {
@@ -472,7 +473,7 @@
             });
             
             // Confirm booking button
-            document.getElementById('confirmBooking').addEventListener('click', function() {
+            document.getElementById('confirmBooking').addEventListener('click', async function() {
                 if (selectedSeat) {
                     const params = new URLSearchParams(window.location.search);
                     // Prefer chope selections saved in sessionStorage, then URL params, then sensible defaults
@@ -483,7 +484,7 @@
                         parseInt(durationRaw) * 60 : parseInt(durationRaw);
                     
                     // Book the seat in database
-                    const success = window.seatDatabase.bookSeat('changiVillage', selectedSeat.table, selectedSeat.seat, durationMinutes);
+                    const success = await window.seatDatabase.bookSeat('changiVillage', selectedSeat.table, selectedSeat.seat, durationMinutes);
                     
                     if (success) {
                         // Update visual status
@@ -519,7 +520,17 @@
             
         });
         
-        function loadSeatStatus() {
+        async function loadSeatStatus() {
+            // Wait for Firebase to be ready
+            if (window.seatDatabase && window.seatDatabase.initPromise) {
+                await window.seatDatabase.initPromise;
+            }
+            
+            // Refresh data from Firebase
+            if (window.seatDatabase && window.seatDatabase.refresh) {
+                await window.seatDatabase.refresh();
+            }
+            
             // Load seat status from database
             const seats = document.querySelectorAll('.seat');
             seats.forEach(seat => {
@@ -542,8 +553,8 @@
             });
         }
         
-        // Refresh seat status every 30 seconds
-        setInterval(loadSeatStatus, 30000);
+        // Refresh seat status every 5 seconds
+        setInterval(loadSeatStatus, 5000);
 
         // Adjust seat sizes based on screen size
         function adjustSeatSizes() {
