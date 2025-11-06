@@ -1984,30 +1984,26 @@
                     return 0;
                 }
 
-                // Try to use window.seatDatabase.getSeatCounts() if available (matches chope page exactly)
+                // Wait for seatDatabase to be initialized
+                if (window.seatDatabase && window.seatDatabase.initPromise) {
+                    await window.seatDatabase.initPromise;
+                }
+
+                // Use the same method as chope pages to get seat counts
                 if (window.seatDatabase && typeof window.seatDatabase.getSeatCounts === 'function') {
-                    try {
-                        // Wait for seatDatabase to be initialized
-                        if (window.seatDatabase.initPromise) {
-                            await window.seatDatabase.initPromise;
-                        }
-                        
-                        // Refresh data from Firebase to ensure we have latest data
-                        if (window.seatDatabase.refresh) {
-                            await window.seatDatabase.refresh();
-                        }
-                        
-                        // Clean up expired bookings before counting
-                        if (window.seatDatabase.cleanupExpiredBookings) {
-                            await window.seatDatabase.cleanupExpiredBookings();
-                        }
-                        
-                        // Get seat counts using the same method as chope page
-                        const seatCounts = await window.seatDatabase.getSeatCounts(foodCenterKey);
-                        return seatCounts.booked || 0;
-                    } catch (error) {
-                        console.warn('Error using seatDatabase.getSeatCounts, falling back to localStorage:', error);
+                    // Refresh data from Firebase to ensure we have latest data
+                    if (window.seatDatabase.refresh) {
+                        await window.seatDatabase.refresh();
                     }
+                    
+                    // Clean up expired bookings before counting
+                    if (window.seatDatabase.cleanupExpiredBookings) {
+                        await window.seatDatabase.cleanupExpiredBookings();
+                    }
+                    
+                    // Get seat counts using the same method as chope page
+                    const seatCounts = await window.seatDatabase.getSeatCounts(foodCenterKey);
+                    return seatCounts.booked || 0;
                 }
 
                 // Fallback: Load seatDatabase from localStorage (for compatibility)
@@ -2023,7 +2019,7 @@
                     return 0;
                 }
 
-                // Count all seats with status 'booked' and check expiration
+                // Count all seats with status 'booked'
                 let activeCount = 0;
                 const now = new Date();
                 
@@ -2077,19 +2073,29 @@
         }
 
         // Calculate occupancy 1 hour ago from seatDatabase
-        function calculateOccupancyOneHourAgo(hawkerCentreName) {
+        async function calculateOccupancyOneHourAgo(hawkerCentreName) {
             try {
                 const foodCenterKey = getSeatDatabaseKey(hawkerCentreName);
                 if (!foodCenterKey) {
                     return 0;
                 }
 
-                const seatDatabaseData = localStorage.getItem('seatDatabase');
-                if (!seatDatabaseData) {
-                    return 0;
+                // Try to use seatDatabase if available
+                let bookings = {};
+                if (window.seatDatabase && window.seatDatabase.initPromise) {
+                    await window.seatDatabase.initPromise;
+                    if (window.seatDatabase.refresh) {
+                        await window.seatDatabase.refresh();
+                    }
+                    bookings = window.seatDatabase.bookings || {};
+                } else {
+                    // Fallback to localStorage
+                    const seatDatabaseData = localStorage.getItem('seatDatabase');
+                    if (seatDatabaseData) {
+                        bookings = JSON.parse(seatDatabaseData);
+                    }
                 }
 
-                const bookings = JSON.parse(seatDatabaseData);
                 const foodCenterBookings = bookings[foodCenterKey];
                 
                 if (!foodCenterBookings) {
@@ -2152,7 +2158,7 @@
         async function calculateOccupancyChange(hawkerCentreName) {
             try {
                 const currentOccupancy = await calculateCurrentOccupancy(hawkerCentreName);
-                const occupancyOneHourAgo = calculateOccupancyOneHourAgo(hawkerCentreName);
+                const occupancyOneHourAgo = await calculateOccupancyOneHourAgo(hawkerCentreName);
                 const change = currentOccupancy - occupancyOneHourAgo;
                 
                 return {
